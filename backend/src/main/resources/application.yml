@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: finance-app-backend
+  datasource:
+    url: jdbc:postgresql://localhost:5432/db
+    driverClassName: org.postgresql.Driver
+    username: finance
+    password: finance
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+    hibernate:
+      ddl-auto: none
+  liquibase:
+    change-log: classpath:changelog-master.xml
+    enabled: true
+    drop-first: false
+server:
+  port: 8081

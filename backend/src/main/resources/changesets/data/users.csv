@@ -1,0 +1,4 @@
+email,password,role
+john.doe@example.com,$2a$10$MXWDbpbHeNUnZn7sF8hCauDBMnIoFhvzDMc6vR33La7UlTwqJ3ZUi,ADMIN
+jane.smith@example.com,$2a$10$JpyalD5/rjkQAOa2szMMfOpGpShGcymL38sEVwIZzRxmPcrK/mKeC,USER
+bob.brown@example.com,$2a$10$lZqZLWxYPlwPHKYZubCK0ec.G0Z2FVYNBMwH3Nm7TyHo0jzT2X1QO,USER

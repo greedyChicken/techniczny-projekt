@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  postgres_db_finapp:
+    image: docker.io/library/postgres:latest
+    container_name: postgres_db_finapp
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: db
+      POSTGRES_USER: finance
+      POSTGRES_PASSWORD: finance
+    volumes:
+      - postgres_data1:/var/lib/postgresql/data
+
+volumes:
+  postgres_data1:

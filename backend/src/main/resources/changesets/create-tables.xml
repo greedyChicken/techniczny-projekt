@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="1" author="Jan">
+        <createTable tableName="users">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="email" type="VARCHAR(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="password" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="role" type="VARCHAR(20)"/>
+            <column name="created_at" type="TIMESTAMP"/>
+            <column name="updated_at" type="TIMESTAMP"/>
+        </createTable>
+
+        <createTable tableName="account">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="balance" type="DOUBLE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="active" type="BOOLEAN" defaultValueBoolean="true"/>
+            <column name="account_type" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="currency_code" type="CHAR(3)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="institution_name" type="VARCHAR(255)"/>
+            <column name="created_at" type="TIMESTAMP"/>
+            <column name="updated_at" type="TIMESTAMP"/>
+        </createTable>
+
+        <createTable tableName="category">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="transaction_type" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="is_default" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP"/>
+            <column name="updated_at" type="TIMESTAMP"/>
+        </createTable>
+
+        <createTable tableName="budget">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="amount" type="DOUBLE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="start_date" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="end_date" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="active" type="BOOLEAN" defaultValueBoolean="true"/>
+            <column name="spent_amount" type="DOUBLE" defaultValueNumeric="0.0"/>
+            <column name="created_at" type="TIMESTAMP"/>
+            <column name="updated_at" type="TIMESTAMP"/>
+        </createTable>
+
+        <createTable tableName="transaction">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="amount" type="DOUBLE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="date" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="category_id" type="BIGINT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="account_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP"/>
+            <column name="updated_at" type="TIMESTAMP"/>
+        </createTable>
+
+        <createTable tableName="transfers">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="source_account_id" type="BIGINT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="target_account_id" type="BIGINT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="amount" type="DOUBLE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="transfer_date" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="currency_code" type="CHAR(3)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="budget_categories">
+            <column name="budget_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="category_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey
+                tableName="budget_categories"
+                columnNames="budget_id,category_id"
+                constraintName="pk_budget_categories"/>
+    </changeSet>
+
+    <changeSet id="2" author="Jan">
+
+        <addForeignKeyConstraint
+                baseTableName="account"
+                baseColumnNames="user_id"
+                constraintName="fk_account_user"
+                referencedTableName="users"
+                referencedColumnNames="id"
+                onDelete="CASCADE"
+                onUpdate="RESTRICT"/>
+
+        <addForeignKeyConstraint
+                baseTableName="budget"
+                baseColumnNames="user_id"
+                constraintName="fk_budget_user"
+                referencedTableName="users"
+                referencedColumnNames="id"
+                onDelete="CASCADE"
+                onUpdate="RESTRICT"/>
+
+        <addForeignKeyConstraint
+                baseTableName="category"
+                baseColumnNames="user_id"
+                constraintName="fk_category_user"
+                referencedTableName="users"
+                referencedColumnNames="id"
+                onDelete="CASCADE"
+                onUpdate="RESTRICT"/>
+
+        <addForeignKeyConstraint
+                baseTableName="transaction"
+                baseColumnNames="account_id"
+                constraintName="fk_transaction_account"
+                referencedTableName="account"
+                referencedColumnNames="id"
+                onDelete="CASCADE"
+                onUpdate="RESTRICT"/>
+
+        <addForeignKeyConstraint
+                baseTableName="transaction"
+                baseColumnNames="category_id"
+                constraintName="fk_transaction_category"
+                referencedTableName="category"
+                referencedColumnNames="id"
+                onDelete="SET NULL"
+                onUpdate="RESTRICT"/>
+
+        <addForeignKeyConstraint
+                baseTableName="transfers"
+                baseColumnNames="source_account_id"
+                constraintName="fk_transfer_source_account"
+                referencedTableName="account"
+                referencedColumnNames="id"
+                onDelete="SET NULL"
+                onUpdate="RESTRICT"/>
+
+        <addForeignKeyConstraint
+                baseTableName="transfers"
+                baseColumnNames="target_account_id"
+                constraintName="fk_transfer_target_account"
+                referencedTableName="account"
+                referencedColumnNames="id"
+                onDelete="SET NULL"
+                onUpdate="RESTRICT"/>
+
+        <addForeignKeyConstraint
+                baseTableName="budget_categories"
+                baseColumnNames="budget_id"
+                constraintName="fk_budget_categories_budget"
+                referencedTableName="budget"
+                referencedColumnNames="id"
+                onDelete="CASCADE"
+                onUpdate="RESTRICT"/>
+
+        <addForeignKeyConstraint
+                baseTableName="budget_categories"
+                baseColumnNames="category_id"
+                constraintName="fk_budget_categories_category"
+                referencedTableName="category"
+                referencedColumnNames="id"
+                onDelete="CASCADE"
+                onUpdate="RESTRICT"/>
+    </changeSet>
+
+    <changeSet id="3" author="Jan">
+        <createIndex tableName="account" indexName="idx_account_user">
+            <column name="user_id"/>
+        </createIndex>
+
+        <createIndex tableName="category" indexName="idx_category_user">
+            <column name="user_id"/>
+        </createIndex>
+
+        <createIndex tableName="budget" indexName="idx_budget_user">
+            <column name="user_id"/>
+        </createIndex>
+
+        <createIndex tableName="transaction" indexName="idx_transaction_category">
+            <column name="category_id"/>
+        </createIndex>
+
+        <createIndex tableName="transaction" indexName="idx_transaction_account">
+            <column name="account_id"/>
+        </createIndex>
+
+        <createIndex tableName="transaction" indexName="idx_transaction_date">
+            <column name="date"/>
+        </createIndex>
+
+        <createIndex tableName="transfers" indexName="idx_transfer_source_account">
+            <column name="source_account_id"/>
+        </createIndex>
+
+        <createIndex tableName="transfers" indexName="idx_transfer_target_account">
+            <column name="target_account_id"/>
+        </createIndex>
+
+        <createIndex tableName="transfers" indexName="idx_transfer_date">
+            <column name="transfer_date"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="4" author="Jan">
+        <loadData tableName="category" file="changesets/data/default-categories.csv" encoding="UTF-8" quotchar="&quot;"
+                  separator=",">
+            <column name="name" header="name"/>
+            <column name="transaction_type" header="transaction_type"/>
+            <column name="color_code" header="color_code"/>
+            <column name="is_default" header="is_default" type="BOOLEAN"/>
+            <column name="created_at" header="created_at" type="date"/>
+            <column name="updated_at" header="updated_at" type="date"/>
+        </loadData>
+
+        <loadData file="changesets/data/users.csv" tableName="users" encoding="UTF-8" quotchar="&quot;" separator=",">
+            <column name="id" header="id" type="NUMERIC"/>
+            <column name="email" header="email" type="STRING"/>
+            <column name="password" header="password" type="STRING"/>
+            <column name="role" header="role" type="STRING"/>
+        </loadData>
+    </changeSet>
+
+</databaseChangeLog>
