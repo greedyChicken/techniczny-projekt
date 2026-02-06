@@ -56,4 +56,16 @@ public class Account {
 
   @Column(nullable = false)
   private LocalDateTime updatedAt;
+
+  private LocalDateTime deletedAt;
+
+  public void softDelete() {
+    this.active = false;
+    this.deletedAt = LocalDateTime.now();
+    this.updatedAt = LocalDateTime.now();
+  }
+
+  public boolean isDeleted() {
+    return deletedAt != null;
+  }
 }

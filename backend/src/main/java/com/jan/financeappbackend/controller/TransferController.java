@@ -67,7 +67,7 @@ public class TransferController {
   @GetMapping
   public ResponseEntity<Page<TransferDto>> getTransfersByUser(
       @RequestParam Long userId,
-      @PageableDefault(size = 20, sort = "transferDate,desc") Pageable pageable) {
+      @PageableDefault(size = 20, sort = "transferDate") Pageable pageable) {
 
     if (!securityUtils.isAuthorizedOrAdmin(userId)) {
       throw new AccessDeniedException("You are not authorized to view transfers for this user");

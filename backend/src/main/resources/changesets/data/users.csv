@@ -1,4 +1,6 @@
-email,password,role
-john.doe@example.com,$2a$10$MXWDbpbHeNUnZn7sF8hCauDBMnIoFhvzDMc6vR33La7UlTwqJ3ZUi,ADMIN
-jane.smith@example.com,$2a$10$JpyalD5/rjkQAOa2szMMfOpGpShGcymL38sEVwIZzRxmPcrK/mKeC,USER
-bob.brown@example.com,$2a$10$lZqZLWxYPlwPHKYZubCK0ec.G0Z2FVYNBMwH3Nm7TyHo0jzT2X1QO,USER
+email,password,role,created_at,updated_at
+john.doe@email.com,$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2uheWG/igi.,USER,2024-01-15T10:30:00,2024-01-15T10:30:00
+jane.smith@email.com,$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2uheWG/igi.,USER,2024-01-16T14:20:00,2024-01-16T14:20:00
+admin@financeapp.com,$2a$10$fFLij9aI/XX9lgNBCW5HMe2UENGj1DXTg9A.Ye.pUjm4tW9OyKNVe,ADMIN,2024-01-10T09:00:00,2024-01-10T09:00:00
+mike.johnson@email.com,$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2uheWG/igi.,USER,2024-01-18T16:45:00,2024-01-18T16:45:00
+sarah.wilson@email.com,$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2uheWG/igi.,USER,2024-01-20T11:15:00,2024-01-20T11:15:00

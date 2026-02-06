@@ -81,9 +81,6 @@ public class BudgetService {
   public Budget findById(Long budgetId) {
     return budgetRepository
         .findById(budgetId)
-        .orElseThrow(
-            () ->
-                new IllegalArgumentException(
-                    String.format("Budget with id %s not found", budgetId)));
+        .orElseThrow(BudgetNotFound::new);
   }
 }

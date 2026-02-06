@@ -1,0 +1,6 @@
+amount,description,date,category_id,account_id,created_at,updated_at
+-125.50,"Weekly grocery shopping",2024-09-10T18:30:00,1,1,2024-09-10T18:30:00,2024-09-10T18:30:00
+3500.00,"Monthly salary deposit",2024-09-01T09:00:00,2,1,2024-09-01T09:00:00,2024-09-01T09:00:00
+-85.75,"Dinner at Italian restaurant",2024-09-14T20:15:00,3,3,2024-09-14T20:15:00,2024-09-14T20:15:00
+1200.00,"Website design project",2024-09-05T14:30:00,4,4,2024-09-05T14:30:00,2024-09-05T14:30:00
+-65.20,"Gas station fill-up",2024-09-12T16:45:00,5,5,2024-09-12T16:45:00,2024-09-12T16:45:00
