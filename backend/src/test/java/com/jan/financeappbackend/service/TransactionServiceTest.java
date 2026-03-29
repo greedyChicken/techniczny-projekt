@@ -1,6 +1,7 @@
 package com.jan.financeappbackend.service;
 
 import com.jan.financeappbackend.exception.AccountNotFound;
+import com.jan.financeappbackend.exception.TransactionNotFound;
 import com.jan.financeappbackend.model.*;
 import com.jan.financeappbackend.repository.*;
 import com.jan.financeappbackend.request.TransactionRequest;
@@ -47,12 +48,11 @@ class TransactionServiceTest {
     private TransactionRequest transactionRequest;
     private Account testAccount;
     private Category testCategory;
-    private User testUser;
     private Budget testBudget;
 
     @BeforeEach
     void setUp() {
-        testUser = User.builder()
+        User testUser = User.builder()
                 .id(1L)
                 .email("test@example.com")
                 .build();
@@ -134,9 +134,9 @@ class TransactionServiceTest {
     void findById_NotFound_ThrowsException() {
         when(transactionRepository.findById(1L)).thenReturn(Optional.empty());
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+        TransactionNotFound exception = assertThrows(TransactionNotFound.class,
                 () -> transactionService.findById(1L));
-        assertEquals("no such transaction", exception.getMessage());
+        assertEquals("Transaction not found", exception.getMessage());
     }
 
     @Test

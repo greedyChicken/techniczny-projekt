@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -50,7 +51,11 @@ public class TransferController {
   @GetMapping("/account/{accountId}")
   public ResponseEntity<Page<TransferDto>> getTransfersByAccount(
       @PathVariable Long accountId,
-      @PageableDefault(size = 20, sort = "transferDate,desc") Pageable pageable) {
+      @PageableDefault(
+          size = 20,
+          sort = "transferDate",
+          direction = Sort.Direction.DESC)
+      Pageable pageable) {
 
     Account account = accountService.findById(accountId);
     if (!securityUtils.isAuthorizedOrAdmin(account.getUser().getId())) {

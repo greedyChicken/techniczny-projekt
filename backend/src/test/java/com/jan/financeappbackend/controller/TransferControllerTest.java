@@ -7,6 +7,8 @@ import com.jan.financeappbackend.dto.AccountDto;
 import com.jan.financeappbackend.dto.TransferDto;
 import com.jan.financeappbackend.jwt.WithMockJwtUser;
 import com.jan.financeappbackend.model.AccountType;
+import com.jan.financeappbackend.model.Role;
+import com.jan.financeappbackend.model.User;
 import com.jan.financeappbackend.request.AccountRequest;
 import com.jan.financeappbackend.request.TransferRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -16,14 +18,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.time.LocalDateTime;
 
 import static org.hamcrest.Matchers.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -48,6 +52,15 @@ class TransferControllerTest {
     @AfterEach
     void tearDown() throws Exception {
         databaseCleaner.cleanUp();
+    }
+
+    private static RequestPostProcessor adminAuthentication() {
+        User admin = new User();
+        admin.setId(3L);
+        admin.setEmail("admin@financeapp.com");
+        admin.setRole(Role.ADMIN);
+        return authentication(
+                new UsernamePasswordAuthenticationToken(admin, null, admin.getAuthorities()));
     }
 
     @Test
@@ -119,7 +132,7 @@ class TransferControllerTest {
         MvcResult result = postman.perform(post("/api/accounts")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(otherAccountJson)
-                        .with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user("admin@test.com").roles("ADMIN")))
+                        .with(adminAuthentication()))
                 .andExpect(status().isCreated())
                 .andReturn();
 
@@ -146,13 +159,6 @@ class TransferControllerTest {
     @Test
     @WithMockJwtUser
     void shouldGetTransfersByAccount() throws Exception {
-        // Pre-loaded data shows transfers involving account 1:
-        // - Transfer 1: source=1, target=2, amount=500
-        // - Transfer 2: source=2, target=1, amount=200
-        // - Transfer 4: source=5, target=1, amount=150
-        // - Transfer 5: source=1, target=5, amount=300
-        // Total: 4 transfers involving account 1
-
         postman.perform(get("/api/transfers/account/1"))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -164,13 +170,6 @@ class TransferControllerTest {
     @Test
     @WithMockJwtUser
     void shouldGetTransfersByUser() throws Exception {
-        // Pre-loaded data shows transfers for user 1:
-        // - Transfer 1: account 1 -> 2 (both user 1)
-        // - Transfer 2: account 2 -> 1 (both user 1)
-        // - Transfer 4: account 5 (admin) -> 1 (user 1)
-        // - Transfer 5: account 1 (user 1) -> 5 (admin)
-        // Total: 4 transfers involving user 1's accounts
-
         postman.perform(get("/api/transfers")
                         .param("userId", "1"))
                 .andDo(print())
@@ -197,7 +196,7 @@ class TransferControllerTest {
         MvcResult result = postman.perform(post("/api/accounts")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(otherAccountJson)
-                        .with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user("admin@test.com").roles("ADMIN")))
+                        .with(adminAuthentication()))
                 .andExpect(status().isCreated())
                 .andReturn();
 
@@ -219,7 +218,7 @@ class TransferControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "admin@test.com", roles = {"ADMIN"})
+    @WithMockJwtUser(username = "admin@financeapp.com", role = "ADMIN", userId = 3L)
     void shouldGetTransfersForAnyUserAsAdmin() throws Exception {
         postman.perform(get("/api/transfers")
                         .param("userId", "2"))
@@ -321,20 +320,20 @@ class TransferControllerTest {
     @WithMockJwtUser
     void shouldGetTransfersWithPagination() throws Exception {
         // Create multiple transfers using pre-loaded accounts
-//        for (int i = 0; i < 20; i++) {
-//            TransferRequest request = TransferRequest.builder()
-//                    .sourceAccountId(i % 2 == 0 ? 1L : 2L)
-//                    .targetAccountId(i % 2 == 0 ? 2L : 1L)
-//                    .amount(100.0 + i)
-//                    .date(LocalDateTime.now().minusDays(i))
-//                    .description("Transfer " + i)
-//                    .build();
-//
-//            postman.perform(post("/api/transfers")
-//                            .contentType(MediaType.APPLICATION_JSON)
-//                            .content(objectMapper.writeValueAsString(request)))
-//                    .andExpect(status().isCreated());
-//        }
+        for (int i = 0; i < 20; i++) {
+            TransferRequest request = TransferRequest.builder()
+                    .sourceAccountId(i % 2 == 0 ? 1L : 2L)
+                    .targetAccountId(i % 2 == 0 ? 2L : 1L)
+                    .amount(100.0 + i)
+                    .date(LocalDateTime.now().minusDays(i))
+                    .description("Transfer " + i)
+                    .build();
+
+            postman.perform(post("/api/transfers")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(request)))
+                    .andExpect(status().isCreated());
+        }
 
         // Total should be 20 new + 4 pre-loaded = 24 transfers for user 1
         // Get first page
