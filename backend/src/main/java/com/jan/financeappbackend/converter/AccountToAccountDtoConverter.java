@@ -20,6 +20,7 @@ public class AccountToAccountDtoConverter implements Converter<Account, AccountD
         .accountType(account.getAccountType().name())
         .userId(account.getUser().getId())
         .currencyCode(account.getCurrencyCode())
+        .institutionName(account.getInstitutionName())
         .transactionsIds(account.getTransactions().stream().map(Transaction::getId).toList())
         .build();
   }

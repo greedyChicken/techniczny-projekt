@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="load-sample-accounts" author="jan" context="test">
+        <loadData file="changesets/data/accounts.csv" tableName="account">
+            <column name="name" type="STRING"/>
+            <column name="balance" type="NUMERIC"/>
+            <column name="active" type="BOOLEAN"/>
+            <column name="account_type" type="STRING"/>
+            <column name="user_id" type="NUMERIC"/>
+            <column name="currency_code" type="STRING"/>
+            <column name="institution_name" type="STRING"/>
+            <column name="created_at" type="DATETIME"/>
+            <column name="updated_at" type="DATETIME"/>
+        </loadData>
+    </changeSet>
+
+    <changeSet id="load-sample-transactions" author="jan" context="test">
+        <loadData file="changesets/data/transactions.csv" tableName="transaction">
+            <column name="amount" type="NUMERIC"/>
+            <column name="description" type="STRING"/>
+            <column name="date" type="DATETIME"/>
+            <column name="category_id" type="NUMERIC"/>
+            <column name="account_id" type="NUMERIC"/>
+            <column name="created_at" type="DATETIME"/>
+            <column name="updated_at" type="DATETIME"/>
+        </loadData>
+    </changeSet>
+
+    <changeSet id="load-sample-transfers" author="jan" context="test">
+        <loadData file="changesets/data/transfers.csv" tableName="transfers">
+            <column name="source_account_id" type="NUMERIC"/>
+            <column name="target_account_id" type="NUMERIC"/>
+            <column name="amount" type="NUMERIC"/>
+            <column name="description" type="STRING"/>
+            <column name="transfer_date" type="DATETIME"/>
+            <column name="currency_code" type="STRING"/>
+            <column name="created_at" type="DATETIME"/>
+            <column name="updated_at" type="DATETIME"/>
+        </loadData>
+    </changeSet>
+
+    <changeSet id="load-sample-budgets" author="jan" context="test">
+        <loadData file="changesets/data/budgets.csv" tableName="budget">
+            <column name="name" type="STRING"/>
+            <column name="amount" type="NUMERIC"/>
+            <column name="start_date" type="DATETIME"/>
+            <column name="end_date" type="DATETIME"/>
+            <column name="user_id" type="NUMERIC"/>
+            <column name="active" type="BOOLEAN"/>
+            <column name="spent_amount" type="NUMERIC"/>
+            <column name="created_at" type="DATETIME"/>
+            <column name="updated_at" type="DATETIME"/>
+        </loadData>
+    </changeSet>
+
+    <changeSet id="load-sample-budget-categories" author="jan" context="test">
+        <loadData file="changesets/data/budgets-categories.csv" tableName="budget_categories">
+            <column name="budget_id" type="NUMERIC"/>
+            <column name="category_id" type="NUMERIC"/>
+        </loadData>
+    </changeSet>
+
+</databaseChangeLog>

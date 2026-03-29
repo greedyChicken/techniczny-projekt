@@ -106,7 +106,10 @@ public class AccountService {
       }
     }
 
-    accountRepository.delete(account);
+    account.softDelete();
+    accountRepository.save(account);
+
+    log.info("Soft deleted account {} for user {}", accountId, userId);
   }
 
   @Transactional(readOnly = true)

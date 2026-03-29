@@ -33,8 +33,7 @@ public class AuthenticationService {
   public User findUserById(Long userId) {
     return userRepository
         .findById(userId)
-        .orElseThrow(
-            () -> new IllegalArgumentException(String.format("User with id %s not found", userId)));
+        .orElseThrow(UserNotFound::new);
   }
 
   public AuthenticationResponse create(RegisterRequest command) {

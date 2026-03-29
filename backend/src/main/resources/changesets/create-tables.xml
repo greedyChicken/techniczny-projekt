@@ -44,6 +44,7 @@
             <column name="institution_name" type="VARCHAR(255)"/>
             <column name="created_at" type="TIMESTAMP"/>
             <column name="updated_at" type="TIMESTAMP"/>
+            <column name="deleted_at" type="TIMESTAMP"/>
         </createTable>
 
         <createTable tableName="category">
@@ -282,8 +283,8 @@
     </changeSet>
 
     <changeSet id="4" author="Jan">
-        <loadData tableName="category" file="changesets/data/default-categories.csv" encoding="UTF-8" quotchar="&quot;"
-                  separator=",">
+        <loadData tableName="category" file="changesets/data/default-categories.csv" encoding="UTF-8"
+        >
             <column name="name" header="name"/>
             <column name="transaction_type" header="transaction_type"/>
             <column name="color_code" header="color_code"/>
@@ -292,11 +293,12 @@
             <column name="updated_at" header="updated_at" type="date"/>
         </loadData>
 
-        <loadData file="changesets/data/users.csv" tableName="users" encoding="UTF-8" quotchar="&quot;" separator=",">
-            <column name="id" header="id" type="NUMERIC"/>
-            <column name="email" header="email" type="STRING"/>
-            <column name="password" header="password" type="STRING"/>
-            <column name="role" header="role" type="STRING"/>
+        <loadData file="changesets/data/users.csv" tableName="users" encoding="UTF-8">
+            <column name="email" type="STRING"/>
+            <column name="password" type="STRING"/>
+            <column name="role" type="STRING"/>
+            <column name="created_at" type="DATETIME"/>
+            <column name="updated_at" type="DATETIME"/>
         </loadData>
     </changeSet>
 

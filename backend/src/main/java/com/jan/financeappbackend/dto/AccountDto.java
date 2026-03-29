@@ -17,5 +17,6 @@ public class AccountDto {
   private String accountType;
   private Long userId;
   private String currencyCode;
+  private String institutionName;
   private List<Long> transactionsIds;
 }

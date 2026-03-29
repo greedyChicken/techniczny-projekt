@@ -1,0 +1,6 @@
+name,balance,active,account_type,user_id,currency_code,institution_name,created_at,updated_at
+"Main Checking",2850.50,true,CHECKING,1,USD,"Chase Bank",2024-01-15T11:00:00,2024-09-15T08:30:00
+"Emergency Savings",15000.00,true,SAVINGS,1,USD,"Wells Fargo",2024-01-15T11:15:00,2024-09-10T14:20:00
+"Travel Credit Card",-1200.75,true,CREDIT_CARD,2,USD,"Capital One",2024-01-16T15:00:00,2024-09-16T19:45:00
+"Investment Portfolio",45000.25,true,INVESTMENT,2,USD,"Fidelity",2024-01-16T15:30:00,2024-09-16T20:10:00
+"Daily Checking",3200.80,true,CHECKING,3,USD,"Bank of America",2024-01-10T10:00:00,2024-09-17T07:15:00

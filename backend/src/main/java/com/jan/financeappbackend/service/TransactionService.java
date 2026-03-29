@@ -1,6 +1,7 @@
 package com.jan.financeappbackend.service;
 
 import com.jan.financeappbackend.exception.AccountNotFound;
+import com.jan.financeappbackend.exception.TransactionNotFound;
 import com.jan.financeappbackend.model.TransactionType;
 import com.jan.financeappbackend.repository.*;
 import com.jan.financeappbackend.request.TransactionRequest;
@@ -35,7 +36,7 @@ public class TransactionService {
   public Transaction findById(Long id) {
     return transactionRepository
         .findById(id)
-        .orElseThrow(() -> new IllegalArgumentException("no such transaction"));
+        .orElseThrow(TransactionNotFound::new);
   }
 
   @Transactional
@@ -167,7 +168,7 @@ public class TransactionService {
 
     for (Transaction transaction : expenseTransactions) {
       String categoryName = transaction.getCategory().getName();
-      Double amount = Math.abs(transaction.getAmount()); // Convert negative to positive
+      Double amount = Math.abs(transaction.getAmount());
 
       expensesByCategory.merge(categoryName, amount, Double::sum);
     }
