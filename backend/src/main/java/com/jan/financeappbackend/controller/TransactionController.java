@@ -36,10 +36,8 @@ public class TransactionController {
       @ModelAttribute TransactionFilter transactionFilter,
       @PageableDefault(size = 20, sort = "id") Pageable pageable) {
 
-    if (userId != null && !securityUtils.isAuthorizedOrAdmin(userId)) {
-      throw new AccessDeniedException(
-          "You are not authorized to access transactions for this user");
-    }
+    securityUtils.requireAuthorizedOrAdminIfPresent(
+        userId, "You are not authorized to access transactions for this user");
 
     if (userId == null) {
       userId = securityUtils.getCurrentUserId();
@@ -62,9 +60,8 @@ public class TransactionController {
     val transaction = transactionService.findById(transactionId);
 
     Long transactionUserId = transaction.getAccount().getUser().getId();
-    if (!securityUtils.isAuthorizedOrAdmin(transactionUserId)) {
-      throw new AccessDeniedException("You are not authorized to access this transaction");
-    }
+    securityUtils.requireAuthorizedOrAdmin(
+        transactionUserId, "You are not authorized to access this transaction");
 
     return ResponseEntity.ok(modelMapper.map(transaction, TransactionDto.class));
   }
@@ -72,10 +69,9 @@ public class TransactionController {
   @PostMapping
   public ResponseEntity<TransactionDto> addTransaction(@RequestBody TransactionRequest request) {
     val account = accountService.findById(request.getAccountId());
-    if (!securityUtils.isAuthorizedOrAdmin(account.getUser().getId())) {
-      throw new AccessDeniedException(
-          "You are not authorized to create transactions for this account");
-    }
+    securityUtils.requireAuthorizedOrAdmin(
+        account.getUser().getId(),
+        "You are not authorized to create transactions for this account");
 
     val transaction = modelMapper.map(transactionService.create(request), TransactionDto.class);
     return new ResponseEntity<>(transaction, HttpStatus.CREATED);
@@ -86,9 +82,8 @@ public class TransactionController {
     val transaction = transactionService.findById(transactionId);
 
     Long transactionUserId = transaction.getAccount().getUser().getId();
-    if (!securityUtils.isAuthorizedOrAdmin(transactionUserId)) {
-      throw new AccessDeniedException("You are not authorized to delete this transaction");
-    }
+    securityUtils.requireAuthorizedOrAdmin(
+        transactionUserId, "You are not authorized to delete this transaction");
 
     transactionService.delete(transactionId);
     return ResponseEntity.noContent().build();
@@ -100,9 +95,8 @@ public class TransactionController {
     val existingTransaction = transactionService.findById(transactionId);
 
     Long transactionUserId = existingTransaction.getAccount().getUser().getId();
-    if (!securityUtils.isAuthorizedOrAdmin(transactionUserId)) {
-      throw new AccessDeniedException("You are not authorized to update this transaction");
-    }
+    securityUtils.requireAuthorizedOrAdmin(
+        transactionUserId, "You are not authorized to update this transaction");
 
     val transaction =
         modelMapper.map(transactionService.edit(transactionId, command), TransactionDto.class);
@@ -115,9 +109,8 @@ public class TransactionController {
       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) {
 
-    if (!securityUtils.isAuthorizedOrAdmin(userId)) {
-      throw new AccessDeniedException("You are not authorized to access expenses for this user");
-    }
+    securityUtils.requireAuthorizedOrAdmin(
+        userId, "You are not authorized to access expenses for this user");
 
     Map<String, Double> expensesByCategory =
         transactionService.getExpensesByCategory(userId, startDate, endDate);

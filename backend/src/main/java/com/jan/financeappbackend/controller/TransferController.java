@@ -40,9 +40,8 @@ public class TransferController {
       throw new AccessDeniedException("Cannot transfer between accounts of different users");
     }
 
-    if (!securityUtils.isAuthorizedOrAdmin(sourceUserId)) {
-      throw new AccessDeniedException("You are not authorized to transfer between these accounts");
-    }
+    securityUtils.requireAuthorizedOrAdmin(
+        sourceUserId, "You are not authorized to transfer between these accounts");
 
     Transfer transfer = transferService.createTransfer(request);
     return new ResponseEntity<>(modelMapper.map(transfer, TransferDto.class), HttpStatus.CREATED);
@@ -58,9 +57,8 @@ public class TransferController {
       Pageable pageable) {
 
     Account account = accountService.findById(accountId);
-    if (!securityUtils.isAuthorizedOrAdmin(account.getUser().getId())) {
-      throw new AccessDeniedException("You are not authorized to view transfers for this account");
-    }
+    securityUtils.requireAuthorizedOrAdmin(
+        account.getUser().getId(), "You are not authorized to view transfers for this account");
 
     Page<TransferDto> transfers =
         transferService
@@ -74,9 +72,8 @@ public class TransferController {
       @RequestParam Long userId,
       @PageableDefault(size = 20, sort = "transferDate") Pageable pageable) {
 
-    if (!securityUtils.isAuthorizedOrAdmin(userId)) {
-      throw new AccessDeniedException("You are not authorized to view transfers for this user");
-    }
+    securityUtils.requireAuthorizedOrAdmin(
+        userId, "You are not authorized to view transfers for this user");
 
     Page<TransferDto> transfers =
         transferService

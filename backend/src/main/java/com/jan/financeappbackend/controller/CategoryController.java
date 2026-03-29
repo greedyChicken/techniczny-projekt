@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,9 +22,8 @@ public class CategoryController {
 
   @GetMapping
   public ResponseEntity<List<CategoryDto>> getCategoriesForUser(@RequestParam Long userId) {
-    if (!securityUtils.isAuthorizedOrAdmin(userId)) {
-      throw new AccessDeniedException("You are not authorized to access categories for this user");
-    }
+    securityUtils.requireAuthorizedOrAdmin(
+        userId, "You are not authorized to access categories for this user");
 
     return ResponseEntity.ok(
         categoryService.getCategoriesForUser(userId).stream()

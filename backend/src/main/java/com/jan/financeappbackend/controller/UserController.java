@@ -11,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -35,9 +34,8 @@ public class UserController {
 
   @DeleteMapping("/{userId}")
   public ResponseEntity<Void> deleteUser(@PathVariable Long userId) {
-    if (!securityUtils.isAuthorizedOrAdmin(userId)) {
-      throw new AccessDeniedException("You are not authorized to delete this user");
-    }
+    securityUtils.requireAuthorizedOrAdmin(
+        userId, "You are not authorized to delete this user");
 
     if (securityUtils.isAdmin() && securityUtils.getCurrentUserId().equals(userId)) {
       throw new IllegalArgumentException(
@@ -51,9 +49,8 @@ public class UserController {
   @PutMapping("/{userId}")
   public ResponseEntity<UserDto> updateUser(
       @PathVariable Long userId, @RequestBody UserRequest request) {
-    if (!securityUtils.isAuthorizedOrAdmin(userId)) {
-      throw new AccessDeniedException("You are not authorized to update this user");
-    }
+    securityUtils.requireAuthorizedOrAdmin(
+        userId, "You are not authorized to update this user");
 
     var response =
         modelMapper.map(authenticationService.updateUser(userId, request), UserDto.class);
