@@ -11,9 +11,10 @@ import ExpenseCategoriesChart from "./components/ExpenseCategoriesChart";
 import BudgetOverview from "./components/BudgetOverview";
 import LoadingState from "./components/LoadingState";
 import { dashboardLayoutStyles } from "./styles/dashboardStyles";
+import { pageErrorAlertSx } from "../../styles/feedbackStyles";
 
 const DashboardPage = () => {
-    const { error, hideLoading } = useUIState();
+    const { error, clearError } = useUIState();
     const { summary, isLoading } = useDashboard();
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -29,9 +30,9 @@ const DashboardPage = () => {
 
                 {error && (
                     <Alert
-                        severity="error"
-                        sx={{ mb: 2 }}
-                        onClose={() => hideLoading('dashboard-summary')}
+                        severity={error.severity || "error"}
+                        sx={pageErrorAlertSx}
+                        onClose={clearError}
                     >
                         {error.message}
                     </Alert>

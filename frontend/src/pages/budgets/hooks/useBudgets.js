@@ -3,6 +3,7 @@ import { parseISO } from 'date-fns';
 import { budgetService } from '../../../api/budgetService';
 import { categoryService } from '../../../api/categoryService';
 import { validateBudgetForm } from '../utils/validators';
+import { loadFailedMessage } from '../../../utils/feedbackMessages';
 
 export const useBudgets = () => {
     const userId = JSON.parse(localStorage.getItem('user')).id;
@@ -41,7 +42,7 @@ export const useBudgets = () => {
             setError(null);
         } catch (err) {
             console.error('Error fetching budgets:', err);
-            setError('Failed to load budgets. Please try again later.');
+            setError(loadFailedMessage('budgets'));
         } finally {
             setLoading(false);
         }
@@ -53,7 +54,7 @@ export const useBudgets = () => {
             setCategories(data);
         } catch (err) {
             console.error('Error fetching categories:', err);
-            setError('Failed to load categories. Please try again later.');
+            setError(loadFailedMessage('categories'));
         }
     };
 

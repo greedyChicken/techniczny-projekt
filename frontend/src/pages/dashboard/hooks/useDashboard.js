@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useUIState } from "../../../contexts/UIStateContext";
 import { accountService } from "../../../api/accountService";
+import { loadFailedMessage } from "../../../utils/feedbackMessages";
 
 export const useDashboard = () => {
     const [summary, setSummary] = useState({
@@ -23,7 +24,7 @@ export const useDashboard = () => {
                 setSummary(data);
             } catch (err) {
                 console.error("Error fetching summary:", err);
-                showError("Failed to load dashboard data");
+                showError(loadFailedMessage("dashboard"));
             } finally {
                 hideLoading('dashboard-summary');
             }

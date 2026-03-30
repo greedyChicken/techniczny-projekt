@@ -37,15 +37,8 @@ const TransactionsList = ({
     }
 
     if (error) {
-        return (
-            <EmptyState
-                title="Error Loading Transactions"
-                message={error}
-                actionLabel="Retry"
-                onAction={onRetry}
-                variant="error"
-            />
-        );
+        // Parent page shows a single Alert + Retry; avoid duplicate centered message + toast.
+        return null;
     }
 
     if (transactions.length === 0) {

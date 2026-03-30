@@ -1,5 +1,6 @@
 import {useCallback, useEffect, useState} from "react";
 import {accountService} from "../../../api/accountService.js";
+import { loadFailedMessage } from "../../../utils/feedbackMessages";
 
 export const useAccounts = () => {
     const [accounts, setAccounts] = useState([]);
@@ -15,7 +16,7 @@ export const useAccounts = () => {
             setError(null);
         } catch (err) {
             console.error("Error fetching accounts:", err);
-            setError("Failed to load accounts. Please try again later.");
+            setError(loadFailedMessage("accounts"));
         } finally {
             setLoading(false);
         }

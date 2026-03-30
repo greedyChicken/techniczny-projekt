@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import {transferService} from "../../../api/transferService.js";
+import { loadFailedMessage } from "../../../utils/feedbackMessages";
 
 export const useTransfers = (viewMode) => {
     const [transfers, setTransfers] = useState([]);
@@ -26,7 +27,7 @@ export const useTransfers = (viewMode) => {
             setTotalTransfers(response.totalElements || 0);
         } catch (err) {
             console.error("Error fetching transfers:", err);
-            setError("Failed to load transfers");
+            setError(loadFailedMessage("transfers"));
         } finally {
             setLoading(false);
         }

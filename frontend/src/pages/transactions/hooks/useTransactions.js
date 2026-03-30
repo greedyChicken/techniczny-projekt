@@ -4,6 +4,7 @@ import { accountService } from '../../../api/accountService';
 import { categoryService } from '../../../api/categoryService';
 import { validateTransactionForm } from '../utils/validators';
 import { formatDateForAPI, formatDateTimeForAPI } from '../utils/formatters';
+import { loadFailedMessage } from '../../../utils/feedbackMessages';
 
 export const useTransactions = () => {
     const userId = JSON.parse(localStorage.getItem('user')).id;
@@ -12,7 +13,9 @@ export const useTransactions = () => {
     const [accounts, setAccounts] = useState([]);
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const [transactionsError, setTransactionsError] = useState(null);
+    const [accountsError, setAccountsError] = useState(null);
+    const [categoriesError, setCategoriesError] = useState(null);
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [totalTransactions, setTotalTransactions] = useState(0);
@@ -56,9 +59,10 @@ export const useTransactions = () => {
         try {
             const data = await categoryService.getCategoryNames(userId);
             setCategories(data);
+            setCategoriesError(null);
         } catch (err) {
             console.error('Error fetching categories:', err);
-            showSnackbar('Failed to load categories', 'error');
+            setCategoriesError(loadFailedMessage('categories'));
         }
     };
 
@@ -66,9 +70,10 @@ export const useTransactions = () => {
         try {
             const data = await accountService.getAccountsByUserId(userId);
             setAccounts(data);
+            setAccountsError(null);
         } catch (err) {
             console.error('Error fetching accounts:', err);
-            showSnackbar('Failed to load accounts', 'error');
+            setAccountsError(loadFailedMessage('accounts'));
         }
     };
 
@@ -97,10 +102,10 @@ export const useTransactions = () => {
             const data = await transactionService.getTransactions(params);
             setTransactions(data.content);
             setTotalTransactions(data.totalElements);
-            setError(null);
+            setTransactionsError(null);
         } catch (err) {
             console.error('Error fetching transactions:', err);
-            setError('Failed to load transactions. Please try again later.');
+            setTransactionsError(loadFailedMessage('transactions'));
         } finally {
             setLoading(false);
         }
@@ -264,7 +269,12 @@ export const useTransactions = () => {
         accounts,
         categories,
         loading,
-        error,
+        error: transactionsError,
+        accountsError,
+        categoriesError,
+        dismissAccountsError: () => setAccountsError(null),
+        dismissCategoriesError: () => setCategoriesError(null),
+        dismissTransactionsError: () => setTransactionsError(null),
         page,
         rowsPerPage,
         totalTransactions,
@@ -291,6 +301,8 @@ export const useTransactions = () => {
         clearFilters,
         toggleCardExpansion,
         fetchTransactions,
+        refetchAccounts: fetchAccounts,
+        refetchCategories: fetchCategories,
         showSnackbar
     };
 };

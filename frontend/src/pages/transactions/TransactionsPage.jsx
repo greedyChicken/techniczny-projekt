@@ -1,5 +1,5 @@
 import React from 'react';
-import { Container, Box, Typography, Button, Fab, Snackbar, Alert } from '@mui/material';
+import { Container, Box, Typography, Button, Fab, Snackbar, Alert, Stack } from '@mui/material';
 import { Add as AddIcon, FilterList as FilterIcon } from '@mui/icons-material';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
@@ -10,6 +10,7 @@ import FiltersPanel from './components/FiltersPanel';
 import TransactionsList from './components/TransactionsList';
 import TransactionDialog from './components/TransactionDialog';
 import { useTransactions } from './hooks/useTransactions.js';
+import { pageErrorAlertSx } from '../../styles/feedbackStyles';
 
 const TransactionsPage = () => {
     const theme = useTheme();
@@ -22,6 +23,11 @@ const TransactionsPage = () => {
         categories,
         loading,
         error,
+        accountsError,
+        categoriesError,
+        dismissAccountsError,
+        dismissCategoriesError,
+        dismissTransactionsError,
         page,
         rowsPerPage,
         totalTransactions,
@@ -47,7 +53,9 @@ const TransactionsPage = () => {
         handleDateFilterChange,
         clearFilters,
         toggleCardExpansion,
-        fetchTransactions
+        fetchTransactions,
+        refetchAccounts,
+        refetchCategories
     } = useTransactions();
 
     return (
@@ -87,6 +95,63 @@ const TransactionsPage = () => {
                     </Box>
 
                     {/* Filters */}
+                    <Stack spacing={1} sx={{ mb: 2 }}>
+                        {accountsError && (
+                            <Alert
+                                severity="error"
+                                sx={pageErrorAlertSx}
+                                onClose={dismissAccountsError}
+                                action={
+                                    <Button
+                                        color="inherit"
+                                        size="small"
+                                        onClick={() => refetchAccounts()}
+                                    >
+                                        Retry
+                                    </Button>
+                                }
+                            >
+                                {accountsError}
+                            </Alert>
+                        )}
+                        {categoriesError && (
+                            <Alert
+                                severity="error"
+                                sx={pageErrorAlertSx}
+                                onClose={dismissCategoriesError}
+                                action={
+                                    <Button
+                                        color="inherit"
+                                        size="small"
+                                        onClick={() => refetchCategories()}
+                                    >
+                                        Retry
+                                    </Button>
+                                }
+                            >
+                                {categoriesError}
+                            </Alert>
+                        )}
+                        {error && (
+                            <Alert
+                                severity="error"
+                                sx={pageErrorAlertSx}
+                                onClose={dismissTransactionsError}
+                                action={
+                                    <Button
+                                        color="inherit"
+                                        size="small"
+                                        onClick={() => fetchTransactions()}
+                                    >
+                                        Retry
+                                    </Button>
+                                }
+                            >
+                                {error}
+                            </Alert>
+                        )}
+                    </Stack>
+
                     <FiltersPanel
                         open={filtersOpen}
                         filters={filters}
@@ -150,7 +215,12 @@ const TransactionsPage = () => {
                     onClose={handleCloseSnackbar}
                     anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
                 >
-                    <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
+                    <Alert
+                        onClose={handleCloseSnackbar}
+                        severity={snackbar.severity}
+                        variant="filled"
+                        sx={{ width: '100%', borderRadius: 2 }}
+                    >
                         {snackbar.message}
                     </Alert>
                 </Snackbar>

@@ -1,7 +1,8 @@
-import { Grid, Paper, Typography, Button, Skeleton, Card, CardContent, Box } from "@mui/material";
+import { Grid, Typography, Button, Skeleton, Card, CardContent, Box, Alert } from "@mui/material";
 import { Add as AddIcon } from "@mui/icons-material";
 import AccountCard from "./AccountCard";
 import { accountService } from "../../../api/accountService";
+import { pageErrorAlertSx } from "../../../styles/feedbackStyles";
 
 const AccountsList = ({ accounts, loading, error, onRefetch, onEdit, onDelete, showSnackbar }) => {
     const handleDeleteAccount = async (accountId) => {
@@ -40,37 +41,42 @@ const AccountsList = ({ accounts, loading, error, onRefetch, onEdit, onDelete, s
 
     if (error) {
         return (
-            <Paper sx={{ p: 3, backgroundColor: "#ffefef" }}>
-                <Typography color="error">{error}</Typography>
-                <Button
-                    variant="outlined"
-                    color="primary"
-                    sx={{ mt: 2 }}
-                    onClick={onRefetch}
-                >
-                    Retry
-                </Button>
-            </Paper>
+            <Alert
+                severity="error"
+                sx={pageErrorAlertSx}
+                action={
+                    <Button color="inherit" size="small" onClick={onRefetch}>
+                        Retry
+                    </Button>
+                }
+            >
+                {error}
+            </Alert>
         );
     }
 
     if (accounts.length === 0) {
         return (
-            <Paper sx={{ p: 4, textAlign: "center" }}>
-                <Typography variant="h6" gutterBottom>
-                    No accounts found
+            <Box
+                sx={{
+                    p: 4,
+                    textAlign: "center",
+                    borderRadius: 3,
+                    border: "1px solid",
+                    borderColor: "divider",
+                    bgcolor: "background.paper",
+                }}
+            >
+                <Typography variant="h6" gutterBottom fontWeight={700}>
+                    No accounts yet
                 </Typography>
                 <Typography variant="body1" color="text.secondary" paragraph>
                     Create your first account to start tracking your finances.
                 </Typography>
-                <Button
-                    variant="contained"
-                    startIcon={<AddIcon />}
-                    onClick={() => onEdit()}
-                >
-                    Add Account
+                <Button variant="contained" startIcon={<AddIcon />} onClick={() => onEdit()}>
+                    Add account
                 </Button>
-            </Paper>
+            </Box>
         );
     }
 

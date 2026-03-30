@@ -28,6 +28,7 @@ import { dashboardService } from "../../../api/dashboardService";
 import { formatCurrency, formatDate } from "../utils/formatters";
 import { useUIState } from "../../../contexts/UIStateContext";
 import { dashboardLayoutStyles } from "../styles/dashboardStyles";
+import { loadFailedMessage } from "../../../utils/feedbackMessages";
 
 const RecentTransactions = () => {
     const [transactions, setTransactions] = useState([]);
@@ -45,7 +46,7 @@ const RecentTransactions = () => {
                 setTransactions(data.content || []);
             } catch (err) {
                 console.error("Error fetching recent transactions:", err);
-                showError("Failed to load recent transactions");
+                showError(loadFailedMessage("recent transactions"));
             } finally {
                 hideLoading('recent-transactions');
             }

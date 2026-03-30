@@ -199,7 +199,8 @@ const AccountsPage = () => {
                 <Alert
                     onClose={handleCloseSnackbar}
                     severity={snackbar.severity}
-                    sx={{ width: "100%" }}
+                    variant="filled"
+                    sx={{ width: "100%", borderRadius: 2 }}
                 >
                     {snackbar.message}
                 </Alert>

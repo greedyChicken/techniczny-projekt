@@ -23,6 +23,7 @@ import {
     budgetPageHeaderStyles,
     budgetFabSx,
 } from "./styles/budgetStyles";
+import { pageErrorAlertSx } from "../../styles/feedbackStyles";
 
 const BudgetsPage = () => {
     const theme = useTheme();
@@ -94,7 +95,11 @@ const BudgetsPage = () => {
                         </Box>
 
                         {error && (
-                            <Alert severity="error" onClose={() => setError(null)}>
+                            <Alert
+                                severity="error"
+                                sx={pageErrorAlertSx}
+                                onClose={() => setError(null)}
+                            >
                                 {error}
                             </Alert>
                         )}
