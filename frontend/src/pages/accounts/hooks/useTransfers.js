@@ -1,18 +1,16 @@
-import { useState, useEffect } from "react";
-import {transferService} from "../../../api/transferService.js";
+import { useState, useEffect, useCallback } from "react";
+import { transferService } from "../../../api/transferService.js";
 import { loadFailedMessage } from "../../../utils/feedbackMessages";
 
-export const useTransfers = (viewMode) => {
+export const useTransfers = () => {
     const [transfers, setTransfers] = useState([]);
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [totalTransfers, setTotalTransfers] = useState(0);
 
-    const fetchTransfers = async () => {
-        if (viewMode !== "transfers") return;
-
+    const fetchTransfers = useCallback(async () => {
         setLoading(true);
         setError(null);
         try {
@@ -31,13 +29,11 @@ export const useTransfers = (viewMode) => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [page, rowsPerPage]);
 
     useEffect(() => {
-        if (viewMode === "transfers") {
-            fetchTransfers();
-        }
-    }, [viewMode, page, rowsPerPage]);
+        fetchTransfers();
+    }, [fetchTransfers]);
 
     const handleChangePage = (event, newPage) => {
         setPage(newPage);
@@ -48,15 +44,18 @@ export const useTransfers = (viewMode) => {
         setPage(0);
     };
 
+    const dismissError = () => setError(null);
+
     return {
         transfers,
         loading,
         error,
         fetchTransfers,
+        dismissError,
         page,
         rowsPerPage,
         totalTransfers,
         handleChangePage,
-        handleChangeRowsPerPage
+        handleChangeRowsPerPage,
     };
 };

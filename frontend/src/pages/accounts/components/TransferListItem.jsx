@@ -11,7 +11,16 @@ const TransferListItem = ({ transfer }) => {
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
     return (
-        <Paper sx={{ mb: 2 }}>
+        <Paper
+            elevation={0}
+            sx={{
+                mb: 2,
+                borderRadius: 2,
+                border: "1px solid",
+                borderColor: "divider",
+                boxShadow: "0 4px 14px rgba(15, 23, 42, 0.06)",
+            }}
+        >
             <ListItem
                 sx={{
                     py: 2,

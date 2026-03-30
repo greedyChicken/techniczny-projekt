@@ -16,6 +16,7 @@ import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import DashboardPage from "./pages/dashboard/DashboardPage";
 import AccountsPage from "./pages/accounts/AccountsPage";
+import TransfersPage from "./pages/transfers/TransfersPage";
 import TransactionsPage from "./pages/transactions/TransactionsPage";
 import BudgetsPage from "./pages/budgets/BudgetsPage";
 import SettingsPage from "./pages/SettingsPage";
@@ -43,6 +44,7 @@ function App() {
                                 <Route element={<AppLayout />}>
                                     <Route path="/dashboard" element={<DashboardPage />} />
                                     <Route path="/accounts" element={<AccountsPage />} />
+                                    <Route path="/transfers" element={<TransfersPage />} />
                                     <Route path="/transactions" element={<TransactionsPage />} />
                                     <Route path="/budgets" element={<BudgetsPage />} />
                                     <Route path="/settings" element={<SettingsPage />} />

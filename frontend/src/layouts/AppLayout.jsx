@@ -27,6 +27,7 @@ import {
     AccountBalanceWallet as WalletIcon,
     TrendingUp as TrendingUpIcon,
     AccountBalance as BudgetIcon,
+    SwapHoriz as TransfersNavIcon,
     Settings as SettingsIcon,
     Logout as LogoutIcon,
     Savings as BrandIcon,
@@ -53,6 +54,7 @@ const NAV_GROUPS = [
         title: "Finances",
         items: [
             { text: "Accounts", icon: WalletIcon, path: "/accounts" },
+            { text: "Transfers", icon: TransfersNavIcon, path: "/transfers" },
             { text: "Transactions", icon: TrendingUpIcon, path: "/transactions" },
             { text: "Budgets", icon: BudgetIcon, path: "/budgets" },
         ],

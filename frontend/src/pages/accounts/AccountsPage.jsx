@@ -1,17 +1,28 @@
 import { useState } from "react";
-import { Container, Box, Typography, Button, Snackbar, Alert, Fab } from "@mui/material";
+import {
+    Container,
+    Box,
+    Typography,
+    Button,
+    Snackbar,
+    Alert,
+    Fab,
+    Stack,
+} from "@mui/material";
 import { Add as AddIcon, SwapHoriz as TransferIcon } from "@mui/icons-material";
+import { useTheme } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
+
 import { useAccounts } from "./hooks/useAccounts";
-import { useTransfers } from "./hooks/useTransfers";
-import ViewModeToggle from "./components/ViewModeToggle";
 import AccountsSummary from "./components/AccountsSummary";
 import AccountsList from "./components/AccountsList";
-import TransfersList from "./components/TransfersList";
 import AccountDialog from "./components/AccountDialog";
 import TransferDialog from "./components/TransferDialog";
+import { financesLayoutStyles } from "./styles/financesPageStyles";
 
 const AccountsPage = () => {
-    const [viewMode, setViewMode] = useState("accounts");
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
     const [openAccountDialog, setOpenAccountDialog] = useState(false);
     const [openTransferDialog, setOpenTransferDialog] = useState(false);
     const [editMode, setEditMode] = useState(false);
@@ -23,16 +34,6 @@ const AccountsPage = () => {
     });
 
     const { accounts, loading, error, refetch } = useAccounts();
-    const {
-        transfers,
-        loading: transfersLoading,
-        fetchTransfers,
-        page,
-        rowsPerPage,
-        totalTransfers,
-        handleChangePage,
-        handleChangeRowsPerPage
-    } = useTransfers(viewMode);
 
     const handleOpenAccountDialog = (account = null) => {
         if (account) {
@@ -45,10 +46,6 @@ const AccountsPage = () => {
         setOpenAccountDialog(true);
     };
 
-    const handleOpenTransferDialog = () => {
-        setOpenTransferDialog(true);
-    };
-
     const showSnackbar = (message, severity = "success") => {
         setSnackbar({ open: true, message, severity });
     };
@@ -57,114 +54,104 @@ const AccountsPage = () => {
         setSnackbar((prev) => ({ ...prev, open: false }));
     };
 
-    const handleTransferComplete = () => {
-        refetch();
-        if (viewMode === "transfers") {
-            fetchTransfers();
-        }
-    };
-
     const getTotalBalance = () => {
         return accounts.reduce((sum, account) => sum + account.balance, 0);
     };
 
     return (
         <Container maxWidth="lg">
-            <Box sx={{ mt: 2, mb: 4 }}>
-                <Box
-                    sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        mb: 3,
-                        flexWrap: "wrap",
-                        gap: 2,
-                    }}
-                >
-                    <ViewModeToggle viewMode={viewMode} setViewMode={setViewMode} />
+            <Box sx={financesLayoutStyles.pageContainer}>
+                <Stack spacing={3}>
+                    <Box sx={financesLayoutStyles.hero}>
+                        <Stack
+                            direction={{ xs: "column", sm: "row" }}
+                            spacing={2}
+                            justifyContent="space-between"
+                            alignItems={{ xs: "stretch", sm: "center" }}
+                        >
+                            <Box>
+                                <Typography variant="h4" gutterBottom fontWeight={700}>
+                                    Accounts
+                                </Typography>
+                                <Typography variant="body2" sx={financesLayoutStyles.heroSubtitle}>
+                                    Manage balances and add accounts. Use transfers to move money between them.
+                                </Typography>
+                            </Box>
+                            <Stack
+                                direction={{ xs: "column", sm: "row" }}
+                                spacing={1.5}
+                                sx={{
+                                    width: { xs: "100%", sm: "auto" },
+                                    "& > button": { width: { xs: "100%", sm: "auto" } },
+                                }}
+                            >
+                                <Button
+                                    variant="contained"
+                                    color="inherit"
+                                    startIcon={<TransferIcon />}
+                                    onClick={() => setOpenTransferDialog(true)}
+                                    sx={{
+                                        bgcolor: "rgba(255,255,255,0.2)",
+                                        color: "common.white",
+                                        fontWeight: 600,
+                                        "&:hover": { bgcolor: "rgba(255,255,255,0.3)" },
+                                    }}
+                                >
+                                    Make transfer
+                                </Button>
+                                <Button
+                                    variant="contained"
+                                    color="inherit"
+                                    startIcon={<AddIcon />}
+                                    onClick={() => handleOpenAccountDialog()}
+                                    sx={{
+                                        bgcolor: "rgba(255,255,255,0.2)",
+                                        color: "common.white",
+                                        fontWeight: 600,
+                                        "&:hover": { bgcolor: "rgba(255,255,255,0.3)" },
+                                    }}
+                                >
+                                    Add account
+                                </Button>
+                            </Stack>
+                        </Stack>
+                    </Box>
 
-                    {viewMode === "accounts" && (
-                        <Box sx={{
-                            display: "flex",
-                            gap: 2,
-                            width: { xs: "100%", sm: "auto" },
-                            "& > button": {
-                                flex: { xs: 1, sm: "initial" }
-                            }
-                        }}>
-                            <Button
-                                variant="outlined"
-                                startIcon={<TransferIcon />}
-                                onClick={handleOpenTransferDialog}
-                            >
-                                Make Transfer
-                            </Button>
-                            <Button
-                                variant="contained"
-                                startIcon={<AddIcon />}
-                                onClick={() => handleOpenAccountDialog()}
-                            >
-                                Add Account
-                            </Button>
+                    {!loading && !error && accounts.length > 0 && (
+                        <Box sx={{ display: { xs: "none", sm: "block" } }}>
+                            <AccountsSummary
+                                totalBalance={getTotalBalance()}
+                                accountCount={accounts.length}
+                            />
                         </Box>
                     )}
-                </Box>
 
-                {!loading && !error && accounts.length > 0 && viewMode === "accounts" && (
-                    <Box sx={{ display: { xs: "none", sm: "block" } }}>
-                        <AccountsSummary
-                            totalBalance={getTotalBalance()}
-                            accountCount={accounts.length}
+                    <Box sx={financesLayoutStyles.sectionCard}>
+                        <AccountsList
+                            accounts={accounts}
+                            loading={loading}
+                            error={error}
+                            onRefetch={refetch}
+                            onEdit={handleOpenAccountDialog}
+                            onDelete={() => {
+                                refetch();
+                                showSnackbar("Account deleted successfully");
+                            }}
+                            showSnackbar={showSnackbar}
                         />
                     </Box>
-                )}
-
-                {viewMode === "accounts" ? (
-                    <AccountsList
-                        accounts={accounts}
-                        loading={loading}
-                        error={error}
-                        onRefetch={refetch}
-                        onEdit={handleOpenAccountDialog}
-                        onDelete={(id) => {
-                            refetch();
-                            showSnackbar("Account deleted successfully");
-                        }}
-                        showSnackbar={showSnackbar}
-                    />
-                ) : (
-                    <TransfersList
-                        transfers={transfers}
-                        loading={transfersLoading}
-                        accounts={accounts}
-                        onMakeTransfer={handleOpenTransferDialog}
-                        page={page}
-                        rowsPerPage={rowsPerPage}
-                        totalTransfers={totalTransfers}
-                        onPageChange={handleChangePage}
-                        onRowsPerPageChange={handleChangeRowsPerPage}
-                    />
-                )}
+                </Stack>
             </Box>
 
-            {/* Mobile Add Button */}
-            {viewMode === "accounts" && (
-                <Box
-                    sx={{
-                        position: "fixed",
-                        bottom: 16,
-                        right: 16,
-                        display: { sm: "none" },
-                    }}
+            {isMobile && (
+                <Fab
+                    color="primary"
+                    aria-label="Add account"
+                    sx={financesLayoutStyles.fab}
+                    onClick={() => handleOpenAccountDialog()}
                 >
-                    <Fab
-                        color="primary"
-                        aria-label="add"
-                        onClick={() => handleOpenAccountDialog()}
-                    >
-                        <AddIcon />
-                    </Fab>
-                </Box>
+                    <AddIcon />
+                </Fab>
             )}
 
             <AccountDialog
@@ -174,7 +161,9 @@ const AccountsPage = () => {
                 currentAccount={currentAccount}
                 onSuccess={() => {
                     refetch();
-                    showSnackbar(editMode ? "Account updated successfully" : "Account created successfully");
+                    showSnackbar(
+                        editMode ? "Account updated successfully" : "Account created successfully"
+                    );
                 }}
                 showSnackbar={showSnackbar}
             />
@@ -184,7 +173,7 @@ const AccountsPage = () => {
                 onClose={() => setOpenTransferDialog(false)}
                 accounts={accounts}
                 onSuccess={() => {
-                    handleTransferComplete();
+                    refetch();
                     showSnackbar("Transfer completed successfully");
                 }}
                 showSnackbar={showSnackbar}

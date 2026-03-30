@@ -2,6 +2,7 @@ import { Box, Paper, Typography, Button, Skeleton, List, TablePagination, useThe
 import { SwapHoriz as TransferIcon } from "@mui/icons-material";
 import TransferListItem from "./TransferListItem";
 import MobilePagination from "../../../components/MobilePagination";
+import { transferListContainerSx } from "../styles/financesPageStyles";
 
 const TransfersList = ({
                            transfers,
@@ -18,9 +19,9 @@ const TransfersList = ({
 
     if (loading) {
         return (
-            <Box>
+            <Box sx={transferListContainerSx}>
                 {[1, 2, 3].map((item) => (
-                    <Paper key={item} sx={{ p: 2, mb: 2 }}>
+                    <Paper key={item} sx={{ p: 2, mb: 2, borderRadius: 2, boxShadow: "none" }}>
                         <Skeleton variant="text" width="60%" height={30} />
                         <Skeleton variant="text" width="40%" />
                         <Skeleton variant="text" width="80%" />
@@ -32,7 +33,7 @@ const TransfersList = ({
 
     if (transfers.length === 0 && !loading) {
         return (
-            <Paper sx={{ p: 4, textAlign: "center" }}>
+            <Paper sx={{ p: 4, textAlign: "center", borderRadius: 3, boxShadow: "0 10px 24px rgba(15, 23, 42, 0.06)" }}>
                 <Typography variant="h6" gutterBottom>
                     No transfers found
                 </Typography>
@@ -51,8 +52,8 @@ const TransfersList = ({
     }
 
     return (
-        <Box>
-            <List>
+        <Box sx={transferListContainerSx}>
+            <List disablePadding>
                 {transfers.map((transfer) => (
                     <TransferListItem
                         key={transfer.id}
