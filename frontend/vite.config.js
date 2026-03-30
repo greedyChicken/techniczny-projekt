@@ -9,6 +9,11 @@ export default defineConfig({
     VitePWA({
       registerType: "autoUpdate",
       includeAssets: ["favicon.ico", "apple-touch-icon.png", "masked-icon.svg"],
+      workbox: {
+        inlineWorkboxRuntime: true,
+        mode: "development",
+        disableDevLogs: true,
+      },
       manifest: {
         name: "Finance Management App",
         short_name: "FinanceApp",
