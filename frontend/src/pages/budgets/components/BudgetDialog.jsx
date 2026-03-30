@@ -34,12 +34,18 @@ const BudgetDialog = ({
 
     return (
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={enGB}>
-            <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-                <DialogTitle>
-                    {editMode ? 'Edit Budget' : 'Create New Budget'}
+            <Dialog
+                open={open}
+                onClose={onClose}
+                maxWidth="sm"
+                fullWidth
+                PaperProps={{ sx: { borderRadius: 3 } }}
+            >
+                <DialogTitle sx={{ fontWeight: 700, pb: 1 }}>
+                    {editMode ? "Edit budget" : "New budget"}
                 </DialogTitle>
                 <DialogContent>
-                    <Box sx={{ mt: 2 }}>
+                    <Box sx={{ mt: 1 }}>
                         <TextField
                             fullWidth
                             label="Budget Name"
@@ -115,10 +121,12 @@ const BudgetDialog = ({
                         />
                     </Box>
                 </DialogContent>
-                <DialogActions>
-                    <Button onClick={onClose}>Cancel</Button>
+                <DialogActions sx={{ px: 3, pb: 2 }}>
+                    <Button onClick={onClose} variant="outlined" color="inherit">
+                        Cancel
+                    </Button>
                     <Button onClick={onSubmit} variant="contained">
-                        {editMode ? 'Update' : 'Create'}
+                        {editMode ? "Save changes" : "Create"}
                     </Button>
                 </DialogActions>
             </Dialog>

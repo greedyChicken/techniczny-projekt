@@ -6,7 +6,9 @@ export const formatCurrency = (amount) => {
 };
 
 export const getBudgetStatus = (budget) => {
-    const percentage = ((budget.spentAmount || 0) / budget.amount) * 100;
+    const amount = Number(budget.amount) || 0;
+    const spent = Number(budget.spentAmount) || 0;
+    const percentage = amount > 0 ? (spent / amount) * 100 : 0;
 
     if (percentage >= 100) {
         return { status: 'over', color: 'error' };

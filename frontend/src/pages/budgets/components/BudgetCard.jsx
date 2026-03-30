@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
     Card,
     CardContent,
@@ -6,62 +6,80 @@ import {
     Typography,
     LinearProgress,
     Chip,
-    IconButton
-} from '@mui/material';
-import {
-    Edit as EditIcon,
-    Delete as DeleteIcon
-} from '@mui/icons-material';
-import { format } from 'date-fns';
-import { formatCurrency, getBudgetStatus } from '../utils/formatters';
+    IconButton,
+} from "@mui/material";
+import { Edit as EditIcon, Delete as DeleteIcon } from "@mui/icons-material";
+import { format } from "date-fns";
+import { formatCurrency, getBudgetStatus } from "../utils/formatters";
+import { budgetCardStyles } from "../styles/budgetStyles";
 
 const BudgetCard = ({ budget, onEdit, onDelete }) => {
     const { status, color } = getBudgetStatus(budget);
-    const percentage = Math.min((budget.spentAmount / budget.amount) * 100, 100);
+    const amount = Number(budget.amount) || 0;
+    const spent = Number(budget.spentAmount) || 0;
+    const percentage = amount > 0 ? Math.min((spent / amount) * 100, 100) : 0;
 
     return (
-        <Card raised sx={{ height: '100%' }}>
+        <Card sx={budgetCardStyles.root}>
             <CardContent>
                 <Box
                     sx={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'flex-start',
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "flex-start",
                         mb: 2,
-                        flexDirection: { xs: 'column', sm: 'row' },
-                        gap: { xs: 1, sm: 0 }
+                        flexDirection: { xs: "column", sm: "row" },
+                        gap: { xs: 1, sm: 0 },
                     }}
                 >
                     <Typography
                         variant="h6"
                         component="div"
                         sx={{
-                            fontSize: { xs: '1.1rem', sm: '1.25rem' },
-                            wordBreak: 'break-word'
+                            fontSize: { xs: "1.1rem", sm: "1.2rem" },
+                            fontWeight: 700,
+                            wordBreak: "break-word",
+                            pr: { sm: 1 },
                         }}
                     >
                         {budget.name}
                     </Typography>
-                    <Box sx={{ display: 'flex', gap: 0.5 }}>
-                        <IconButton size="small" onClick={() => onEdit(budget)}>
+                    <Box sx={budgetCardStyles.actions}>
+                        <IconButton
+                            size="small"
+                            aria-label="Edit budget"
+                            onClick={() => onEdit(budget)}
+                        >
                             <EditIcon fontSize="small" />
                         </IconButton>
-                        <IconButton size="small" onClick={() => onDelete(budget.id)}>
+                        <IconButton
+                            size="small"
+                            aria-label="Delete budget"
+                            onClick={() => onDelete(budget.id)}
+                        >
                             <DeleteIcon fontSize="small" />
                         </IconButton>
                     </Box>
                 </Box>
 
                 <Typography variant="body2" color="text.secondary" gutterBottom>
-                    {format(budget.startDate, 'MMM dd')} - {format(budget.endDate, 'MMM dd, yyyy')}
+                    {format(budget.startDate, "MMM dd")} – {format(budget.endDate, "MMM dd, yyyy")}
                 </Typography>
 
                 <Box sx={{ mb: 2 }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1, flexWrap: 'wrap' }}>
-                        <Typography variant="body2" sx={{ fontSize: { xs: '0.875rem', sm: '0.875rem' } }}>
-                            {formatCurrency(budget.spentAmount || 0)} / {formatCurrency(budget.amount)}
+                    <Box
+                        sx={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            mb: 1,
+                            flexWrap: "wrap",
+                            gap: 0.5,
+                        }}
+                    >
+                        <Typography variant="body2">
+                            {formatCurrency(spent)} / {formatCurrency(amount)}
                         </Typography>
-                        <Typography variant="body2" color={`${color}.main`} sx={{ fontWeight: 'bold' }}>
+                        <Typography variant="body2" color={`${color}.main`} fontWeight={700}>
                             {percentage.toFixed(0)}%
                         </Typography>
                     </Box>
@@ -69,34 +87,36 @@ const BudgetCard = ({ budget, onEdit, onDelete }) => {
                         variant="determinate"
                         value={percentage}
                         color={color}
-                        sx={{ height: 8, borderRadius: 4 }}
+                        sx={{ height: 8, borderRadius: 1 }}
                     />
                 </Box>
 
                 <Box
                     sx={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        flexDirection: { xs: 'column', sm: 'row' },
-                        gap: { xs: 1, sm: 0 }
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        flexDirection: { xs: "column", sm: "row" },
+                        gap: { xs: 1, sm: 0 },
                     }}
                 >
                     <Chip
-                        label={budget.active ? 'Active' : 'Inactive'}
-                        color={budget.active ? 'success' : 'default'}
+                        label={budget.active ? "Active" : "Inactive"}
+                        color={budget.active ? "success" : "default"}
                         size="small"
+                        variant={budget.active ? "filled" : "outlined"}
                     />
                     <Chip
                         label={
-                            status === 'over'
-                                ? 'Over Budget'
-                                : status === 'warning'
-                                    ? 'Near Limit'
-                                    : 'On Track'
+                            status === "over"
+                                ? "Over budget"
+                                : status === "warning"
+                                  ? "Near limit"
+                                  : "On track"
                         }
                         color={color}
                         size="small"
+                        variant="outlined"
                     />
                 </Box>
             </CardContent>

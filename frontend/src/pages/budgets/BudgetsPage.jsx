@@ -1,22 +1,34 @@
-import React from 'react';
-import { Container, Box, Typography, Button, Alert, Fab } from '@mui/material';
-import { Add as AddIcon } from '@mui/icons-material';
-import { useTheme } from '@mui/material/styles';
-import useMediaQuery from '@mui/material/useMediaQuery';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import React from "react";
+import {
+    Container,
+    Box,
+    Typography,
+    Button,
+    Alert,
+    Fab,
+    Stack,
+} from "@mui/material";
+import { Add as AddIcon } from "@mui/icons-material";
+import { useTheme } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 
-import BudgetSummaryCards from './components/BudgetSummaryCards';
-import BudgetsList from './components/BudgetsList';
-import BudgetDialog from './components/BudgetDialog';
-import { useBudgets } from './hooks/useBudgets.js';
+import BudgetSummaryCards from "./components/BudgetSummaryCards";
+import BudgetsList from "./components/BudgetsList";
+import BudgetDialog from "./components/BudgetDialog";
+import { useBudgets } from "./hooks/useBudgets.js";
+import {
+    budgetLayoutStyles,
+    budgetPageHeaderStyles,
+    budgetFabSx,
+} from "./styles/budgetStyles";
 
 const BudgetsPage = () => {
     const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+    const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
     const {
-        // State
         budgets,
         categories,
         loading,
@@ -27,11 +39,9 @@ const BudgetsPage = () => {
         totalBudget,
         totalSpent,
         overBudgetCount,
-        // Actions
         handleOpenDialog,
         handleCloseDialog,
         handleSubmit,
-        // handleDelete,
         handleInputChange,
         handleStartDateChange,
         handleEndDateChange,
@@ -45,79 +55,82 @@ const BudgetsPage = () => {
     return (
         <LocalizationProvider dateAdapter={AdapterDateFns}>
             <Container maxWidth="lg">
-                <Box sx={{ mt: 2, mb: 4 }}>
-                    {/* Header */}
-                    <Box
-                        sx={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            mb: 3,
-                            flexDirection: { xs: 'column', sm: 'row' },
-                            gap: { xs: 2, sm: 0 },
-                        }}
-                    >
-                        <Box>
-                            <Typography variant="h4" gutterBottom>
-                                Budget Management
-                            </Typography>
-                            <Typography variant="body1" color="text.secondary">
-                                Track and manage your spending budgets to stay on top of your finances.
-                            </Typography>
+                <Box sx={budgetLayoutStyles.pageContainer}>
+                    <Stack spacing={3}>
+                        <Box sx={budgetPageHeaderStyles.wrapper}>
+                            <Stack
+                                direction={{ xs: "column", sm: "row" }}
+                                spacing={2}
+                                justifyContent="space-between"
+                                alignItems={{ xs: "stretch", sm: "center" }}
+                            >
+                                <Box>
+                                    <Typography variant="h4" gutterBottom fontWeight={700}>
+                                        Budgets
+                                    </Typography>
+                                    <Typography
+                                        variant="body1"
+                                        sx={budgetPageHeaderStyles.subtitle}
+                                    >
+                                        Track limits and spending so you stay in control.
+                                    </Typography>
+                                </Box>
+                                <Button
+                                    variant="contained"
+                                    color="inherit"
+                                    startIcon={<AddIcon />}
+                                    onClick={() => handleOpenDialog()}
+                                    sx={{
+                                        display: { xs: "none", sm: "inline-flex" },
+                                        bgcolor: "rgba(255,255,255,0.2)",
+                                        color: "common.white",
+                                        fontWeight: 600,
+                                        "&:hover": { bgcolor: "rgba(255,255,255,0.3)" },
+                                    }}
+                                >
+                                    Add budget
+                                </Button>
+                            </Stack>
                         </Box>
-                        <Button
-                            variant="contained"
-                            startIcon={<AddIcon />}
-                            onClick={() => handleOpenDialog()}
-                            sx={{ display: { xs: 'none', sm: 'flex' } }}
-                        >
-                            Add Budget
-                        </Button>
-                    </Box>
 
-                    {/* Error Alert */}
-                    {error && (
-                        <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>
-                            {error}
-                        </Alert>
-                    )}
+                        {error && (
+                            <Alert severity="error" onClose={() => setError(null)}>
+                                {error}
+                            </Alert>
+                        )}
 
-                    {!isMobile && (<BudgetSummaryCards
-                        totalBudget={totalBudget}
-                        totalSpent={totalSpent}
-                        overBudgetCount={overBudgetCount}
-                    />)}
+                        {!isMobile && (
+                            <BudgetSummaryCards
+                                totalBudget={totalBudget}
+                                totalSpent={totalSpent}
+                                overBudgetCount={overBudgetCount}
+                            />
+                        )}
 
-                    {/* Budgets List */}
-                    <BudgetsList
-                        budgets={budgets}
-                        loading={loading}
-                        onEdit={handleOpenDialog}
-                        onDelete={confirmDeleteBudget}
-                        onAddBudget={handleOpenDialog}
-                        deleteDialogOpen={deleteDialogOpen}
-                        handleConfirmDelete={handleConfirmDelete}
-                        handleCancelDelete={handleCancelDelete}
-                    />
+                        <BudgetsList
+                            budgets={budgets}
+                            loading={loading}
+                            onEdit={handleOpenDialog}
+                            onDelete={confirmDeleteBudget}
+                            onAddBudget={handleOpenDialog}
+                            deleteDialogOpen={deleteDialogOpen}
+                            handleConfirmDelete={handleConfirmDelete}
+                            handleCancelDelete={handleCancelDelete}
+                        />
+                    </Stack>
                 </Box>
 
-                {/* Mobile FAB */}
                 {isMobile && (
                     <Fab
                         color="primary"
-                        aria-label="add budget"
-                        sx={{
-                            position: 'fixed',
-                            bottom: 16,
-                            right: 16,
-                        }}
+                        aria-label="Add budget"
+                        sx={budgetFabSx}
                         onClick={() => handleOpenDialog()}
                     >
                         <AddIcon />
                     </Fab>
                 )}
 
-                {/* Budget Dialog */}
                 <BudgetDialog
                     open={openDialog}
                     editMode={!!editingBudget}
