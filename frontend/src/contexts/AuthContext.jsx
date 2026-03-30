@@ -1,6 +1,10 @@
 import { createContext, useState, useEffect, useContext } from "react";
 import { authService } from "../api/authService";
 import { useUIState } from "./UIStateContext";
+import {
+  AUTH_LOGIN_FALLBACK,
+  AUTH_REGISTER_FALLBACK,
+} from "../utils/feedbackMessages";
 
 const AuthContext = createContext(null);
 
@@ -36,7 +40,8 @@ export const AuthProvider = ({ children }) => {
       setUser(data.user);
       return data;
     } catch (err) {
-      const message = err.response?.data?.message || "Login failed. Please try again.";
+      const message =
+        err.response?.data?.message || AUTH_LOGIN_FALLBACK;
       showError(message);
       throw err;
     } finally {
@@ -51,7 +56,8 @@ export const AuthProvider = ({ children }) => {
       setUser(data.user);
       return data;
     } catch (err) {
-      const message = err.response?.data?.message || "Registration failed. Please try again.";
+      const message =
+        err.response?.data?.message || AUTH_REGISTER_FALLBACK;
       showError(message);
       throw err;
     } finally {
@@ -64,6 +70,10 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
+  const updateUserContext = (updates) => {
+    setUser((prev) => (prev ? { ...prev, ...updates } : prev));
+  };
+
   const value = {
     user,
     initialized,
@@ -71,6 +81,7 @@ export const AuthProvider = ({ children }) => {
     login,
     register,
     logout,
+    updateUserContext,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

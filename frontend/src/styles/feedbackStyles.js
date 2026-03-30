@@ -9,3 +9,13 @@ export const pageWarningAlertSx = {
     mb: 2,
     borderRadius: 2,
 };
+
+/** Inline alerts on auth forms (validation + API errors). */
+export const authFormAlertSx = (severity) => ({
+    mb: 2,
+    borderRadius: 2,
+    ...(severity === "error" && {
+        border: "1px solid",
+        borderColor: "error.light",
+    }),
+});
