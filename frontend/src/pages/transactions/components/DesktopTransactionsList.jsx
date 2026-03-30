@@ -1,32 +1,24 @@
-import React from 'react';
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
-    Paper
-} from '@mui/material';
-import TransactionRow from './TransactionRow';
+import React from "react";
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material";
+import TransactionRow from "./TransactionRow";
+import { transactionTableContainerSx, transactionTableHeadCellSx } from "../styles/transactionStyles";
 
-const DesktopTransactionsList = ({
-                                     transactions,
-                                     onEdit,
-                                     onDelete,
-                                     getAccountName
-                                 }) => {
+const DesktopTransactionsList = ({ transactions, onEdit, onDelete, getAccountName }) => {
     return (
-        <TableContainer component={Paper}>
-            <Table>
+        <TableContainer sx={transactionTableContainerSx}>
+            <Table size="medium">
                 <TableHead>
                     <TableRow>
-                        <TableCell>Date</TableCell>
-                        <TableCell>Category</TableCell>
-                        <TableCell>Description</TableCell>
-                        <TableCell>Account</TableCell>
-                        <TableCell align="right">Amount</TableCell>
-                        <TableCell align="right">Actions</TableCell>
+                        <TableCell sx={transactionTableHeadCellSx}>Date</TableCell>
+                        <TableCell sx={transactionTableHeadCellSx}>Category</TableCell>
+                        <TableCell sx={transactionTableHeadCellSx}>Description</TableCell>
+                        <TableCell sx={transactionTableHeadCellSx}>Account</TableCell>
+                        <TableCell align="right" sx={transactionTableHeadCellSx}>
+                            Amount
+                        </TableCell>
+                        <TableCell align="right" sx={transactionTableHeadCellSx}>
+                            Actions
+                        </TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>

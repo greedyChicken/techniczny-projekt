@@ -11,7 +11,7 @@ const MobileTransactionsList = ({
                                     getAccountName
                                 }) => {
     return (
-        <Box sx={{ mt: 2 }}>
+        <Box sx={{ mt: 1 }}>
             {transactions.map((transaction) => (
                 <TransactionCard
                     key={transaction.id}

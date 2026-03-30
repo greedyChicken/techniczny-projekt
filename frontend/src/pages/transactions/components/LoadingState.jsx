@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
     Box,
     Card,
@@ -10,19 +10,19 @@ import {
     TableContainer,
     TableHead,
     TableRow,
-    Paper
-} from '@mui/material';
+} from "@mui/material";
+import { transactionTableContainerSx, transactionTableHeadCellSx, transactionMobileCardSx } from "../styles/transactionStyles";
 
 const LoadingState = ({ isMobile }) => {
     if (isMobile) {
         return (
-            <Box sx={{ mt: 2 }}>
+            <Box sx={{ mt: 1 }}>
                 {[...Array(5)].map((_, index) => (
-                    <Card key={index} sx={{ mb: 2 }}>
+                    <Card key={index} sx={transactionMobileCardSx}>
                         <CardContent>
-                            <Skeleton animation="wave" height={60} />
+                            <Skeleton animation="wave" height={24} sx={{ mb: 1 }} />
                             <Skeleton animation="wave" height={40} />
-                            <Skeleton animation="wave" height={40} />
+                            <Skeleton animation="wave" height={36} sx={{ mt: 1 }} />
                         </CardContent>
                     </Card>
                 ))}
@@ -31,16 +31,20 @@ const LoadingState = ({ isMobile }) => {
     }
 
     return (
-        <TableContainer component={Paper}>
+        <TableContainer sx={transactionTableContainerSx}>
             <Table>
                 <TableHead>
                     <TableRow>
-                        <TableCell>Date</TableCell>
-                        <TableCell>Category</TableCell>
-                        <TableCell>Description</TableCell>
-                        <TableCell>Account</TableCell>
-                        <TableCell align="right">Amount</TableCell>
-                        <TableCell align="right">Actions</TableCell>
+                        <TableCell sx={transactionTableHeadCellSx}>Date</TableCell>
+                        <TableCell sx={transactionTableHeadCellSx}>Category</TableCell>
+                        <TableCell sx={transactionTableHeadCellSx}>Description</TableCell>
+                        <TableCell sx={transactionTableHeadCellSx}>Account</TableCell>
+                        <TableCell align="right" sx={transactionTableHeadCellSx}>
+                            Amount
+                        </TableCell>
+                        <TableCell align="right" sx={transactionTableHeadCellSx}>
+                            Actions
+                        </TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
@@ -59,10 +63,10 @@ const LoadingState = ({ isMobile }) => {
                                 <Skeleton animation="wave" />
                             </TableCell>
                             <TableCell align="right">
-                                <Skeleton animation="wave" />
+                                <Skeleton animation="wave" sx={{ ml: "auto" }} />
                             </TableCell>
                             <TableCell align="right">
-                                <Skeleton animation="wave" />
+                                <Skeleton animation="wave" sx={{ ml: "auto" }} />
                             </TableCell>
                         </TableRow>
                     ))}

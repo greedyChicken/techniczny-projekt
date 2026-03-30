@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
     Dialog,
     DialogTitle,
@@ -10,29 +10,29 @@ import {
     Select,
     MenuItem,
     TextField,
-    Button
-} from '@mui/material';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
-import {enGB} from "date-fns/locale";
-import {LocalizationProvider} from "@mui/x-date-pickers/LocalizationProvider";
+    Button,
+} from "@mui/material";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { enGB } from "date-fns/locale";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { getCategoriesByType } from "../utils/categoryHelpers";
+
+const TYPE_INCOME = "INCOME";
+const TYPE_EXPENSE = "EXPENSE";
 
 const TransactionDialog = ({
-                               open,
-                               editMode,
-                               formData,
-                               accounts,
-                               categories,
-                               onClose,
-                               onSubmit,
-                               onInputChange,
-                               onDateChange,
-                               isMobile
-                           }) => {
-    const getCategoriesByType = (type) => {
-        return categories.filter(category => category.transactionType === type);
-    };
-
+    open,
+    editMode,
+    formData,
+    accounts,
+    categories,
+    onClose,
+    onSubmit,
+    onInputChange,
+    onDateChange,
+    isMobile,
+}) => {
     return (
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={enGB}>
             <Dialog
@@ -41,24 +41,25 @@ const TransactionDialog = ({
                 maxWidth="sm"
                 fullWidth
                 fullScreen={isMobile}
+                PaperProps={{ sx: { borderRadius: isMobile ? 0 : 3 } }}
             >
-                <DialogTitle>
-                    {editMode ? 'Edit Transaction' : 'Add New Transaction'}
+                <DialogTitle sx={{ fontWeight: 700, pb: 1 }}>
+                    {editMode ? "Edit transaction" : "New transaction"}
                 </DialogTitle>
                 <DialogContent>
                     <Box component="form" sx={{ mt: 1 }}>
                         <FormControl fullWidth margin="normal">
-                            <InputLabel id="transaction-type-label">Transaction Type</InputLabel>
+                            <InputLabel id="transaction-type-label">Transaction type</InputLabel>
                             <Select
                                 labelId="transaction-type-label"
                                 id="type"
                                 name="type"
                                 value={formData.type}
-                                label="Transaction Type"
+                                label="Transaction type"
                                 onChange={onInputChange}
                             >
-                                <MenuItem value="INCOME">Income</MenuItem>
-                                <MenuItem value="EXPENSE">Expense</MenuItem>
+                                <MenuItem value={TYPE_INCOME}>Income</MenuItem>
+                                <MenuItem value={TYPE_EXPENSE}>Expense</MenuItem>
                             </Select>
                         </FormControl>
 
@@ -88,7 +89,7 @@ const TransactionDialog = ({
                             label="Amount"
                             name="amount"
                             type="number"
-                            inputProps={{ min: '0.01', step: '0.01' }}
+                            inputProps={{ min: "0.01", step: "0.01" }}
                             value={formData.amount}
                             onChange={onInputChange}
                         />
@@ -103,17 +104,14 @@ const TransactionDialog = ({
                                 label="Category"
                                 onChange={onInputChange}
                             >
-                                {formData.type === 'INCOME'
-                                    ? getCategoriesByType('INCOME').map((category) => (
-                                        <MenuItem key={category.id} value={category.id}>
-                                            {category.name}
-                                        </MenuItem>
-                                    ))
-                                    : getCategoriesByType('EXPENSE').map((category) => (
-                                        <MenuItem key={category.id} value={category.id}>
-                                            {category.name}
-                                        </MenuItem>
-                                    ))}
+                                {(formData.type === TYPE_INCOME
+                                    ? getCategoriesByType(categories, TYPE_INCOME)
+                                    : getCategoriesByType(categories, TYPE_EXPENSE)
+                                ).map((category) => (
+                                    <MenuItem key={category.id} value={category.id}>
+                                        {category.name}
+                                    </MenuItem>
+                                ))}
                             </Select>
                         </FormControl>
 
@@ -124,8 +122,8 @@ const TransactionDialog = ({
                             slotProps={{
                                 textField: {
                                     fullWidth: true,
-                                    margin: 'normal'
-                                }
+                                    margin: "normal",
+                                },
                             }}
                         />
 
@@ -133,7 +131,7 @@ const TransactionDialog = ({
                             margin="normal"
                             fullWidth
                             id="description"
-                            label="Description (Optional)"
+                            label="Description (optional)"
                             name="description"
                             value={formData.description}
                             onChange={onInputChange}
@@ -142,10 +140,12 @@ const TransactionDialog = ({
                         />
                     </Box>
                 </DialogContent>
-                <DialogActions>
-                    <Button onClick={onClose}>Cancel</Button>
+                <DialogActions sx={{ px: 3, pb: 2 }}>
+                    <Button onClick={onClose} variant="outlined" color="inherit">
+                        Cancel
+                    </Button>
                     <Button onClick={onSubmit} variant="contained">
-                        {editMode ? 'Update' : 'Create'}
+                        {editMode ? "Save changes" : "Create"}
                     </Button>
                 </DialogActions>
             </Dialog>

@@ -1,54 +1,50 @@
-import React from 'react';
+import React from "react";
 import {
-    Paper,
     Typography,
     Grid,
     FormControl,
     InputLabel,
     Select,
     MenuItem,
-    TextField,
-    InputAdornment,
     Button,
     Box,
     Collapse,
-    Divider
-} from '@mui/material';
-import { Search as SearchIcon, Clear as ClearIcon } from '@mui/icons-material';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
-import {LocalizationProvider} from "@mui/x-date-pickers/LocalizationProvider";
-import {enGB} from "date-fns/locale";
+    Divider,
+} from "@mui/material";
+import { Clear as ClearIcon } from "@mui/icons-material";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { enGB } from "date-fns/locale";
+import { getCategoriesByType } from "../utils/categoryHelpers";
+import { transactionLayoutStyles } from "../styles/transactionStyles";
+
+const TYPE_INCOME = "INCOME";
+const TYPE_EXPENSE = "EXPENSE";
 
 const FiltersPanel = ({
-                          open,
-                          filters,
-                          categories,
-                          accounts,
-                          onFilterChange,
-                          onDateFilterChange,
-                          onClearFilters,
-                          isMobile
-                      }) => {
-    const getCategoriesByType = (type) => {
-        return categories.filter(category => category.transactionType === type);
-    };
-
+    open,
+    filters,
+    categories,
+    accounts,
+    onFilterChange,
+    onDateFilterChange,
+    onClearFilters,
+    isMobile,
+}) => {
     return (
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={enGB}>
             <Collapse in={open}>
-                <Paper sx={{
-                    p: { xs: 2, sm: 3 },
-                    mb: 3,
-                    overflow: 'hidden',
-                    width: '100%'
-                }}>
-                    <Typography variant="h6" gutterBottom>
-                        Filter Transactions
+                <Box sx={{ ...transactionLayoutStyles.sectionCard, mb: 0 }}>
+                    <Typography variant="subtitle1" fontWeight={700} gutterBottom>
+                        Filters
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                        Narrow the list by type, category, account, or date range.
                     </Typography>
                     <Grid container spacing={2}>
                         <Grid item xs={12} sm={6} md={3}>
-                            <FormControl fullWidth margin="normal" size="small">
+                            <FormControl fullWidth size="small">
                                 <InputLabel id="type-filter-label">Type</InputLabel>
                                 <Select
                                     labelId="type-filter-label"
@@ -66,7 +62,7 @@ const FiltersPanel = ({
                         </Grid>
 
                         <Grid item xs={12} sm={6} md={3}>
-                            <FormControl fullWidth margin="normal" size="small">
+                            <FormControl fullWidth size="small">
                                 <InputLabel id="category-filter-label">Category</InputLabel>
                                 <Select
                                     labelId="category-filter-label"
@@ -76,12 +72,12 @@ const FiltersPanel = ({
                                     label="Category"
                                     onChange={onFilterChange}
                                 >
-                                    <MenuItem value="">All Categories</MenuItem>
+                                    <MenuItem value="">All categories</MenuItem>
                                     <Divider />
                                     <MenuItem disabled>
                                         <em>Income</em>
                                     </MenuItem>
-                                    {getCategoriesByType('INCOME').map((category) => (
+                                    {getCategoriesByType(categories, TYPE_INCOME).map((category) => (
                                         <MenuItem key={category.id} value={category.id}>
                                             {category.name}
                                         </MenuItem>
@@ -90,7 +86,7 @@ const FiltersPanel = ({
                                     <MenuItem disabled>
                                         <em>Expense</em>
                                     </MenuItem>
-                                    {getCategoriesByType('EXPENSE').map((category) => (
+                                    {getCategoriesByType(categories, TYPE_EXPENSE).map((category) => (
                                         <MenuItem key={category.id} value={category.id}>
                                             {category.name}
                                         </MenuItem>
@@ -100,7 +96,7 @@ const FiltersPanel = ({
                         </Grid>
 
                         <Grid item xs={12} sm={6} md={3}>
-                            <FormControl fullWidth margin="normal" size="small">
+                            <FormControl fullWidth size="small">
                                 <InputLabel id="account-filter-label">Account</InputLabel>
                                 <Select
                                     labelId="account-filter-label"
@@ -110,7 +106,7 @@ const FiltersPanel = ({
                                     label="Account"
                                     onChange={onFilterChange}
                                 >
-                                    <MenuItem value="">All Accounts</MenuItem>
+                                    <MenuItem value="">All accounts</MenuItem>
                                     {accounts.map((account) => (
                                         <MenuItem key={account.id} value={account.id}>
                                             {account.name}
@@ -122,14 +118,13 @@ const FiltersPanel = ({
 
                         <Grid item xs={12} sm={6}>
                             <DatePicker
-                                label="Start Date"
+                                label="Start date"
                                 value={filters.startDate}
-                                onChange={(date) => onDateFilterChange('startDate', date)}
+                                onChange={(date) => onDateFilterChange("startDate", date)}
                                 slotProps={{
                                     textField: {
                                         fullWidth: true,
-                                        size: 'small',
-                                        margin: 'normal',
+                                        size: "small",
                                     },
                                 }}
                             />
@@ -137,36 +132,31 @@ const FiltersPanel = ({
 
                         <Grid item xs={12} sm={6}>
                             <DatePicker
-                                label="End Date"
+                                label="End date"
                                 value={filters.endDate}
-                                onChange={(date) => onDateFilterChange('endDate', date)}
+                                onChange={(date) => onDateFilterChange("endDate", date)}
                                 slotProps={{
                                     textField: {
                                         fullWidth: true,
-                                        size: 'small',
-                                        margin: 'normal',
+                                        size: "small",
                                     },
                                 }}
                             />
                         </Grid>
                     </Grid>
 
-                    <Box sx={{
-                        mt: 2,
-                        display: 'flex',
-                        justifyContent: 'flex-end',
-                        overflow: 'hidden'
-                    }}>
+                    <Box sx={{ mt: 2, display: "flex", justifyContent: "flex-end" }}>
                         <Button
                             variant="outlined"
+                            color="inherit"
                             startIcon={<ClearIcon />}
                             onClick={onClearFilters}
-                            size={isMobile ? 'small' : 'medium'}
+                            size={isMobile ? "small" : "medium"}
                         >
-                            Clear Filters
+                            Clear filters
                         </Button>
                     </Box>
-                </Paper>
+                </Box>
             </Collapse>
         </LocalizationProvider>
     );

@@ -1,23 +1,36 @@
-import React from 'react';
-import { Container, Box, Typography, Button, Fab, Snackbar, Alert, Stack } from '@mui/material';
-import { Add as AddIcon, FilterList as FilterIcon } from '@mui/icons-material';
-import { useTheme } from '@mui/material/styles';
-import useMediaQuery from '@mui/material/useMediaQuery';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import React from "react";
+import {
+    Container,
+    Box,
+    Typography,
+    Button,
+    Fab,
+    Snackbar,
+    Alert,
+    Stack,
+} from "@mui/material";
+import { Add as AddIcon, FilterList as FilterIcon } from "@mui/icons-material";
+import { useTheme } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 
-import FiltersPanel from './components/FiltersPanel';
-import TransactionsList from './components/TransactionsList';
-import TransactionDialog from './components/TransactionDialog';
-import { useTransactions } from './hooks/useTransactions.js';
-import { pageErrorAlertSx } from '../../styles/feedbackStyles';
+import FiltersPanel from "./components/FiltersPanel";
+import TransactionsList from "./components/TransactionsList";
+import TransactionDialog from "./components/TransactionDialog";
+import { useTransactions } from "./hooks/useTransactions.js";
+import { pageErrorAlertSx } from "../../styles/feedbackStyles";
+import {
+    transactionLayoutStyles,
+    transactionPageHeaderStyles,
+    transactionFabSx,
+} from "./styles/transactionStyles";
 
 const TransactionsPage = () => {
     const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+    const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
     const {
-        // State
         transactions,
         accounts,
         categories,
@@ -38,7 +51,6 @@ const TransactionsPage = () => {
         filtersOpen,
         snackbar,
         expandedCards,
-        // Actions
         handleOpenDialog,
         handleCloseDialog,
         handleSubmit,
@@ -55,146 +67,172 @@ const TransactionsPage = () => {
         toggleCardExpansion,
         fetchTransactions,
         refetchAccounts,
-        refetchCategories
+        refetchCategories,
     } = useTransactions();
 
     return (
         <LocalizationProvider dateAdapter={AdapterDateFns}>
-            <Container maxWidth="lg" sx={{ overflow: 'hidden' }}>
-                <Box sx={{ mt: 2, mb: 4, overflow: 'hidden' }}>
-                    {/* Header */}
-                    <Box sx={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        mb: 3,
-                        gap: 1,
-                        flexWrap: 'wrap'
-                    }}>
-                        <Typography variant="h4" sx={{ fontSize: { xs: '1.5rem', sm: '2.125rem' } }}>
-                            Transactions
-                        </Typography>
-                        <Box sx={{ display: 'flex', gap: 1 }}>
-                            <Button
-                                variant="outlined"
-                                startIcon={<FilterIcon />}
-                                onClick={() => setFiltersOpen(!filtersOpen)}
-                                size={isMobile ? "small" : "medium"}
+            <Container maxWidth="lg">
+                <Box sx={transactionLayoutStyles.pageContainer}>
+                    <Stack spacing={3}>
+                        <Box sx={transactionPageHeaderStyles.wrapper}>
+                            <Stack
+                                direction={{ xs: "column", sm: "row" }}
+                                spacing={2}
+                                justifyContent="space-between"
+                                alignItems={{ xs: "stretch", sm: "center" }}
                             >
-                                {filtersOpen ? "Hide" : "Filter"}
-                            </Button>
-                            <Button
-                                variant="contained"
-                                startIcon={<AddIcon />}
-                                onClick={() => handleOpenDialog()}
-                                sx={{ display: { xs: 'none', sm: 'flex' } }}
-                            >
-                                Add Transaction
-                            </Button>
+                                <Box>
+                                    <Typography variant="h4" gutterBottom fontWeight={700}>
+                                        Transactions
+                                    </Typography>
+                                    <Typography
+                                        variant="body2"
+                                        sx={transactionPageHeaderStyles.subtitle}
+                                    >
+                                        Filter, review, and add income or expenses.
+                                    </Typography>
+                                </Box>
+                                <Stack direction="row" spacing={1} flexWrap="wrap">
+                                    <Button
+                                        variant="outlined"
+                                        color="inherit"
+                                        startIcon={<FilterIcon />}
+                                        onClick={() => setFiltersOpen(!filtersOpen)}
+                                        size={isMobile ? "small" : "medium"}
+                                        sx={{
+                                            borderColor: "rgba(255,255,255,0.5)",
+                                            color: "common.white",
+                                            "&:hover": {
+                                                borderColor: "common.white",
+                                                bgcolor: "rgba(255,255,255,0.12)",
+                                            },
+                                        }}
+                                    >
+                                        {filtersOpen ? "Hide filters" : "Filters"}
+                                    </Button>
+                                    <Button
+                                        variant="contained"
+                                        color="inherit"
+                                        startIcon={<AddIcon />}
+                                        onClick={() => handleOpenDialog()}
+                                        sx={{
+                                            display: { xs: "none", sm: "inline-flex" },
+                                            bgcolor: "rgba(255,255,255,0.2)",
+                                            color: "common.white",
+                                            fontWeight: 600,
+                                            "&:hover": { bgcolor: "rgba(255,255,255,0.3)" },
+                                        }}
+                                    >
+                                        Add transaction
+                                    </Button>
+                                </Stack>
+                            </Stack>
                         </Box>
-                    </Box>
 
-                    {/* Filters */}
-                    <Stack spacing={1} sx={{ mb: 2 }}>
-                        {accountsError && (
-                            <Alert
-                                severity="error"
-                                sx={pageErrorAlertSx}
-                                onClose={dismissAccountsError}
-                                action={
-                                    <Button
-                                        color="inherit"
-                                        size="small"
-                                        onClick={() => refetchAccounts()}
-                                    >
-                                        Retry
-                                    </Button>
-                                }
-                            >
-                                {accountsError}
-                            </Alert>
-                        )}
-                        {categoriesError && (
-                            <Alert
-                                severity="error"
-                                sx={pageErrorAlertSx}
-                                onClose={dismissCategoriesError}
-                                action={
-                                    <Button
-                                        color="inherit"
-                                        size="small"
-                                        onClick={() => refetchCategories()}
-                                    >
-                                        Retry
-                                    </Button>
-                                }
-                            >
-                                {categoriesError}
-                            </Alert>
-                        )}
-                        {error && (
-                            <Alert
-                                severity="error"
-                                sx={pageErrorAlertSx}
-                                onClose={dismissTransactionsError}
-                                action={
-                                    <Button
-                                        color="inherit"
-                                        size="small"
-                                        onClick={() => fetchTransactions()}
-                                    >
-                                        Retry
-                                    </Button>
-                                }
-                            >
-                                {error}
-                            </Alert>
-                        )}
+                        <Stack spacing={1}>
+                            {accountsError && (
+                                <Alert
+                                    severity="error"
+                                    sx={pageErrorAlertSx}
+                                    onClose={dismissAccountsError}
+                                    action={
+                                        <Button
+                                            color="inherit"
+                                            size="small"
+                                            onClick={() => refetchAccounts()}
+                                        >
+                                            Retry
+                                        </Button>
+                                    }
+                                >
+                                    {accountsError}
+                                </Alert>
+                            )}
+                            {categoriesError && (
+                                <Alert
+                                    severity="error"
+                                    sx={pageErrorAlertSx}
+                                    onClose={dismissCategoriesError}
+                                    action={
+                                        <Button
+                                            color="inherit"
+                                            size="small"
+                                            onClick={() => refetchCategories()}
+                                        >
+                                            Retry
+                                        </Button>
+                                    }
+                                >
+                                    {categoriesError}
+                                </Alert>
+                            )}
+                            {error && (
+                                <Alert
+                                    severity="error"
+                                    sx={pageErrorAlertSx}
+                                    onClose={dismissTransactionsError}
+                                    action={
+                                        <Button
+                                            color="inherit"
+                                            size="small"
+                                            onClick={() => fetchTransactions()}
+                                        >
+                                            Retry
+                                        </Button>
+                                    }
+                                >
+                                    {error}
+                                </Alert>
+                            )}
+                        </Stack>
+
+                        <FiltersPanel
+                            open={filtersOpen}
+                            filters={filters}
+                            categories={categories}
+                            accounts={accounts}
+                            onFilterChange={handleFilterChange}
+                            onDateFilterChange={handleDateFilterChange}
+                            onClearFilters={clearFilters}
+                            isMobile={isMobile}
+                        />
+
+                        <TransactionsList
+                            transactions={transactions}
+                            accounts={accounts}
+                            loading={loading}
+                            error={error}
+                            page={page}
+                            rowsPerPage={rowsPerPage}
+                            totalTransactions={totalTransactions}
+                            expandedCards={expandedCards}
+                            onEdit={handleOpenDialog}
+                            onDelete={handleDeleteTransaction}
+                            onPageChange={handleChangePage}
+                            onRowsPerPageChange={handleChangeRowsPerPage}
+                            onToggleExpand={toggleCardExpansion}
+                            onRetry={fetchTransactions}
+                            onClearFilters={clearFilters}
+                            hasActiveFilters={Object.values(filters).some(
+                                (val) => val !== "" && val !== null
+                            )}
+                            isMobile={isMobile}
+                        />
                     </Stack>
-
-                    <FiltersPanel
-                        open={filtersOpen}
-                        filters={filters}
-                        categories={categories}
-                        accounts={accounts}
-                        onFilterChange={handleFilterChange}
-                        onDateFilterChange={handleDateFilterChange}
-                        onClearFilters={clearFilters}
-                        isMobile={isMobile}
-                    />
-
-                    {/* Transactions List */}
-                    <TransactionsList
-                        transactions={transactions}
-                        accounts={accounts}
-                        loading={loading}
-                        error={error}
-                        page={page}
-                        rowsPerPage={rowsPerPage}
-                        totalTransactions={totalTransactions}
-                        expandedCards={expandedCards}
-                        onEdit={handleOpenDialog}
-                        onDelete={handleDeleteTransaction}
-                        onPageChange={handleChangePage}
-                        onRowsPerPageChange={handleChangeRowsPerPage}
-                        onToggleExpand={toggleCardExpansion}
-                        onRetry={fetchTransactions}
-                        onClearFilters={clearFilters}
-                        hasActiveFilters={Object.values(filters).some(val => val !== '' && val !== null)}
-                        isMobile={isMobile}
-                    />
                 </Box>
 
-                {/* Mobile FAB */}
                 {isMobile && (
-                    <Box sx={{ position: 'fixed', bottom: 16, right: 16 }}>
-                        <Fab color="primary" aria-label="add" onClick={() => handleOpenDialog()}>
-                            <AddIcon />
-                        </Fab>
-                    </Box>
+                    <Fab
+                        color="primary"
+                        aria-label="Add transaction"
+                        sx={transactionFabSx}
+                        onClick={() => handleOpenDialog()}
+                    >
+                        <AddIcon />
+                    </Fab>
                 )}
 
-                {/* Transaction Dialog */}
                 <TransactionDialog
                     open={openDialog}
                     editMode={editMode}
@@ -208,18 +246,17 @@ const TransactionsPage = () => {
                     isMobile={isMobile}
                 />
 
-                {/* Snackbar */}
                 <Snackbar
                     open={snackbar.open}
                     autoHideDuration={6000}
                     onClose={handleCloseSnackbar}
-                    anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+                    anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
                 >
                     <Alert
                         onClose={handleCloseSnackbar}
                         severity={snackbar.severity}
                         variant="filled"
-                        sx={{ width: '100%', borderRadius: 2 }}
+                        sx={{ width: "100%", borderRadius: 2 }}
                     >
                         {snackbar.message}
                     </Alert>

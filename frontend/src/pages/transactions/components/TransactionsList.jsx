@@ -1,5 +1,5 @@
-import React from 'react';
-import { TablePagination, Box, useTheme, useMediaQuery } from '@mui/material';
+import React from "react";
+import { TablePagination, Box } from "@mui/material";
 import MobileTransactionsList from './MobileTransactionsList';
 import DesktopTransactionsList from './DesktopTransactionsList';
 import LoadingState from './LoadingState';
@@ -7,29 +7,26 @@ import EmptyState from './EmptyState';
 import MobilePagination from '../../../components/MobilePagination';
 
 const TransactionsList = ({
-                              transactions,
-                              accounts,
-                              loading,
-                              error,
-                              page,
-                              rowsPerPage,
-                              totalTransactions,
-                              expandedCards,
-                              onEdit,
-                              onDelete,
-                              onPageChange,
-                              onRowsPerPageChange,
-                              onToggleExpand,
-                              onRetry,
-                              onClearFilters,
-                              hasActiveFilters,
-                              isMobile
-                          }) => {
-    const theme = useTheme();
-    useMediaQuery(theme.breakpoints.down('xs'));
+    transactions,
+    accounts,
+    loading,
+    error,
+    page,
+    rowsPerPage,
+    totalTransactions,
+    expandedCards,
+    onEdit,
+    onDelete,
+    onPageChange,
+    onRowsPerPageChange,
+    onToggleExpand,
+    onClearFilters,
+    hasActiveFilters,
+    isMobile,
+}) => {
     const getAccountName = (accountId) => {
         const account = accounts.find((acc) => acc.id === accountId);
-        return account ? account.name : 'Unknown Account';
+        return account ? account.name : "Unknown account";
     };
 
     if (loading) {
@@ -44,13 +41,13 @@ const TransactionsList = ({
     if (transactions.length === 0) {
         return (
             <EmptyState
-                title="No transactions found"
+                title="No transactions yet"
                 message={
                     hasActiveFilters
-                        ? "Try adjusting your filters or create your first transaction to start tracking your finances."
-                        : "Create your first transaction to start tracking your finances."
+                        ? "Try loosening filters or add a transaction to see it here."
+                        : "Add a transaction to start tracking income and expenses."
                 }
-                actionLabel="Add Transaction"
+                actionLabel="Add transaction"
                 onAction={() => onEdit()}
                 showClearFilters={hasActiveFilters}
                 onClearFilters={onClearFilters}
@@ -87,13 +84,17 @@ const TransactionsList = ({
                     onRowsPerPageChange={onRowsPerPageChange}
                 />
             ) : (
-                <Box sx={{
-                    overflow: 'auto',
-                    width: '100%',
-                    '.MuiTablePagination-root': {
-                        overflow: 'hidden'
-                    }
-                }}>
+                <Box
+                    sx={{
+                        overflow: "auto",
+                        width: "100%",
+                        mt: 2,
+                        borderRadius: 3,
+                        border: "1px solid",
+                        borderColor: "divider",
+                        bgcolor: "background.paper",
+                    }}
+                >
                     <TablePagination
                         component="div"
                         count={totalTransactions}
@@ -104,9 +105,8 @@ const TransactionsList = ({
                         rowsPerPageOptions={[5, 10, 25, 50]}
                         labelRowsPerPage="Rows per page:"
                         sx={{
-                            borderTop: 1,
-                            borderColor: 'divider',
-                            mt: 2
+                            borderTop: "none",
+                            px: 1,
                         }}
                     />
                 </Box>

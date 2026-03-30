@@ -1,49 +1,58 @@
-import React from 'react';
-import { Paper, Typography, Button, Box } from '@mui/material';
-import { Add as AddIcon, Clear as ClearIcon } from '@mui/icons-material';
+import React from "react";
+import { Typography, Button, Stack, Box } from "@mui/material";
+import { Add as AddIcon, Clear as ClearIcon } from "@mui/icons-material";
+import { transactionLayoutStyles } from "../styles/transactionStyles";
 
 const EmptyState = ({
-                        title,
-                        message,
-                        actionLabel,
-                        onAction,
-                        showClearFilters = false,
-                        onClearFilters,
-                        variant = 'default'
-                    }) => {
-    const backgroundColor = variant === 'error' ? '#ffefef' : 'transparent';
-    const titleColor = variant === 'error' ? 'error' : 'text.primary';
+    title,
+    message,
+    actionLabel,
+    onAction,
+    showClearFilters = false,
+    onClearFilters,
+    variant = "default",
+}) => {
+    const isError = variant === "error";
 
     return (
-        <Paper sx={{ p: 4, textAlign: 'center', backgroundColor }}>
-            <Typography variant="h6" gutterBottom color={titleColor}>
+        <Box
+            sx={{
+                ...transactionLayoutStyles.sectionCard,
+                textAlign: "center",
+                ...(isError && {
+                    borderColor: "error.light",
+                    bgcolor: "rgba(239, 68, 68, 0.04)",
+                }),
+            }}
+        >
+            <Typography variant="h6" gutterBottom fontWeight={700} color={isError ? "error" : "text.primary"}>
                 {title}
             </Typography>
-            <Typography variant="body1" color="text.secondary" paragraph>
+            <Typography variant="body2" color="text.secondary" paragraph sx={{ maxWidth: 420, mx: "auto" }}>
                 {message}
             </Typography>
-            <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
+            <Stack direction={{ xs: "column", sm: "row" }} spacing={2} justifyContent="center" alignItems="center">
                 {showClearFilters && (
                     <Button
                         variant="outlined"
                         startIcon={<ClearIcon />}
                         onClick={onClearFilters}
                     >
-                        Clear Filters
+                        Clear filters
                     </Button>
                 )}
                 {onAction && (
                     <Button
-                        variant={variant === 'error' ? 'outlined' : 'contained'}
-                        color={variant === 'error' ? 'primary' : 'primary'}
-                        startIcon={variant !== 'error' && <AddIcon />}
+                        variant={isError ? "outlined" : "contained"}
+                        color={isError ? "error" : "primary"}
+                        startIcon={!isError ? <AddIcon /> : undefined}
                         onClick={onAction}
                     >
                         {actionLabel}
                     </Button>
                 )}
-            </Box>
-        </Paper>
+            </Stack>
+        </Box>
     );
 };
 
