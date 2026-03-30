@@ -6,12 +6,16 @@ const GlobalLoader = () => {
 
     return (
         <Backdrop
-            sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+            sx={{
+                color: "background.paper",
+                zIndex: (theme) => theme.zIndex.modal,
+                backgroundColor: "rgba(15, 23, 42, 0.45)",
+            }}
             open={loading}
         >
             <Box display="flex" flexDirection="column" alignItems="center">
-                <CircularProgress color="inherit" />
-                <Typography variant="body1" sx={{ mt: 2 }}>
+                <CircularProgress color="primary" />
+                <Typography variant="body1" sx={{ mt: 2 }} color="text.primary">
                     Loading...
                 </Typography>
             </Box>
