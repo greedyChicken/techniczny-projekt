@@ -5,6 +5,7 @@ import { dashboardService } from "../../../api/dashboardService";
 import { formatCurrency } from "../utils/formatters";
 import { DASHBOARD_CONSTANTS } from "../utils/constants";
 import { useUIState } from "../../../contexts/UIStateContext";
+import { dashboardLayoutStyles } from "../styles/dashboardStyles";
 
 const ExpenseCategoriesChart = () => {
     const [categoryData, setCategoryData] = useState([]);
@@ -84,7 +85,7 @@ const ExpenseCategoriesChart = () => {
     const totalExpenses = categoryData.reduce((sum, item) => sum + item.value, 0);
 
     return (
-        <Paper sx={{ p: 3, height: '100%' }}>
+        <Paper sx={{ ...dashboardLayoutStyles.sectionCard, height: "100%" }}>
             <Typography variant="h6" gutterBottom>
                 Expense Categories
             </Typography>
@@ -110,7 +111,7 @@ const ExpenseCategoriesChart = () => {
                                 cy="50%"
                                 labelLine={false}
                                 label={renderCustomizedLabel}
-                                outerRadius={80}
+                                outerRadius={95}
                                 fill="#8884d8"
                                 dataKey="value"
                             >

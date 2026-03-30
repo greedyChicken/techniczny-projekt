@@ -14,6 +14,7 @@ import { Warning } from "@mui/icons-material";
 import { budgetService } from "../../../api/budgetService";
 import { formatCurrency } from "../utils/formatters";
 import { useUIState } from "../../../contexts/UIStateContext";
+import { dashboardLayoutStyles } from "../styles/dashboardStyles";
 
 const BudgetOverview = () => {
     const [budgets, setBudgets] = useState([]);
@@ -133,7 +134,7 @@ const BudgetOverview = () => {
     };
 
     return (
-        <Paper sx={{ p: 3, height: '100%' }}>
+        <Paper sx={{ ...dashboardLayoutStyles.sectionCard, height: "100%" }}>
             <Typography variant="h6" gutterBottom>
                 Budget Overview
             </Typography>

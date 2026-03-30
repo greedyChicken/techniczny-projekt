@@ -1,6 +1,7 @@
 import React from "react";
-import { Card, CardContent, Typography, Skeleton } from "@mui/material";
+import { Card, CardContent, Typography, Skeleton, Box } from "@mui/material";
 import { formatCurrency } from "../utils/formatters";
+import { summaryCardStyles } from "../styles/dashboardStyles";
 
 const SummaryCard = ({
                          icon: Icon,
@@ -17,13 +18,11 @@ const SummaryCard = ({
     };
 
     return (
-        <Card raised sx={{ height: "100%" }}>
-            <CardContent sx={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center"
-            }}>
-                <Icon color={color} sx={{ fontSize: 48, mb: 2 }} />
+        <Card sx={summaryCardStyles.card}>
+            <CardContent sx={summaryCardStyles.content}>
+                <Box sx={summaryCardStyles.iconBadge}>
+                    <Icon color={color} sx={{ fontSize: 34 }} />
+                </Box>
                 <Typography variant="h5" component="div">
                     {renderValue()}
                 </Typography>

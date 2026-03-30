@@ -42,8 +42,8 @@ const SummaryCards = ({ summary }) => {
 
     return (
         <Grid container spacing={3} sx={{ mb: 3 }}>
-            {summaryData.map((item, index) => (
-                <Grid item xs={12} sm={6} md={3} key={index}>
+            {summaryData.map((item) => (
+                <Grid item xs={12} sm={6} md={3} key={item.label}>
                     <SummaryCard
                         icon={item.icon}
                         value={item.value}

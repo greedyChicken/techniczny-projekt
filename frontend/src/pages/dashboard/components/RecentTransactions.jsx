@@ -27,6 +27,7 @@ import {
 import { dashboardService } from "../../../api/dashboardService";
 import { formatCurrency, formatDate } from "../utils/formatters";
 import { useUIState } from "../../../contexts/UIStateContext";
+import { dashboardLayoutStyles } from "../styles/dashboardStyles";
 
 const RecentTransactions = () => {
     const [transactions, setTransactions] = useState([]);
@@ -79,8 +80,13 @@ const RecentTransactions = () => {
         }
     };
 
+    const getSignedAmount = (type, amount) => {
+        const prefix = type === "INCOME" ? "+" : "-";
+        return `${prefix}${formatCurrency(Math.abs(amount))}`;
+    };
+
     const MobileTransactionCard = ({ transaction }) => (
-        <Card sx={{ mb: 2 }}>
+        <Card sx={{ mb: 2, borderRadius: 2, border: "1px solid", borderColor: "divider" }}>
             <CardContent>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                     <Typography variant="subtitle2" color="text.secondary">
@@ -110,8 +116,7 @@ const RecentTransactions = () => {
                             fontWeight: 'medium'
                         }}
                     >
-                        {transaction.type === 'INCOME' ? '+' : '-'}
-                        {formatCurrency(Math.abs(transaction.amount))}
+                        {getSignedAmount(transaction.type, transaction.amount)}
                     </Typography>
                 </Box>
             </CardContent>
@@ -121,7 +126,7 @@ const RecentTransactions = () => {
     return (
         <Grid container spacing={3} sx={{ mb: 3 }}>
             <Grid item xs={12}>
-                <Paper sx={{ p: 3 }}>
+                <Paper sx={dashboardLayoutStyles.sectionCard}>
                     <Typography variant="h6" gutterBottom>
                         Recent Transactions
                     </Typography>
@@ -178,8 +183,7 @@ const RecentTransactions = () => {
                                                             fontWeight: 'medium'
                                                         }}
                                                     >
-                                                        {transaction.type === 'INCOME' ? '+' : '-'}
-                                                        {formatCurrency(Math.abs(transaction.amount))}
+                                                        {getSignedAmount(transaction.type, transaction.amount)}
                                                     </TableCell>
                                                 </TableRow>
                                             ))}

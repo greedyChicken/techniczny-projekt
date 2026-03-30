@@ -1,12 +1,13 @@
 import React from "react";
 import { Container, Box, Grid, Card, CardContent, Skeleton } from "@mui/material";
+import { dashboardLayoutStyles } from "../styles/dashboardStyles";
 
 const LoadingState = () => {
     return (
         <Container maxWidth="lg">
-            <Box sx={{ mt: 2, mb: 2 }}>
+            <Box sx={dashboardLayoutStyles.pageContainer}>
                 {/* Header Loading */}
-                <Box sx={{ mb: 3 }}>
+                <Box sx={{ mb: 3, borderRadius: 3, p: { xs: 2, md: 3 }, bgcolor: "action.hover" }}>
                     <Skeleton variant="text" width="200px" height={40} />
                     <Skeleton variant="text" width="60%" height={20} sx={{ mt: 1 }} />
                 </Box>
@@ -15,7 +16,7 @@ const LoadingState = () => {
                 <Grid container spacing={3} sx={{ mb: 3 }}>
                     {[1, 2, 3, 4].map((item) => (
                         <Grid item xs={12} sm={6} md={3} key={item}>
-                            <Card raised sx={{ height: "100%" }}>
+                            <Card sx={dashboardLayoutStyles.sectionCard}>
                                 <CardContent sx={{
                                     display: "flex",
                                     flexDirection: "column",
@@ -33,7 +34,7 @@ const LoadingState = () => {
                 {/* Recent Transactions Loading */}
                 <Grid container spacing={3}>
                     <Grid item xs={12}>
-                        <Card sx={{ p: 3 }}>
+                        <Card sx={dashboardLayoutStyles.sectionCard}>
                             <Skeleton variant="text" width="200px" height={28} />
                             <Box sx={{ mt: 2, height: "300px" }}>
                                 {[1, 2, 3, 4, 5].map((item) => (
