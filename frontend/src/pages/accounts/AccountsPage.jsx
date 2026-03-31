@@ -19,6 +19,7 @@ import AccountsList from "./components/AccountsList";
 import AccountDialog from "./components/AccountDialog";
 import TransferDialog from "./components/TransferDialog";
 import { financesLayoutStyles } from "./styles/financesPageStyles";
+import { pageErrorAlertSx } from "../../styles/feedbackStyles";
 
 const AccountsPage = () => {
     const theme = useTheme();
@@ -117,29 +118,46 @@ const AccountsPage = () => {
                         </Stack>
                     </Box>
 
-                    {!loading && !error && accounts.length > 0 && (
-                        <Box sx={{ display: { xs: "none", sm: "block" } }}>
-                            <AccountsSummary
-                                totalBalance={getTotalBalance()}
-                                accountCount={accounts.length}
-                            />
-                        </Box>
+                    {error && (
+                        <Alert
+                            severity="error"
+                            sx={pageErrorAlertSx}
+                            action={
+                                <Button color="inherit" size="small" onClick={refetch}>
+                                    Retry
+                                </Button>
+                            }
+                        >
+                            {error}
+                        </Alert>
                     )}
 
-                    <Box sx={financesLayoutStyles.sectionCard}>
-                        <AccountsList
-                            accounts={accounts}
-                            loading={loading}
-                            error={error}
-                            onRefetch={refetch}
-                            onEdit={handleOpenAccountDialog}
-                            onDelete={() => {
-                                refetch();
-                                showSnackbar("Account deleted successfully");
-                            }}
-                            showSnackbar={showSnackbar}
-                        />
-                    </Box>
+                    {!error && (
+                        <>
+                            {!loading && accounts.length > 0 && (
+                                <Box sx={{ display: { xs: "none", sm: "block" } }}>
+                                    <AccountsSummary
+                                        totalBalance={getTotalBalance()}
+                                        accountCount={accounts.length}
+                                    />
+                                </Box>
+                            )}
+
+                            <Box sx={financesLayoutStyles.sectionCard}>
+                                <AccountsList
+                                    accounts={accounts}
+                                    loading={loading}
+                                    onRefetch={refetch}
+                                    onEdit={handleOpenAccountDialog}
+                                    onDelete={() => {
+                                        refetch();
+                                        showSnackbar("Account deleted successfully");
+                                    }}
+                                    showSnackbar={showSnackbar}
+                                />
+                            </Box>
+                        </>
+                    )}
                 </Stack>
             </Box>
 

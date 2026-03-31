@@ -1,10 +1,9 @@
-import { Grid, Typography, Button, Skeleton, Card, CardContent, Box, Alert } from "@mui/material";
+import { Grid, Typography, Button, Skeleton, Card, CardContent, Box } from "@mui/material";
 import { Add as AddIcon } from "@mui/icons-material";
 import AccountCard from "./AccountCard";
 import { accountService } from "../../../api/accountService";
-import { pageErrorAlertSx } from "../../../styles/feedbackStyles";
 
-const AccountsList = ({ accounts, loading, error, onRefetch, onEdit, onDelete, showSnackbar }) => {
+const AccountsList = ({ accounts, loading, onEdit, onDelete, showSnackbar }) => {
     const handleDeleteAccount = async (accountId) => {
         if (!window.confirm("Are you sure you want to delete this account?")) {
             return;
@@ -36,22 +35,6 @@ const AccountsList = ({ accounts, loading, error, onRefetch, onEdit, onDelete, s
                     </Grid>
                 ))}
             </Grid>
-        );
-    }
-
-    if (error) {
-        return (
-            <Alert
-                severity="error"
-                sx={pageErrorAlertSx}
-                action={
-                    <Button color="inherit" size="small" onClick={onRefetch}>
-                        Retry
-                    </Button>
-                }
-            >
-                {error}
-            </Alert>
         );
     }
 
