@@ -6,6 +6,7 @@ import {
     Button,
     Alert,
     Fab,
+    Stack,
 } from "@mui/material";
 import { Add as AddIcon } from "@mui/icons-material";
 import { useTheme } from "@mui/material/styles";
@@ -77,28 +78,33 @@ const BudgetsPage = () => {
                                 <Typography variant="h4" gutterBottom fontWeight={700}>
                                     Budgets
                                 </Typography>
-                                <Typography
-                                    variant="body1"
-                                    sx={budgetPageHeaderStyles.subtitle}
-                                >
+                                <Typography variant="body2" sx={budgetPageHeaderStyles.subtitle}>
                                     Track limits and spending so you stay in control.
                                 </Typography>
                             </Box>
-                            <Button
-                                variant="contained"
-                                color="inherit"
-                                startIcon={<AddIcon />}
-                                onClick={() => handleOpenDialog()}
+                            <Stack
+                                direction={{ xs: "column", sm: "row" }}
+                                spacing={1.5}
                                 sx={{
-                                    display: { xs: "none", sm: "inline-flex" },
-                                    bgcolor: "rgba(255,255,255,0.2)",
-                                    color: "common.white",
-                                    fontWeight: 600,
-                                    "&:hover": { bgcolor: "rgba(255,255,255,0.3)" },
+                                    width: { xs: "100%", sm: "auto" },
+                                    "& > button": { width: { xs: "100%", sm: "auto" } },
                                 }}
                             >
-                                Add budget
-                            </Button>
+                                <Button
+                                    variant="contained"
+                                    color="inherit"
+                                    startIcon={<AddIcon />}
+                                    onClick={() => handleOpenDialog()}
+                                    sx={{
+                                        bgcolor: "rgba(255,255,255,0.2)",
+                                        color: "common.white",
+                                        fontWeight: 600,
+                                        "&:hover": { bgcolor: "rgba(255,255,255,0.3)" },
+                                    }}
+                                >
+                                    Add budget
+                                </Button>
+                            </Stack>
                         </Box>
                     </Box>
 
@@ -121,16 +127,18 @@ const BudgetsPage = () => {
                             />
                         )}
 
-                        <BudgetsList
-                            budgets={budgets}
-                            loading={loading}
-                            onEdit={handleOpenDialog}
-                            onDelete={confirmDeleteBudget}
-                            onAddBudget={handleOpenDialog}
-                            deleteDialogOpen={deleteDialogOpen}
-                            handleConfirmDelete={handleConfirmDelete}
-                            handleCancelDelete={handleCancelDelete}
-                        />
+                        <Box sx={budgetLayoutStyles.sectionCard}>
+                            <BudgetsList
+                                budgets={budgets}
+                                loading={loading}
+                                onEdit={handleOpenDialog}
+                                onDelete={confirmDeleteBudget}
+                                onAddBudget={handleOpenDialog}
+                                deleteDialogOpen={deleteDialogOpen}
+                                handleConfirmDelete={handleConfirmDelete}
+                                handleCancelDelete={handleCancelDelete}
+                            />
+                        </Box>
                     </Box>
                 </Box>
 

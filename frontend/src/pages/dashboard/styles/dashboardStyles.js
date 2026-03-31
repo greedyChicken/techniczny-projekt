@@ -2,6 +2,9 @@ export const dashboardLayoutStyles = {
   pageContainer: {
     mt: { xs: 2, md: 3 },
     mb: { xs: 2, md: 4 },
+    display: "flex",
+    flexDirection: "column",
+    gap: 3,
   },
   contentStack: {
     display: "flex",
