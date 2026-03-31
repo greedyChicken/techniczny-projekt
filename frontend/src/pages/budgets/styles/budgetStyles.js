@@ -95,3 +95,16 @@ export const budgetFabSx = {
   right: 24,
   boxShadow: "0 12px 28px rgba(37, 99, 235, 0.4)",
 };
+
+/** CSS Grid + gap: aligns card edges with hero/header (no MUI Grid negative margins). */
+export const budgetSummaryGridSx = {
+  display: "grid",
+  gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", md: "repeat(4, 1fr)" },
+  gap: 3,
+};
+
+export const budgetListGridSx = {
+  display: "grid",
+  gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", lg: "repeat(3, 1fr)" },
+  gap: 3,
+};

@@ -1,6 +1,6 @@
 import React from "react";
 import {
-    Grid,
+    Box,
     Dialog,
     DialogTitle,
     DialogContent,
@@ -11,6 +11,7 @@ import {
 import BudgetCard from "./BudgetCard";
 import EmptyState from "./EmptyState";
 import LoadingState from "./LoadingState";
+import { budgetListGridSx } from "../styles/budgetStyles";
 
 const BudgetsList = ({
     budgets,
@@ -32,13 +33,11 @@ const BudgetsList = ({
 
     return (
         <>
-            <Grid container spacing={3}>
+            <Box sx={budgetListGridSx}>
                 {budgets.map((budget) => (
-                    <Grid item xs={12} sm={6} lg={4} key={budget.id}>
-                        <BudgetCard budget={budget} onEdit={onEdit} onDelete={onDelete} />
-                    </Grid>
+                    <BudgetCard key={budget.id} budget={budget} onEdit={onEdit} onDelete={onDelete} />
                 ))}
-            </Grid>
+            </Box>
 
             <Dialog
                 open={deleteDialogOpen}

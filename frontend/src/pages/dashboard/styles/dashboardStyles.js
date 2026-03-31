@@ -8,6 +8,13 @@ export const dashboardLayoutStyles = {
     flexDirection: "column",
     gap: 3,
   },
+  /** Same idea as budgets: `gap` avoids MUI Grid spacing inset vs hero. */
+  summaryGrid: {
+    display: "grid",
+    gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", md: "repeat(4, 1fr)" },
+    gap: 3,
+    mb: 3,
+  },
   sectionCard: {
     p: { xs: 2, md: 3 },
     borderRadius: 3,

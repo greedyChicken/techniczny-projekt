@@ -6,7 +6,6 @@ import {
     Button,
     Alert,
     Fab,
-    Stack,
 } from "@mui/material";
 import { Add as AddIcon } from "@mui/icons-material";
 import { useTheme } from "@mui/material/styles";
@@ -56,54 +55,64 @@ const BudgetsPage = () => {
     return (
         <LocalizationProvider dateAdapter={AdapterDateFns}>
             <Container maxWidth="lg">
-                <Box sx={budgetLayoutStyles.pageContainer}>
-                    <Stack spacing={3}>
-                        <Box sx={budgetPageHeaderStyles.wrapper}>
-                            <Stack
-                                direction={{ xs: "column", sm: "row" }}
-                                spacing={2}
-                                justifyContent="space-between"
-                                alignItems={{ xs: "stretch", sm: "center" }}
-                            >
-                                <Box>
-                                    <Typography variant="h4" gutterBottom fontWeight={700}>
-                                        Budgets
-                                    </Typography>
-                                    <Typography
-                                        variant="body1"
-                                        sx={budgetPageHeaderStyles.subtitle}
-                                    >
-                                        Track limits and spending so you stay in control.
-                                    </Typography>
-                                </Box>
-                                <Button
-                                    variant="contained"
-                                    color="inherit"
-                                    startIcon={<AddIcon />}
-                                    onClick={() => handleOpenDialog()}
-                                    sx={{
-                                        display: { xs: "none", sm: "inline-flex" },
-                                        bgcolor: "rgba(255,255,255,0.2)",
-                                        color: "common.white",
-                                        fontWeight: 600,
-                                        "&:hover": { bgcolor: "rgba(255,255,255,0.3)" },
-                                    }}
+                <Box
+                    sx={{
+                        ...budgetLayoutStyles.pageContainer,
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 3,
+                    }}
+                >
+                    <Box sx={budgetPageHeaderStyles.wrapper}>
+                        <Box
+                            sx={{
+                                display: "flex",
+                                flexDirection: { xs: "column", sm: "row" },
+                                gap: 2,
+                                justifyContent: "space-between",
+                                alignItems: { xs: "stretch", sm: "center" },
+                            }}
+                        >
+                            <Box>
+                                <Typography variant="h4" gutterBottom fontWeight={700}>
+                                    Budgets
+                                </Typography>
+                                <Typography
+                                    variant="body1"
+                                    sx={budgetPageHeaderStyles.subtitle}
                                 >
-                                    Add budget
-                                </Button>
-                            </Stack>
-                        </Box>
-
-                        {error && (
-                            <Alert
-                                severity="error"
-                                sx={pageErrorAlertSx}
-                                onClose={() => setError(null)}
+                                    Track limits and spending so you stay in control.
+                                </Typography>
+                            </Box>
+                            <Button
+                                variant="contained"
+                                color="inherit"
+                                startIcon={<AddIcon />}
+                                onClick={() => handleOpenDialog()}
+                                sx={{
+                                    display: { xs: "none", sm: "inline-flex" },
+                                    bgcolor: "rgba(255,255,255,0.2)",
+                                    color: "common.white",
+                                    fontWeight: 600,
+                                    "&:hover": { bgcolor: "rgba(255,255,255,0.3)" },
+                                }}
                             >
-                                {error}
-                            </Alert>
-                        )}
+                                Add budget
+                            </Button>
+                        </Box>
+                    </Box>
 
+                    {error && (
+                        <Alert
+                            severity="error"
+                            sx={pageErrorAlertSx}
+                            onClose={() => setError(null)}
+                        >
+                            {error}
+                        </Alert>
+                    )}
+
+                    <Box sx={budgetLayoutStyles.contentStack}>
                         {!isMobile && (
                             <BudgetSummaryCards
                                 totalBudget={totalBudget}
@@ -122,7 +131,7 @@ const BudgetsPage = () => {
                             handleConfirmDelete={handleConfirmDelete}
                             handleCancelDelete={handleCancelDelete}
                         />
-                    </Stack>
+                    </Box>
                 </Box>
 
                 {isMobile && (

@@ -1,5 +1,5 @@
 import React from "react";
-import { Grid } from "@mui/material";
+import { Box } from "@mui/material";
 import {
     AccountBalance as AccountBalanceIcon,
     TrendingUp as TrendingUpIcon,
@@ -8,6 +8,7 @@ import {
 } from "@mui/icons-material";
 import SummaryCard from "./SummaryCard";
 import { useUIState } from "../../../contexts/UIStateContext";
+import { dashboardLayoutStyles } from "../styles/dashboardStyles";
 
 const SummaryCards = ({ summary }) => {
     const { isLoading } = useUIState();
@@ -41,19 +42,18 @@ const SummaryCards = ({ summary }) => {
     ];
 
     return (
-        <Grid container spacing={3} sx={{ mb: 3 }}>
+        <Box sx={dashboardLayoutStyles.summaryGrid}>
             {summaryData.map((item) => (
-                <Grid item xs={12} sm={6} md={3} key={item.label}>
-                    <SummaryCard
-                        icon={item.icon}
-                        value={item.value}
-                        label={item.label}
-                        color={item.color}
-                        isLoading={loading}
-                    />
-                </Grid>
+                <SummaryCard
+                    key={item.label}
+                    icon={item.icon}
+                    value={item.value}
+                    label={item.label}
+                    color={item.color}
+                    isLoading={loading}
+                />
             ))}
-        </Grid>
+        </Box>
     );
 };
 

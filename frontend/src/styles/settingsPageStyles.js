@@ -3,6 +3,19 @@ export const settingsLayoutSx = {
     mb: { xs: 2, md: 4 },
 };
 
+/** Matches dashboard `contentStack`: vertical rhythm without MUI Grid spacing gutters. */
+export const settingsContentStackSx = {
+    display: "flex",
+    flexDirection: "column",
+    gap: 3,
+};
+
+export const settingsTwoColumnGridSx = {
+    display: "grid",
+    gridTemplateColumns: { xs: "1fr", md: "repeat(2, 1fr)" },
+    gap: 3,
+};
+
 export const settingsHeroSx = {
     p: { xs: 2, md: 3 },
     borderRadius: 3,

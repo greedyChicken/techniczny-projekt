@@ -11,7 +11,6 @@ import {
   Card,
   CardContent,
   CardHeader,
-  Grid,
   Skeleton,
   Dialog,
   DialogTitle,
@@ -45,6 +44,8 @@ import {
   settingsHeroSubtitleSx,
   settingsCardSx,
   settingsDangerCardSx,
+  settingsContentStackSx,
+  settingsTwoColumnGridSx,
 } from "../styles/settingsPageStyles";
 
 const SettingsPage = () => {
@@ -231,8 +232,8 @@ const SettingsPage = () => {
             </Typography>
           </Box>
 
-          <Grid container spacing={3}>
-            <Grid item xs={12} md={6}>
+          <Box sx={settingsContentStackSx}>
+            <Box sx={settingsTwoColumnGridSx}>
               <Card sx={settingsCardSx} elevation={0}>
                 <CardHeader
                   title="Profile"
@@ -265,9 +266,7 @@ const SettingsPage = () => {
                   )}
                 </CardContent>
               </Card>
-            </Grid>
 
-            <Grid item xs={12} md={6}>
               <Card sx={settingsCardSx} elevation={0}>
                 <CardHeader
                   title="Security"
@@ -360,33 +359,31 @@ const SettingsPage = () => {
                   )}
                 </CardContent>
               </Card>
-            </Grid>
+            </Box>
 
-            <Grid item xs={12}>
-              <Card sx={settingsDangerCardSx} elevation={0}>
-                <CardHeader
-                  title="Danger zone"
-                  titleTypographyProps={{ fontWeight: 700, color: "error" }}
-                  avatar={<DeleteIcon color="error" />}
-                />
-                <Divider />
-                <CardContent>
-                  <Typography variant="body2" color="text.secondary" gutterBottom>
-                    Deleting your account cannot be undone. All associated data will be removed.
-                  </Typography>
-                  <Button
-                    variant="outlined"
-                    color="error"
-                    startIcon={<DeleteIcon />}
-                    onClick={handleOpenDeleteDialog}
-                    sx={{ mt: 2 }}
-                  >
-                    Delete account
-                  </Button>
-                </CardContent>
-              </Card>
-            </Grid>
-          </Grid>
+            <Card sx={settingsDangerCardSx} elevation={0}>
+              <CardHeader
+                title="Danger zone"
+                titleTypographyProps={{ fontWeight: 700, color: "error" }}
+                avatar={<DeleteIcon color="error" />}
+              />
+              <Divider />
+              <CardContent>
+                <Typography variant="body2" color="text.secondary" gutterBottom>
+                  Deleting your account cannot be undone. All associated data will be removed.
+                </Typography>
+                <Button
+                  variant="outlined"
+                  color="error"
+                  startIcon={<DeleteIcon />}
+                  onClick={handleOpenDeleteDialog}
+                  sx={{ mt: 2 }}
+                >
+                  Delete account
+                </Button>
+              </CardContent>
+            </Card>
+          </Box>
         </Stack>
       </Box>
 
