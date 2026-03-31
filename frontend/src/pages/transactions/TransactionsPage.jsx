@@ -130,95 +130,102 @@ const TransactionsPage = () => {
                             </Stack>
                         </Box>
 
-                        <Stack spacing={1}>
-                            {accountsError && (
-                                <Alert
-                                    severity="error"
-                                    sx={pageErrorAlertSx}
-                                    onClose={dismissAccountsError}
-                                    action={
-                                        <Button
-                                            color="inherit"
-                                            size="small"
-                                            onClick={() => refetchAccounts()}
+                        {/* Single block under the hero (one outer gap). No Stack gap before the list when filters are collapsed. */}
+                        <Stack spacing={0}>
+                            {(accountsError || categoriesError || error) && (
+                                <Stack spacing={1} sx={{ mb: 3 }}>
+                                    {accountsError && (
+                                        <Alert
+                                            severity="error"
+                                            sx={pageErrorAlertSx}
+                                            onClose={dismissAccountsError}
+                                            action={
+                                                <Button
+                                                    color="inherit"
+                                                    size="small"
+                                                    onClick={() => refetchAccounts()}
+                                                >
+                                                    Retry
+                                                </Button>
+                                            }
                                         >
-                                            Retry
-                                        </Button>
-                                    }
-                                >
-                                    {accountsError}
-                                </Alert>
-                            )}
-                            {categoriesError && (
-                                <Alert
-                                    severity="error"
-                                    sx={pageErrorAlertSx}
-                                    onClose={dismissCategoriesError}
-                                    action={
-                                        <Button
-                                            color="inherit"
-                                            size="small"
-                                            onClick={() => refetchCategories()}
+                                            {accountsError}
+                                        </Alert>
+                                    )}
+                                    {categoriesError && (
+                                        <Alert
+                                            severity="error"
+                                            sx={pageErrorAlertSx}
+                                            onClose={dismissCategoriesError}
+                                            action={
+                                                <Button
+                                                    color="inherit"
+                                                    size="small"
+                                                    onClick={() => refetchCategories()}
+                                                >
+                                                    Retry
+                                                </Button>
+                                            }
                                         >
-                                            Retry
-                                        </Button>
-                                    }
-                                >
-                                    {categoriesError}
-                                </Alert>
-                            )}
-                            {error && (
-                                <Alert
-                                    severity="error"
-                                    sx={pageErrorAlertSx}
-                                    onClose={dismissTransactionsError}
-                                    action={
-                                        <Button
-                                            color="inherit"
-                                            size="small"
-                                            onClick={() => fetchTransactions()}
+                                            {categoriesError}
+                                        </Alert>
+                                    )}
+                                    {error && (
+                                        <Alert
+                                            severity="error"
+                                            sx={pageErrorAlertSx}
+                                            onClose={dismissTransactionsError}
+                                            action={
+                                                <Button
+                                                    color="inherit"
+                                                    size="small"
+                                                    onClick={() => fetchTransactions()}
+                                                >
+                                                    Retry
+                                                </Button>
+                                            }
                                         >
-                                            Retry
-                                        </Button>
-                                    }
-                                >
-                                    {error}
-                                </Alert>
+                                            {error}
+                                        </Alert>
+                                    )}
+                                </Stack>
                             )}
+
+                            <Box sx={{ mb: filtersOpen ? 3 : 0 }}>
+                                <FiltersPanel
+                                    open={filtersOpen}
+                                    filters={filters}
+                                    categories={categories}
+                                    accounts={accounts}
+                                    onFilterChange={handleFilterChange}
+                                    onDateFilterChange={handleDateFilterChange}
+                                    onClearFilters={clearFilters}
+                                    isMobile={isMobile}
+                                />
+                            </Box>
+
+                            <TransactionsList
+                                transactions={transactions}
+                                accounts={accounts}
+                                loading={loading}
+                                error={error}
+                                page={page}
+                                rowsPerPage={rowsPerPage}
+                                totalTransactions={totalTransactions}
+                                expandedCards={expandedCards}
+                                onEdit={handleOpenDialog}
+                                onDelete={handleDeleteTransaction}
+                                onPageChange={handleChangePage}
+                                onRowsPerPageChange={handleChangeRowsPerPage}
+                                onToggleExpand={toggleCardExpansion}
+                                onRetry={fetchTransactions}
+                                onClearFilters={clearFilters}
+                                hasActiveFilters={Object.values(filters).some(
+                                    (val) => val !== "" && val !== null
+                                )}
+                                isMobile={isMobile}
+                            />
                         </Stack>
-
-                        <FiltersPanel
-                            open={filtersOpen}
-                            filters={filters}
-                            categories={categories}
-                            accounts={accounts}
-                            onFilterChange={handleFilterChange}
-                            onDateFilterChange={handleDateFilterChange}
-                            onClearFilters={clearFilters}
-                            isMobile={isMobile}
-                        />
-
-                        <TransactionsList
-                            transactions={transactions}
-                            accounts={accounts}
-                            loading={loading}
-                            error={error}
-                            page={page}
-                            rowsPerPage={rowsPerPage}
-                            totalTransactions={totalTransactions}
-                            expandedCards={expandedCards}
-                            onEdit={handleOpenDialog}
-                            onDelete={handleDeleteTransaction}
-                            onPageChange={handleChangePage}
-                            onRowsPerPageChange={handleChangeRowsPerPage}
-                            onToggleExpand={toggleCardExpansion}
-                            onRetry={fetchTransactions}
-                            onClearFilters={clearFilters}
-                            hasActiveFilters={Object.values(filters).some(
-                                (val) => val !== "" && val !== null
-                            )}
-                            isMobile={isMobile}
-                        />
                     </Stack>
                 </Box>
 
