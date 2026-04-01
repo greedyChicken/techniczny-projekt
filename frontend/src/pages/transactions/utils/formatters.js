@@ -9,10 +9,20 @@ export const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('en-GB');
 };
 
+const pad2 = (n) => String(n).padStart(2, '0');
+
+/** Local calendar date YYYY-MM-DD for query params (avoids UTC day shift from toISOString). */
 export const formatDateForAPI = (date) => {
-    return date.toISOString().split('T')[0];
+    if (!date || !(date instanceof Date) || Number.isNaN(date.getTime())) {
+        return '';
+    }
+    return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`;
 };
 
+/** Local wall-clock YYYY-MM-DDTHH:mm:ss for LocalDateTime JSON (avoids UTC shift from toISOString). */
 export const formatDateTimeForAPI = (date) => {
-    return date.toISOString().slice(0, 19);
+    if (!date || !(date instanceof Date) || Number.isNaN(date.getTime())) {
+        return '';
+    }
+    return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}T${pad2(date.getHours())}:${pad2(date.getMinutes())}:${pad2(date.getSeconds())}`;
 };
