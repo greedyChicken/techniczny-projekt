@@ -97,9 +97,10 @@ public class TransactionService {
             transactionToEdit -> {
               double oldAmount = transactionToEdit.getAmount();
               Long oldCategoryId = transactionToEdit.getCategory().getId();
+              double newAmount = isExpense ? -request.getAmount() : request.getAmount();
 
               transactionToEdit.setId(id);
-              transactionToEdit.setAmount(request.getAmount());
+              transactionToEdit.setAmount(newAmount);
               transactionToEdit.setDate(request.getDate());
               transactionToEdit.setCategory(categoryService.findById(request.getCategoryId()));
               transactionToEdit.setDescription(request.getDescription());
@@ -115,9 +116,9 @@ public class TransactionService {
                       request.getCategoryId(),
                       Math.abs(request.getAmount()),
                       transactionToEdit.getDate());
-                } else if (oldAmount != request.getAmount()) {
+                } else if (oldAmount != newAmount) {
                   // Only amount changed, adjust the difference
-                  double difference = Math.abs(request.getAmount()) - Math.abs(oldAmount);
+                  double difference = Math.abs(newAmount) - Math.abs(oldAmount);
                   updateBudgetsForCategory(
                       userId, request.getCategoryId(), difference, transactionToEdit.getDate());
                 }
