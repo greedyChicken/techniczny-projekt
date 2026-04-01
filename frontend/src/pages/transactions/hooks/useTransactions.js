@@ -115,11 +115,17 @@ export const useTransactions = () => {
         if (transaction) {
             setEditMode(true);
             setCurrentTransaction(transaction);
+            // #region agent log
+            fetch('http://127.0.0.1:7707/ingest/aa5f1464-405e-4693-a17e-9c44b01b2218',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'197466'},body:JSON.stringify({sessionId:'197466',runId:'post-fix',hypothesisId:'A',location:'useTransactions.js:handleOpenDialog',message:'edit open transaction snapshot',data:{keys:Object.keys(transaction),categoryId:transaction.categoryId,categoryIdType:typeof transaction.categoryId,type:transaction.type,accountId:transaction.accountId},timestamp:Date.now()})}).catch(()=>{});
+            // #endregion
             setFormData({
                 accountId: transaction.accountId,
                 amount: Math.abs(transaction.amount).toString(),
                 type: transaction.type,
-                categoryId: String(transaction.categoryId),
+                categoryId:
+                    transaction.categoryId != null && transaction.categoryId !== undefined
+                        ? String(transaction.categoryId)
+                        : '',
                 description: transaction.description || '',
                 date: new Date(transaction.date),
             });
@@ -162,6 +168,9 @@ export const useTransactions = () => {
 
         const validation = validateTransactionForm(formData);
         if (!validation.isValid) {
+            // #region agent log
+            fetch('http://127.0.0.1:7707/ingest/aa5f1464-405e-4693-a17e-9c44b01b2218',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'197466'},body:JSON.stringify({sessionId:'197466',runId:'post-fix',hypothesisId:'E',location:'useTransactions.js:handleSubmit',message:'validation failed',data:{errors:validation.errors,categoryId:formData.categoryId,categoryIdType:typeof formData.categoryId,editMode},timestamp:Date.now()})}).catch(()=>{});
+            // #endregion
             showSnackbar(Object.values(validation.errors)[0], 'error');
             return;
         }

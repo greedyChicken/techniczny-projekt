@@ -18,6 +18,7 @@ public class TransactionToTransactionDtoConverter
         .description(transaction.getDescription())
         .date(transaction.getDate())
         .type(transaction.getCategory().getTransactionType().name())
+        .categoryId(transaction.getCategory().getId())
         .categoryName(transaction.getCategory().getName())
         .accountId(transaction.getAccount().getId())
         .build();
