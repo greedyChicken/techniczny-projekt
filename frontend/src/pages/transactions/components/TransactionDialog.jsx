@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import {
     Dialog,
     DialogTitle,
@@ -33,21 +33,6 @@ const TransactionDialog = ({
     onDateChange,
     isMobile,
 }) => {
-    useEffect(() => {
-        if (!open || !editMode) return;
-        const income = getCategoriesByType(categories, TYPE_INCOME);
-        const expense = getCategoriesByType(categories, TYPE_EXPENSE);
-        const filtered =
-            formData.type === TYPE_INCOME ? income : expense;
-        const ids = filtered.map((c) => c.id);
-        const match = filtered.some(
-            (c) => String(c.id) === String(formData.categoryId)
-        );
-        // #region agent log
-        fetch('http://127.0.0.1:7707/ingest/aa5f1464-405e-4693-a17e-9c44b01b2218',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'197466'},body:JSON.stringify({sessionId:'197466',runId:'post-fix',hypothesisId:'BCD',location:'TransactionDialog.jsx:useEffect',message:'edit dialog category select state',data:{formType:formData.type,formCategoryId:formData.categoryId,formCategoryIdType:typeof formData.categoryId,categoriesLen:categories.length,filteredLen:filtered.length,filteredIdsSample:ids.slice(0,5),idTypesSample:filtered.slice(0,3).map((c)=>({id:c.id,t:typeof c.id})),match},timestamp:Date.now()})}).catch(()=>{});
-        // #endregion
-    }, [open, editMode, formData.type, formData.categoryId, categories]);
-
     return (
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={enGB}>
             <Dialog
