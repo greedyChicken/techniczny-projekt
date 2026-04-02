@@ -124,6 +124,8 @@ public class TransactionService {
                 }
               }
 
+              transactionToEdit.setUpdatedAt(LocalDateTime.now());
+
               return transactionToEdit;
             })
         .orElseThrow(
