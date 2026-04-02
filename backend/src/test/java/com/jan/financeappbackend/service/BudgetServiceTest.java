@@ -6,6 +6,7 @@ import com.jan.financeappbackend.model.Category;
 import com.jan.financeappbackend.model.TransactionType;
 import com.jan.financeappbackend.model.User;
 import com.jan.financeappbackend.repository.BudgetRepository;
+import com.jan.financeappbackend.repository.TransactionRepository;
 import com.jan.financeappbackend.request.BudgetRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,6 +24,9 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -36,6 +40,9 @@ class BudgetServiceTest {
 
     @Mock
     private CategoryService categoryService;
+
+    @Mock
+    private TransactionRepository transactionRepository;
 
     @InjectMocks
     private BudgetService budgetService;
@@ -87,6 +94,15 @@ class BudgetServiceTest {
                 .endDate(LocalDateTime.now().plusDays(30))
                 .categoryIds(List.of(1L, 2L))
                 .build();
+
+        lenient()
+                .when(transactionRepository.sumExpenseAmountsForUserInDateRange(anyLong(), any(), any()))
+                .thenReturn(0.0);
+        lenient()
+                .when(
+                        transactionRepository.sumExpenseAmountsForUserInDateRangeAndCategoryIds(
+                                anyLong(), any(), any(), anyList()))
+                .thenReturn(0.0);
     }
 
     @Test
@@ -127,6 +143,11 @@ class BudgetServiceTest {
         verify(categoryService, times(1)).findById(1L);
         verify(categoryService, times(1)).findById(2L);
         verify(budgetRepository, times(1)).save(any(Budget.class));
+        verify(transactionRepository, times(1))
+                .sumExpenseAmountsForUserInDateRangeAndCategoryIds(
+                        eq(1L), any(), any(), anyList());
+        verify(transactionRepository, never())
+                .sumExpenseAmountsForUserInDateRange(anyLong(), any(), any());
     }
 
     @Test
@@ -154,6 +175,39 @@ class BudgetServiceTest {
         assertTrue(result.getCategories().isEmpty());
         verify(categoryService, never()).findById(anyLong());
         verify(budgetRepository, times(1)).save(any(Budget.class));
+        verify(transactionRepository, times(1))
+                .sumExpenseAmountsForUserInDateRange(eq(1L), any(), any());
+        verify(transactionRepository, never())
+                .sumExpenseAmountsForUserInDateRangeAndCategoryIds(
+                        anyLong(), any(), any(), anyList());
+    }
+
+    @Test
+    void create_AllCategories_BackfillsSpentFromExistingExpenses() {
+        BudgetRequest requestWithoutCategories =
+                BudgetRequest.builder()
+                        .name("All Categories Budget")
+                        .amount(2000.0)
+                        .userId(1L)
+                        .startDate(LocalDateTime.of(2026, 4, 1, 0, 0))
+                        .endDate(LocalDateTime.of(2026, 4, 30, 23, 59, 59))
+                        .categoryIds(null)
+                        .build();
+
+        when(authenticationService.findUserById(1L)).thenReturn(testUser);
+        when(transactionRepository.sumExpenseAmountsForUserInDateRange(eq(1L), any(), any()))
+                .thenReturn(350.25);
+        when(budgetRepository.save(any(Budget.class)))
+                .thenAnswer(
+                        invocation -> {
+                            Budget budget = invocation.getArgument(0);
+                            budget.setId(99L);
+                            return budget;
+                        });
+
+        Budget result = budgetService.create(requestWithoutCategories);
+
+        assertEquals(350.25, result.getSpentAmount(), 0.001);
     }
 
     @Test
@@ -175,6 +229,8 @@ class BudgetServiceTest {
         assertNotNull(result);
         assertTrue(result.getCategories().isEmpty());
         verify(categoryService, never()).findById(anyLong());
+        verify(transactionRepository, times(1))
+                .sumExpenseAmountsForUserInDateRange(eq(1L), any(), any());
     }
 
     @Test
@@ -200,6 +256,9 @@ class BudgetServiceTest {
         assertTrue(result.getCategories().contains(testCategory2));
         assertFalse(result.getCategories().contains(testCategory1));
         verify(budgetRepository, times(1)).save(testBudget);
+        verify(transactionRepository, times(1))
+                .sumExpenseAmountsForUserInDateRangeAndCategoryIds(
+                        eq(1L), any(), any(), anyList());
     }
 
     @Test
@@ -228,6 +287,8 @@ class BudgetServiceTest {
         assertNotNull(result);
         assertTrue(result.getCategories().isEmpty());
         verify(categoryService, never()).findById(anyLong());
+        verify(transactionRepository, times(1))
+                .sumExpenseAmountsForUserInDateRange(eq(1L), any(), any());
     }
 
     @Test

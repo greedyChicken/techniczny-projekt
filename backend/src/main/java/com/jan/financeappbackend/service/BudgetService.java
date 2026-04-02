@@ -4,6 +4,7 @@ import com.jan.financeappbackend.exception.BudgetNotFound;
 import com.jan.financeappbackend.model.Budget;
 import com.jan.financeappbackend.model.Category;
 import com.jan.financeappbackend.repository.BudgetRepository;
+import com.jan.financeappbackend.repository.TransactionRepository;
 import com.jan.financeappbackend.request.BudgetRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
@@ -14,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Service
@@ -22,6 +24,7 @@ public class BudgetService {
   private final BudgetRepository budgetRepository;
   private final AuthenticationService authenticationService;
   private final CategoryService categoryService;
+  private final TransactionRepository transactionRepository;
 
   public Page<Budget> findAllByUserId(Long userId, Pageable pageable) {
     return budgetRepository.findAllByUserId(userId, pageable);
@@ -48,6 +51,10 @@ public class BudgetService {
       budget.setCategories(categories);
     }
 
+    budget.setSpentAmount(
+        computeSpentFromMatchingExpenses(
+            request.getUserId(), request.getStartDate(), request.getEndDate(), budget.getCategories()));
+
     return budgetRepository.save(budget);
   }
 
@@ -68,6 +75,13 @@ public class BudgetService {
       }
     }
 
+    budget.setSpentAmount(
+        computeSpentFromMatchingExpenses(
+            budget.getUser().getId(),
+            request.getStartDate(),
+            request.getEndDate(),
+            budget.getCategories()));
+
     return budgetRepository.save(budget);
   }
 
@@ -82,5 +96,21 @@ public class BudgetService {
     return budgetRepository
         .findById(budgetId)
         .orElseThrow(BudgetNotFound::new);
+  }
+
+  private double computeSpentFromMatchingExpenses(
+      Long userId,
+      LocalDateTime start,
+      LocalDateTime end,
+      Set<Category> categories) {
+    if (categories == null || categories.isEmpty()) {
+      Double sum = transactionRepository.sumExpenseAmountsForUserInDateRange(userId, start, end);
+      return sum != null ? sum : 0.0;
+    }
+    List<Long> categoryIds = categories.stream().map(Category::getId).toList();
+    Double sum =
+        transactionRepository.sumExpenseAmountsForUserInDateRangeAndCategoryIds(
+            userId, start, end, categoryIds);
+    return sum != null ? sum : 0.0;
   }
 }

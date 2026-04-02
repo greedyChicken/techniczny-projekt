@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 
 @Repository
@@ -35,4 +36,34 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
       @Param("userId") Long userId,
       @Param("startDate") LocalDateTime startDate,
       @Param("endDate") LocalDateTime endDate);
+
+  @Query(
+      """
+          SELECT COALESCE(SUM(ABS(t.amount)), 0.0) FROM Transaction t
+          JOIN t.account a
+          WHERE a.user.id = :userId
+          AND t.amount < 0
+          AND t.date >= :startDate
+          AND t.date <= :endDate
+          """)
+  Double sumExpenseAmountsForUserInDateRange(
+      @Param("userId") Long userId,
+      @Param("startDate") LocalDateTime startDate,
+      @Param("endDate") LocalDateTime endDate);
+
+  @Query(
+      """
+          SELECT COALESCE(SUM(ABS(t.amount)), 0.0) FROM Transaction t
+          JOIN t.account a
+          WHERE a.user.id = :userId
+          AND t.amount < 0
+          AND t.date >= :startDate
+          AND t.date <= :endDate
+          AND t.category.id IN :categoryIds
+          """)
+  Double sumExpenseAmountsForUserInDateRangeAndCategoryIds(
+      @Param("userId") Long userId,
+      @Param("startDate") LocalDateTime startDate,
+      @Param("endDate") LocalDateTime endDate,
+      @Param("categoryIds") Collection<Long> categoryIds);
 }

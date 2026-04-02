@@ -3,6 +3,7 @@ import { parseISO } from 'date-fns';
 import { budgetService } from '../../../api/budgetService';
 import { categoryService } from '../../../api/categoryService';
 import { validateBudgetForm } from '../utils/validators';
+import { budgetStartDateToApi, budgetEndDateToApi } from '../utils/budgetDateApi';
 import { loadFailedMessage } from '../../../utils/feedbackMessages';
 
 export const useBudgets = () => {
@@ -139,8 +140,8 @@ export const useBudgets = () => {
             const budgetData = {
                 name: formData.name,
                 amount: parseFloat(formData.amount),
-                startDate: formData.startDate.toISOString(),
-                endDate: formData.endDate.toISOString(),
+                startDate: budgetStartDateToApi(formData.startDate),
+                endDate: budgetEndDateToApi(formData.endDate),
                 userId: userId,
                 categoryIds: formData.categoryIds.map(id =>
                     typeof id === 'string' ? parseInt(id, 10) : id
