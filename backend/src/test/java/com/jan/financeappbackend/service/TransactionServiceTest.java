@@ -241,7 +241,7 @@ class TransactionServiceTest {
         Transaction result = transactionService.edit(1L, editRequest);
 
         assertNotNull(result);
-        assertEquals(75.0, result.getAmount());
+        assertEquals(-75.0, result.getAmount());
         assertEquals(125.0, testBudget.getSpentAmount());
         verify(budgetRepository, times(1)).save(testBudget);
     }

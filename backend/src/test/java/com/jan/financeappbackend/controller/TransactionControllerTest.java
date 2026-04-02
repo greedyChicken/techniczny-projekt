@@ -147,7 +147,8 @@ class TransactionControllerTest {
     @Test
     @WithMockJwtUser
     void shouldDeleteTransaction() throws Exception {
-        var transactionId = 2;
+        // Expense delete restores balance; deleting income tx 2 would make account 1 negative with seed balances.
+        var transactionId = 1;
 
         postman.perform(get("/api/transactions/" + transactionId))
                 .andExpect(status().isOk())

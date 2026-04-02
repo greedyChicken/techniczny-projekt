@@ -74,6 +74,7 @@ public class TransactionService {
   @Transactional
   public void delete(Long id) {
     Transaction transaction = findById(id);
+    double deletedTxAmount = transaction.getAmount();
 
     if (transaction.getAmount() < 0) {
       Long userId = transaction.getAccount().getUser().getId();
@@ -83,6 +84,13 @@ public class TransactionService {
           -Math.abs(transaction.getAmount()),
           transaction.getDate());
     }
+
+    var accountForDelete = transaction.getAccount();
+    double balanceAfterReversal =
+        calculateNewBalance(accountForDelete.getBalance(), -deletedTxAmount);
+    accountForDelete.setBalance(balanceAfterReversal);
+    accountForDelete.setUpdatedAt(LocalDateTime.now());
+    accountRepository.save(accountForDelete);
 
     transactionRepository.deleteById(id);
   }
@@ -122,6 +130,15 @@ public class TransactionService {
                   updateBudgetsForCategory(
                       userId, request.getCategoryId(), difference, transactionToEdit.getDate());
                 }
+              }
+
+              double balanceDelta = newAmount - oldAmount;
+              if (balanceDelta != 0) {
+                var acc = transactionToEdit.getAccount();
+                double adjustedBalance = calculateNewBalance(acc.getBalance(), balanceDelta);
+                acc.setBalance(adjustedBalance);
+                acc.setUpdatedAt(LocalDateTime.now());
+                accountRepository.save(acc);
               }
 
               transactionToEdit.setUpdatedAt(LocalDateTime.now());
