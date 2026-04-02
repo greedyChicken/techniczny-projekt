@@ -1,6 +1,7 @@
 package com.jan.financeappbackend.service;
 
 import com.jan.financeappbackend.model.*;
+import com.jan.financeappbackend.repository.AccountRepository;
 import com.jan.financeappbackend.repository.TransferRepository;
 import com.jan.financeappbackend.request.TransferRequest;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import java.time.LocalDateTime;
 public class TransferService {
   private final TransferRepository transferRepository;
   private final AccountService accountService;
+  private final AccountRepository accountRepository;
 
   @Transactional
   public Transfer createTransfer(TransferRequest request) {
@@ -47,6 +49,8 @@ public class TransferService {
             .updatedAt(LocalDateTime.now())
             .build();
 
+    accountRepository.save(sourceAccount);
+    accountRepository.save(targetAccount);
     return transferRepository.save(transfer);
   }
 

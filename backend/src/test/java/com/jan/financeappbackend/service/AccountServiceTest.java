@@ -116,6 +116,7 @@ class AccountServiceTest {
         Account result = accountService.updateAccountBalance(1L, newBalance);
 
         assertEquals(newBalance, testAccount.getBalance());
+        assertNotNull(testAccount.getUpdatedAt());
         verify(accountRepository, times(1)).save(testAccount);
     }
 

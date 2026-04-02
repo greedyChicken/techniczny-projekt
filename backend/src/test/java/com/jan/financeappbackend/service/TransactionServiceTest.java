@@ -156,6 +156,7 @@ class TransactionServiceTest {
         assertNotNull(result);
         assertEquals(-50.0, result.getAmount()); // Expense should be negative
         assertEquals(950.0, testAccount.getBalance()); // 1000 - 50
+        assertNotNull(testAccount.getUpdatedAt());
         assertEquals(150.0, testBudget.getSpentAmount()); // 100 + 50
         verify(transactionRepository, times(1)).save(any(Transaction.class));
         verify(budgetRepository, times(1)).save(testBudget);
@@ -244,6 +245,83 @@ class TransactionServiceTest {
         assertEquals(-75.0, result.getAmount());
         assertEquals(125.0, testBudget.getSpentAmount());
         verify(budgetRepository, times(1)).save(testBudget);
+    }
+
+    @Test
+    void edit_ExpenseToIncome_ReversesBudget() {
+        Category incomeCategory =
+                Category.builder()
+                        .id(2L)
+                        .name("Salary")
+                        .transactionType(TransactionType.INCOME)
+                        .build();
+
+        TransactionRequest editRequest =
+                TransactionRequest.builder()
+                        .amount(50.0)
+                        .description("Refund reclassified as income")
+                        .date(LocalDateTime.now())
+                        .categoryId(2L)
+                        .build();
+
+        when(categoryService.findById(2L)).thenReturn(incomeCategory);
+        when(transactionRepository.findById(1L)).thenReturn(Optional.of(testTransaction));
+        when(budgetRepository.findActiveByUserAndCategoryAndDateRange(
+                        eq(1L), eq(1L), any(LocalDateTime.class)))
+                .thenReturn(List.of(testBudget));
+
+        Transaction result = transactionService.edit(1L, editRequest);
+
+        assertNotNull(result);
+        assertEquals(50.0, result.getAmount());
+        assertEquals(incomeCategory, result.getCategory());
+        assertEquals(50.0, testBudget.getSpentAmount());
+        verify(budgetRepository, times(1)).save(testBudget);
+        verify(accountRepository, times(1)).save(testAccount);
+    }
+
+    @Test
+    void edit_IncomeToExpense_AppliesBudget() {
+        Category incomeCategory =
+                Category.builder()
+                        .id(2L)
+                        .name("Salary")
+                        .transactionType(TransactionType.INCOME)
+                        .build();
+
+        Transaction incomeTransaction =
+                Transaction.builder()
+                        .id(5L)
+                        .amount(500.0)
+                        .description("Salary")
+                        .date(LocalDateTime.now())
+                        .category(incomeCategory)
+                        .account(testAccount)
+                        .createdAt(LocalDateTime.now())
+                        .updatedAt(LocalDateTime.now())
+                        .build();
+
+        TransactionRequest editRequest =
+                TransactionRequest.builder()
+                        .amount(100.0)
+                        .description("Reclassified purchase")
+                        .date(LocalDateTime.now())
+                        .categoryId(1L)
+                        .build();
+
+        when(categoryService.findById(1L)).thenReturn(testCategory);
+        when(transactionRepository.findById(5L)).thenReturn(Optional.of(incomeTransaction));
+        when(budgetRepository.findActiveByUserAndCategoryAndDateRange(
+                        eq(1L), eq(1L), any(LocalDateTime.class)))
+                .thenReturn(List.of(testBudget));
+
+        Transaction result = transactionService.edit(5L, editRequest);
+
+        assertNotNull(result);
+        assertEquals(-100.0, result.getAmount());
+        assertEquals(200.0, testBudget.getSpentAmount());
+        verify(budgetRepository, times(1)).save(testBudget);
+        verify(accountRepository, times(1)).save(testAccount);
     }
 
     @Test

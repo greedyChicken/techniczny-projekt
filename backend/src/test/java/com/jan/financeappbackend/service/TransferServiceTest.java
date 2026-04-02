@@ -4,6 +4,7 @@ import com.jan.financeappbackend.model.Account;
 import com.jan.financeappbackend.model.AccountType;
 import com.jan.financeappbackend.model.Transfer;
 import com.jan.financeappbackend.model.User;
+import com.jan.financeappbackend.repository.AccountRepository;
 import com.jan.financeappbackend.repository.TransferRepository;
 import com.jan.financeappbackend.request.TransferRequest;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,6 +33,9 @@ class TransferServiceTest {
 
     @Mock
     private AccountService accountService;
+
+    @Mock
+    private AccountRepository accountRepository;
 
     @InjectMocks
     private TransferService transferService;
@@ -108,6 +112,8 @@ class TransferServiceTest {
         assertEquals(targetAccount, result.getTargetAccount());
         assertEquals(900.0, sourceAccount.getBalance()); // 1000 - 100
         assertEquals(600.0, targetAccount.getBalance()); // 500 + 100
+        verify(accountRepository, times(1)).save(sourceAccount);
+        verify(accountRepository, times(1)).save(targetAccount);
         verify(transferRepository, times(1)).save(any(Transfer.class));
     }
 
@@ -127,6 +133,8 @@ class TransferServiceTest {
 
         assertNotNull(result);
         assertEquals("Transfer from Checking Account to Savings Account", result.getDescription());
+        verify(accountRepository, times(1)).save(sourceAccount);
+        verify(accountRepository, times(1)).save(targetAccount);
     }
 
     @Test
@@ -141,6 +149,8 @@ class TransferServiceTest {
 
         assertNotNull(result);
         assertNotNull(result.getTransferDate());
+        verify(accountRepository, times(1)).save(sourceAccount);
+        verify(accountRepository, times(1)).save(targetAccount);
     }
 
     @Test
@@ -158,6 +168,7 @@ class TransferServiceTest {
                 () -> transferService.createTransfer(transferRequest));
         assertEquals("Cannot transfer money between accounts of different users", exception.getMessage());
         verify(transferRepository, never()).save(any());
+        verify(accountRepository, never()).save(any());
     }
 
     @Test
@@ -170,6 +181,7 @@ class TransferServiceTest {
                 () -> transferService.createTransfer(transferRequest));
         assertEquals("Cannot transfer money to the same account", exception.getMessage());
         verify(transferRepository, never()).save(any());
+        verify(accountRepository, never()).save(any());
     }
 
     @Test
@@ -183,6 +195,7 @@ class TransferServiceTest {
                 () -> transferService.createTransfer(transferRequest));
         assertEquals("Insufficient balance in source account", exception.getMessage());
         verify(transferRepository, never()).save(any());
+        verify(accountRepository, never()).save(any());
     }
 
     @Test
@@ -196,6 +209,7 @@ class TransferServiceTest {
                 () -> transferService.createTransfer(transferRequest));
         assertEquals("Cannot transfer money from/to inactive accounts", exception.getMessage());
         verify(transferRepository, never()).save(any());
+        verify(accountRepository, never()).save(any());
     }
 
     @Test
@@ -209,6 +223,7 @@ class TransferServiceTest {
                 () -> transferService.createTransfer(transferRequest));
         assertEquals("Cannot transfer money from/to inactive accounts", exception.getMessage());
         verify(transferRepository, never()).save(any());
+        verify(accountRepository, never()).save(any());
     }
 
     @Test
@@ -222,6 +237,7 @@ class TransferServiceTest {
                 () -> transferService.createTransfer(transferRequest));
         assertEquals("Cannot transfer money between accounts with different currencies", exception.getMessage());
         verify(transferRepository, never()).save(any());
+        verify(accountRepository, never()).save(any());
     }
 
     @Test

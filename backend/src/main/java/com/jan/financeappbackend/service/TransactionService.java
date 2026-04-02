@@ -62,6 +62,7 @@ public class TransactionService {
             .build();
 
     account.setBalance(newBalance);
+    account.setUpdatedAt(LocalDateTime.now());
     val savedTransaction = transactionRepository.save(transaction);
 
     if (isExpense) {
@@ -105,6 +106,8 @@ public class TransactionService {
             transactionToEdit -> {
               double oldAmount = transactionToEdit.getAmount();
               Long oldCategoryId = transactionToEdit.getCategory().getId();
+              boolean oldWasExpense =
+                  transactionToEdit.getCategory().getTransactionType() == TransactionType.EXPENSE;
               double newAmount = isExpense ? -request.getAmount() : request.getAmount();
 
               transactionToEdit.setId(id);
@@ -113,9 +116,18 @@ public class TransactionService {
               transactionToEdit.setCategory(categoryService.findById(request.getCategoryId()));
               transactionToEdit.setDescription(request.getDescription());
 
-              if (isExpense) {
-                Long userId = transactionToEdit.getAccount().getUser().getId();
+              Long userId = transactionToEdit.getAccount().getUser().getId();
 
+              if (oldWasExpense && !isExpense) {
+                updateBudgetsForCategory(
+                    userId, oldCategoryId, -Math.abs(oldAmount), transactionToEdit.getDate());
+              } else if (!oldWasExpense && isExpense) {
+                updateBudgetsForCategory(
+                    userId,
+                    request.getCategoryId(),
+                    Math.abs(request.getAmount()),
+                    transactionToEdit.getDate());
+              } else if (isExpense) {
                 if (!oldCategoryId.equals(request.getCategoryId())) {
                   updateBudgetsForCategory(
                       userId, oldCategoryId, -Math.abs(oldAmount), transactionToEdit.getDate());
@@ -125,7 +137,6 @@ public class TransactionService {
                       Math.abs(request.getAmount()),
                       transactionToEdit.getDate());
                 } else if (oldAmount != newAmount) {
-                  // Only amount changed, adjust the difference
                   double difference = Math.abs(newAmount) - Math.abs(oldAmount);
                   updateBudgetsForCategory(
                       userId, request.getCategoryId(), difference, transactionToEdit.getDate());

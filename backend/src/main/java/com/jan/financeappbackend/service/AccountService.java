@@ -40,6 +40,7 @@ public class AccountService {
   public Account updateAccountBalance(Long accountId, Double accountBalance) {
     Account accountBalanceEntity = findById(accountId);
     accountBalanceEntity.setBalance(accountBalance);
+    accountBalanceEntity.setUpdatedAt(LocalDateTime.now());
     return accountRepository.save(accountBalanceEntity);
   }
 
@@ -127,8 +128,8 @@ public class AccountService {
 
     for (Account account : activeAccounts) {
       for (Transaction transaction : account.getTransactions()) {
-        if (transaction.getDate().isAfter(startOfMonth)
-            && transaction.getDate().isBefore(endOfMonth)) {
+        if (!transaction.getDate().isBefore(startOfMonth)
+            && !transaction.getDate().isAfter(endOfMonth)) {
           if (transaction.getAmount() > 0) {
             monthlyIncome += transaction.getAmount();
           } else {
