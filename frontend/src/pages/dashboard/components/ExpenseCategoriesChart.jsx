@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Paper, Typography, Divider, Box, CircularProgress, Alert } from "@mui/material";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import { dashboardService } from "../../../api/dashboardService";
@@ -38,6 +38,17 @@ const ExpenseCategoriesChart = () => {
 
         fetchCategoryData();
     }, [showLoading, hideLoading, showError]);
+
+    /** Pie + bottom legend; fixed 300px overflowed when many categories (long formatter lines). */
+    const chartBlockHeight = useMemo(() => {
+        if (loading || categoryData.length === 0) return 300;
+        return Math.min(640, Math.max(300, 200 + categoryData.length * 42));
+    }, [loading, categoryData.length]);
+
+    const legendBlockHeight = useMemo(() => {
+        if (categoryData.length === 0) return 36;
+        return Math.min(400, 28 + categoryData.length * 36);
+    }, [categoryData.length]);
 
     const CustomTooltip = ({ active, payload }) => {
         if (active && payload && payload.length) {
@@ -93,7 +104,7 @@ const ExpenseCategoriesChart = () => {
                 Total: {formatCurrency(totalExpenses)}
             </Typography>
             <Divider sx={{ mb: 2 }} />
-            <Box sx={{ height: "300px" }}>
+            <Box sx={{ height: chartBlockHeight, minHeight: 300 }}>
                 {loading ? (
                     <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
                         <CircularProgress />
@@ -125,7 +136,7 @@ const ExpenseCategoriesChart = () => {
                             <Tooltip content={<CustomTooltip />} />
                             <Legend
                                 verticalAlign="bottom"
-                                height={36}
+                                height={legendBlockHeight}
                                 formatter={(value, entry) => `${value}: ${formatCurrency(entry.payload.value)}`}
                             />
                         </PieChart>
