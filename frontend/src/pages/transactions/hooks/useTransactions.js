@@ -46,6 +46,8 @@ export const useTransactions = () => {
     });
     const [expandedCards, setExpandedCards] = useState({});
     const [exportingCsv, setExportingCsv] = useState(false);
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [transactionToDelete, setTransactionToDelete] = useState(null);
 
     const buildTransactionFilterParams = () => {
         const params = { ...filters };
@@ -199,19 +201,30 @@ export const useTransactions = () => {
         }
     };
 
-    const handleDeleteTransaction = async (transactionId) => {
-        if (!window.confirm('Are you sure you want to delete this transaction?')) {
-            return;
-        }
+    const confirmDeleteTransaction = (transactionId) => {
+        setTransactionToDelete(transactionId);
+        setDeleteDialogOpen(true);
+    };
+
+    const handleConfirmDeleteTransaction = async () => {
+        if (transactionToDelete == null) return;
 
         try {
-            await transactionService.deleteTransaction(transactionId);
+            await transactionService.deleteTransaction(transactionToDelete);
             showSnackbar('Transaction deleted successfully');
             fetchTransactions();
         } catch (err) {
             console.error('Error deleting transaction:', err);
             showSnackbar('Failed to delete transaction. Please try again.', 'error');
+        } finally {
+            setDeleteDialogOpen(false);
+            setTransactionToDelete(null);
         }
+    };
+
+    const handleCancelDeleteTransaction = () => {
+        setDeleteDialogOpen(false);
+        setTransactionToDelete(null);
     };
 
     const handleChangePage = (event, newPage) => {
@@ -325,7 +338,10 @@ export const useTransactions = () => {
         handleOpenDialog,
         handleCloseDialog,
         handleSubmit,
-        handleDeleteTransaction,
+        confirmDeleteTransaction,
+        deleteDialogOpen,
+        handleConfirmDeleteTransaction,
+        handleCancelDeleteTransaction,
         handleChangePage,
         handleChangeRowsPerPage,
         setFiltersOpen,

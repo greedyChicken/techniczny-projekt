@@ -58,7 +58,10 @@ const TransactionsPage = () => {
         handleOpenDialog,
         handleCloseDialog,
         handleSubmit,
-        handleDeleteTransaction,
+        confirmDeleteTransaction,
+        deleteDialogOpen,
+        handleConfirmDeleteTransaction,
+        handleCancelDeleteTransaction,
         handleChangePage,
         handleChangeRowsPerPage,
         setFiltersOpen,
@@ -224,7 +227,10 @@ const TransactionsPage = () => {
                                 totalTransactions={totalTransactions}
                                 expandedCards={expandedCards}
                                 onEdit={handleOpenDialog}
-                                onDelete={handleDeleteTransaction}
+                                onDelete={confirmDeleteTransaction}
+                                deleteDialogOpen={deleteDialogOpen}
+                                handleConfirmDelete={handleConfirmDeleteTransaction}
+                                handleCancelDelete={handleCancelDeleteTransaction}
                                 onPageChange={handleChangePage}
                                 onRowsPerPageChange={handleChangeRowsPerPage}
                                 onToggleExpand={toggleCardExpansion}
@@ -260,7 +266,6 @@ const TransactionsPage = () => {
                     onSubmit={handleSubmit}
                     onInputChange={handleInputChange}
                     onDateChange={handleDateChange}
-                    isMobile={isMobile}
                 />
 
                 <Snackbar

@@ -31,7 +31,6 @@ const TransactionDialog = ({
     onSubmit,
     onInputChange,
     onDateChange,
-    isMobile,
 }) => {
     return (
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={enGB}>
@@ -40,8 +39,7 @@ const TransactionDialog = ({
                 onClose={onClose}
                 maxWidth="sm"
                 fullWidth
-                fullScreen={isMobile}
-                PaperProps={{ sx: { borderRadius: isMobile ? 0 : 3 } }}
+                PaperProps={{ sx: { borderRadius: 3 } }}
             >
                 <DialogTitle sx={{ fontWeight: 700, pb: 1 }}>
                     {editMode ? "Edit transaction" : "New transaction"}
