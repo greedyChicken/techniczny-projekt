@@ -81,4 +81,36 @@ public class TransferController {
             .map(transfer -> modelMapper.map(transfer, TransferDto.class));
     return ResponseEntity.ok(transfers);
   }
+
+  @PutMapping("/{id}")
+  public ResponseEntity<TransferDto> updateTransfer(
+      @PathVariable Long id, @Valid @RequestBody TransferRequest request) {
+    Transfer existing = transferService.findById(id);
+    Long ownerId = existing.getSourceAccount().getUser().getId();
+    securityUtils.requireAuthorizedOrAdmin(
+        ownerId, "You are not authorized to update this transfer");
+
+    Account newSource = accountService.findById(request.getSourceAccountId());
+    Account newTarget = accountService.findById(request.getTargetAccountId());
+    if (!newSource.getUser().getId().equals(newTarget.getUser().getId())) {
+      throw new AccessDeniedException("Cannot transfer between accounts of different users");
+    }
+    if (!ownerId.equals(newSource.getUser().getId())) {
+      throw new AccessDeniedException(
+          "You are not authorized to move this transfer to these accounts");
+    }
+
+    Transfer updated = transferService.updateTransfer(id, request);
+    return ResponseEntity.ok(modelMapper.map(updated, TransferDto.class));
+  }
+
+  @DeleteMapping("/{id}")
+  public ResponseEntity<Void> deleteTransfer(@PathVariable Long id) {
+    Transfer transfer = transferService.findById(id);
+    securityUtils.requireAuthorizedOrAdmin(
+        transfer.getSourceAccount().getUser().getId(),
+        "You are not authorized to delete this transfer");
+    transferService.deleteTransfer(id);
+    return ResponseEntity.noContent().build();
+  }
 }

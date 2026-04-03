@@ -37,7 +37,7 @@ export const validateTransferForm = (formData) => {
         return { isValid: false, error: "Please select target account" };
     }
 
-    if (formData.sourceAccountId === formData.targetAccountId) {
+    if (Number(formData.sourceAccountId) === Number(formData.targetAccountId)) {
         return { isValid: false, error: "Source and target accounts must be different" };
     }
 

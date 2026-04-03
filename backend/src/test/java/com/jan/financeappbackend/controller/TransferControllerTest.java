@@ -467,4 +467,74 @@ class TransferControllerTest {
         LocalDateTime transferDate = transfer.getTransferDate();
         assert transferDate.isAfter(LocalDateTime.now().minusMinutes(1));
     }
+
+    @Test
+    @WithMockJwtUser
+    void shouldUpdateTransfer() throws Exception {
+        TransferRequest create =
+                TransferRequest.builder()
+                        .sourceAccountId(1L)
+                        .targetAccountId(2L)
+                        .amount(15.0)
+                        .date(LocalDateTime.now())
+                        .description("before update")
+                        .build();
+
+        MvcResult created =
+                postman.perform(post("/api/transfers")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(create)))
+                        .andExpect(status().isCreated())
+                        .andReturn();
+
+        TransferDto createdDto =
+                objectMapper.readValue(
+                        created.getResponse().getContentAsString(), TransferDto.class);
+
+        TransferRequest update =
+                TransferRequest.builder()
+                        .sourceAccountId(1L)
+                        .targetAccountId(2L)
+                        .amount(42.0)
+                        .date(LocalDateTime.now())
+                        .description("after update")
+                        .build();
+
+        postman.perform(
+                        put("/api/transfers/" + createdDto.getId())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(update)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(createdDto.getId().intValue()))
+                .andExpect(jsonPath("$.amount").value(42.0))
+                .andExpect(jsonPath("$.description").value("after update"));
+    }
+
+    @Test
+    @WithMockJwtUser
+    void shouldDeleteTransfer() throws Exception {
+        TransferRequest create =
+                TransferRequest.builder()
+                        .sourceAccountId(1L)
+                        .targetAccountId(2L)
+                        .amount(7.0)
+                        .date(LocalDateTime.now())
+                        .description("to delete")
+                        .build();
+
+        MvcResult created =
+                postman.perform(post("/api/transfers")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(create)))
+                        .andExpect(status().isCreated())
+                        .andReturn();
+
+        TransferDto createdDto =
+                objectMapper.readValue(
+                        created.getResponse().getContentAsString(), TransferDto.class);
+
+        postman.perform(delete("/api/transfers/" + createdDto.getId()))
+                .andExpect(status().isNoContent());
+    }
 }

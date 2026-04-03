@@ -15,32 +15,37 @@ import {
 } from "@mui/material";
 import { validateTransferForm } from "../utils/validators";
 import { formatCurrency } from "../utils/formatters";
-import {transferService} from "../../../api/transferService.js";
-import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
-import {enGB} from "date-fns/locale";
-import {LocalizationProvider} from "@mui/x-date-pickers/LocalizationProvider";
-import {DatePicker} from "@mui/x-date-pickers/DatePicker";
+import { transferService } from "../../../api/transferService.js";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { enGB } from "date-fns/locale";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 
-const TransferDialog = ({ open, onClose, accounts, onSuccess, showSnackbar }) => {
-    const [formData, setFormData] = useState({
-        sourceAccountId: "",
-        targetAccountId: "",
-        amount: "",
-        date: new Date(),
-        description: "",
-    });
+const emptyForm = () => ({
+    sourceAccountId: "",
+    targetAccountId: "",
+    amount: "",
+    date: new Date(),
+    description: "",
+});
+
+const TransferDialog = ({ open, onClose, accounts, editingTransfer, onSuccess, showSnackbar }) => {
+    const [formData, setFormData] = useState(() => emptyForm());
 
     useEffect(() => {
-        if (open) {
+        if (!open) return;
+        if (editingTransfer) {
             setFormData({
-                sourceAccountId: "",
-                targetAccountId: "",
-                amount: "",
-                date: new Date(),
-                description: "",
+                sourceAccountId: editingTransfer.sourceAccountId,
+                targetAccountId: editingTransfer.targetAccountId,
+                amount: String(editingTransfer.amount),
+                date: new Date(editingTransfer.transferDate),
+                description: editingTransfer.description ?? "",
             });
+        } else {
+            setFormData(emptyForm());
         }
-    }, [open]);
+    }, [open, editingTransfer]);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -57,6 +62,11 @@ const TransferDialog = ({ open, onClose, accounts, onSuccess, showSnackbar }) =>
         }));
     };
 
+    const currencyCode =
+        accounts.find((a) => a.id === Number(formData.sourceAccountId))?.currencyCode ||
+        editingTransfer?.currencyCode ||
+        "PLN";
+
     const handleSubmit = async () => {
         const validation = validateTransferForm(formData);
         if (!validation.isValid) {
@@ -65,41 +75,62 @@ const TransferDialog = ({ open, onClose, accounts, onSuccess, showSnackbar }) =>
         }
 
         try {
-            const transferDate = formData.date ? new Date(formData.date).toISOString() : new Date().toISOString();
+            const transferDate = formData.date
+                ? new Date(formData.date).toISOString()
+                : new Date().toISOString();
             const amount = Number(formData.amount);
 
             const transferRequest = {
                 sourceAccountId: Number(formData.sourceAccountId),
                 targetAccountId: Number(formData.targetAccountId),
                 amount: amount,
-                description: formData.description,
+                description: formData.description || undefined,
                 date: transferDate,
             };
 
-            await transferService.create(transferRequest);
+            if (editingTransfer) {
+                await transferService.update(editingTransfer.id, transferRequest);
+            } else {
+                await transferService.create(transferRequest);
+            }
 
             onClose();
-            onSuccess();
+            onSuccess(Boolean(editingTransfer));
         } catch (err) {
-            console.error("Error creating transfer:", err);
-            showSnackbar("Failed to complete transfer. Please try again.", "error");
+            console.error("Error saving transfer:", err);
+            showSnackbar(
+                editingTransfer
+                    ? "Failed to update transfer. Please try again."
+                    : "Failed to complete transfer. Please try again.",
+                "error"
+            );
         }
     };
 
+    const isEdit = Boolean(editingTransfer);
+
     return (
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={enGB}>
-            <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-                <DialogTitle>Make Transfer</DialogTitle>
+            <Dialog
+                open={open}
+                onClose={onClose}
+                maxWidth="sm"
+                fullWidth
+                PaperProps={{ sx: { borderRadius: 3 } }}
+            >
+                <DialogTitle sx={{ fontWeight: 700, pb: 1 }}>
+                    {isEdit ? "Edit transfer" : "New transfer"}
+                </DialogTitle>
                 <DialogContent>
                     <Box component="form" sx={{ mt: 1 }}>
                         <FormControl fullWidth margin="normal" required>
-                            <InputLabel id="source-account-label">From Account</InputLabel>
+                            <InputLabel id="source-account-label">From account</InputLabel>
                             <Select
                                 labelId="source-account-label"
                                 id="sourceAccountId"
                                 name="sourceAccountId"
                                 value={formData.sourceAccountId}
-                                label="From Account"
+                                label="From account"
                                 onChange={handleInputChange}
                             >
                                 {accounts.map((account) => (
@@ -110,18 +141,18 @@ const TransferDialog = ({ open, onClose, accounts, onSuccess, showSnackbar }) =>
                             </Select>
                         </FormControl>
                         <FormControl fullWidth margin="normal" required>
-                            <InputLabel id="target-account-label">To Account</InputLabel>
+                            <InputLabel id="target-account-label">To account</InputLabel>
                             <Select
                                 labelId="target-account-label"
                                 id="targetAccountId"
                                 name="targetAccountId"
                                 value={formData.targetAccountId}
-                                label="To Account"
+                                label="To account"
                                 onChange={handleInputChange}
                                 disabled={!formData.sourceAccountId}
                             >
                                 {accounts
-                                    .filter(account => account.id !== Number(formData.sourceAccountId))
+                                    .filter((account) => account.id !== Number(formData.sourceAccountId))
                                     .map((account) => (
                                         <MenuItem key={account.id} value={account.id}>
                                             {account.name} - {formatCurrency(account.balance, account.currencyCode)}
@@ -140,8 +171,11 @@ const TransferDialog = ({ open, onClose, accounts, onSuccess, showSnackbar }) =>
                             value={formData.amount}
                             onChange={handleInputChange}
                             InputProps={{
-                                startAdornment: <InputAdornment position="start">PLN</InputAdornment>,
+                                startAdornment: (
+                                    <InputAdornment position="start">{currencyCode}</InputAdornment>
+                                ),
                             }}
+                            inputProps={{ min: "0.01", step: "0.01" }}
                         />
                         <DatePicker
                             label="Date"
@@ -150,27 +184,31 @@ const TransferDialog = ({ open, onClose, accounts, onSuccess, showSnackbar }) =>
                             slotProps={{
                                 textField: {
                                     fullWidth: true,
-                                    margin: 'normal'
-                                }
+                                    margin: "normal",
+                                },
                             }}
                         />
                         <TextField
                             margin="normal"
                             fullWidth
                             id="description"
-                            label="Description (Optional)"
+                            label="Description (optional)"
                             name="description"
                             multiline
                             rows={3}
                             value={formData.description}
                             onChange={handleInputChange}
+                            inputProps={{ maxLength: 50 }}
+                            helperText={`${formData.description.length}/50 characters`}
                         />
                     </Box>
                 </DialogContent>
-                <DialogActions>
-                    <Button onClick={onClose}>Cancel</Button>
+                <DialogActions sx={{ px: 3, pb: 2 }}>
+                    <Button onClick={onClose} variant="outlined" color="inherit">
+                        Cancel
+                    </Button>
                     <Button onClick={handleSubmit} variant="contained">
-                        Transfer
+                        {isEdit ? "Save changes" : "Transfer"}
                     </Button>
                 </DialogActions>
             </Dialog>

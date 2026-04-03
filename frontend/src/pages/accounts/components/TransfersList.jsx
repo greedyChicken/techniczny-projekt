@@ -5,15 +5,17 @@ import MobilePagination from "../../../components/MobilePagination";
 import { transferListContainerSx } from "../styles/financesPageStyles";
 
 const TransfersList = ({
-                           transfers,
-                           loading,
-                           onMakeTransfer,
-                           page,
-                           rowsPerPage,
-                           totalTransfers,
-                           onPageChange,
-                           onRowsPerPageChange
-                       }) => {
+    transfers,
+    loading,
+    onMakeTransfer,
+    onEdit,
+    onDelete,
+    page,
+    rowsPerPage,
+    totalTransfers,
+    onPageChange,
+    onRowsPerPageChange,
+}) => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
@@ -58,6 +60,8 @@ const TransfersList = ({
                     <TransferListItem
                         key={transfer.id}
                         transfer={transfer}
+                        onEdit={onEdit}
+                        onDelete={onDelete}
                     />
                 ))}
             </List>
