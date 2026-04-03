@@ -7,17 +7,50 @@ import {
     LinearProgress,
     Chip,
     IconButton,
+    Tooltip,
 } from "@mui/material";
-import { Edit as EditIcon, Delete as DeleteIcon } from "@mui/icons-material";
+import {
+    Edit as EditIcon,
+    Delete as DeleteIcon,
+    LocalOfferOutlined as ScopeIcon,
+} from "@mui/icons-material";
 import { format } from "date-fns";
 import { formatCurrency, getBudgetStatus } from "../utils/formatters";
 import { budgetCardStyles } from "../styles/budgetStyles";
+
+function getCategoryScope(budget) {
+    const all = Boolean(budget.allCategories);
+    const names = Array.isArray(budget.categoryNames)
+        ? budget.categoryNames.filter(Boolean)
+        : [];
+
+    if (all || names.length === 0) {
+        return {
+            shortLabel: "All categories",
+            tooltip:
+                "This budget includes spending from every expense category. New expense categories you add later are included automatically.",
+        };
+    }
+
+    if (names.length === 1) {
+        return {
+            shortLabel: names[0],
+            tooltip: `Only expenses in “${names[0]}” count toward this budget.`,
+        };
+    }
+
+    return {
+        shortLabel: `${names.length} categories`,
+        tooltip: `Categories included:\n${names.join("\n")}`,
+    };
+}
 
 const BudgetCard = ({ budget, onEdit, onDelete }) => {
     const { status, color } = getBudgetStatus(budget);
     const amount = Number(budget.amount) || 0;
     const spent = Number(budget.spentAmount) || 0;
     const percentage = amount > 0 ? Math.min((spent / amount) * 100, 100) : 0;
+    const scope = getCategoryScope(budget);
 
     return (
         <Card sx={budgetCardStyles.root}>
@@ -65,6 +98,35 @@ const BudgetCard = ({ budget, onEdit, onDelete }) => {
                 <Typography variant="body2" color="text.secondary" gutterBottom>
                     {format(budget.startDate, "MMM dd")} – {format(budget.endDate, "MMM dd, yyyy")}
                 </Typography>
+
+                <Tooltip
+                    title={
+                        <Typography component="span" variant="body2" sx={{ whiteSpace: "pre-line" }}>
+                            {scope.tooltip}
+                        </Typography>
+                    }
+                    placement="top"
+                    arrow
+                    enterTouchDelay={400}
+                >
+                    <Box
+                        sx={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: 0.5,
+                            maxWidth: "100%",
+                            mb: 1.5,
+                            cursor: "default",
+                            color: "text.secondary",
+                        }}
+                        aria-label={`Budget scope: ${scope.shortLabel}`}
+                    >
+                        <ScopeIcon sx={{ fontSize: 18, flexShrink: 0 }} />
+                        <Typography variant="caption" noWrap sx={{ minWidth: 0 }}>
+                            {scope.shortLabel}
+                        </Typography>
+                    </Box>
+                </Tooltip>
 
                 <Box sx={{ mb: 2 }}>
                     <Box

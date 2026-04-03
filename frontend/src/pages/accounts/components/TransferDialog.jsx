@@ -50,6 +50,13 @@ const TransferDialog = ({ open, onClose, accounts, onSuccess, showSnackbar }) =>
         }));
     };
 
+    const handleDateChange = (date) => {
+        setFormData((prevData) => ({
+            ...prevData,
+            date: date ?? new Date(),
+        }));
+    };
+
     const handleSubmit = async () => {
         const validation = validateTransferForm(formData);
         if (!validation.isValid) {
@@ -139,7 +146,7 @@ const TransferDialog = ({ open, onClose, accounts, onSuccess, showSnackbar }) =>
                         <DatePicker
                             label="Date"
                             value={formData.date}
-                            onChange={handleInputChange}
+                            onChange={handleDateChange}
                             slotProps={{
                                 textField: {
                                     fullWidth: true,

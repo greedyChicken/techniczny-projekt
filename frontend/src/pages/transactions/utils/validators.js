@@ -1,7 +1,11 @@
 export const validateTransactionForm = (formData) => {
     const errors = {};
 
-    if (!formData.accountId) {
+    if (
+        formData.accountId === '' ||
+        formData.accountId === null ||
+        formData.accountId === undefined
+    ) {
         errors.accountId = 'Please select an account';
     }
 
@@ -9,7 +13,11 @@ export const validateTransactionForm = (formData) => {
         errors.amount = 'Please enter a valid amount greater than zero';
     }
 
-    if (!formData.categoryId) {
+    if (
+        formData.categoryId === '' ||
+        formData.categoryId === null ||
+        formData.categoryId === undefined
+    ) {
         errors.categoryId = 'Please select a category';
     }
 

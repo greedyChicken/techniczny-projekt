@@ -7,6 +7,7 @@ import {
     Alert,
     Fab,
     Stack,
+    Snackbar,
 } from "@mui/material";
 import { Add as AddIcon } from "@mui/icons-material";
 import { useTheme } from "@mui/material/styles";
@@ -51,6 +52,8 @@ const BudgetsPage = () => {
         deleteDialogOpen,
         handleConfirmDelete,
         handleCancelDelete,
+        snackbar,
+        handleCloseSnackbar,
     } = useBudgets();
 
     return (
@@ -164,6 +167,22 @@ const BudgetsPage = () => {
                     onStartDateChange={handleStartDateChange}
                     onEndDateChange={handleEndDateChange}
                 />
+
+                <Snackbar
+                    open={snackbar.open}
+                    autoHideDuration={6000}
+                    onClose={handleCloseSnackbar}
+                    anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+                >
+                    <Alert
+                        onClose={handleCloseSnackbar}
+                        severity={snackbar.severity}
+                        variant="filled"
+                        sx={{ width: "100%", borderRadius: 2 }}
+                    >
+                        {snackbar.message}
+                    </Alert>
+                </Snackbar>
             </Container>
         </LocalizationProvider>
     );

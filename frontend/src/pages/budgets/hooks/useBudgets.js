@@ -24,6 +24,11 @@ export const useBudgets = () => {
         endDate: new Date(),
         categoryIds: [],
     });
+    const [snackbar, setSnackbar] = useState({
+        open: false,
+        message: '',
+        severity: 'success',
+    });
 
     useEffect(() => {
         fetchCategories();
@@ -129,10 +134,21 @@ export const useBudgets = () => {
         }));
     };
 
+    const showSnackbar = (message, severity = 'success') => {
+        setSnackbar({ open: true, message, severity });
+    };
+
+    const handleCloseSnackbar = () => {
+        setSnackbar((prev) => ({ ...prev, open: false }));
+    };
+
     const handleSubmit = async () => {
         const validation = validateBudgetForm(formData);
         if (!validation.isValid) {
-            setError(Object.values(validation.errors)[0]);
+            const firstMessage =
+                Object.values(validation.errors).find(Boolean) ||
+                'Please fix the form errors.';
+            showSnackbar(firstMessage, 'error');
             return;
         }
 
@@ -168,7 +184,7 @@ export const useBudgets = () => {
             handleCloseDialog();
         } catch (err) {
             console.error('Error saving budget:', err);
-            setError('Failed to save budget. Please try again.');
+            showSnackbar('Failed to save budget. Please try again.', 'error');
         }
     };
 
@@ -227,6 +243,8 @@ export const useBudgets = () => {
         deleteDialogOpen,
         handleConfirmDelete,
         handleCancelDelete,
-        budgetToDelete
+        budgetToDelete,
+        snackbar,
+        handleCloseSnackbar,
     };
 };

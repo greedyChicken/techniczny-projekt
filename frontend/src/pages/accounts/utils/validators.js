@@ -1,18 +1,28 @@
 export const validateAccountForm = (formData) => {
-    if (formData.name.trim() && formData.name.trim().length > 30) {
-        return {isValid: false, error: 'Name must be 30 characters or less'}
+    const name = (formData.name ?? "").trim();
+    if (name.length > 30) {
+        return { isValid: false, error: "Name must be 30 characters or less" };
     }
 
-    if (!formData.name.trim()) {
+    if (!name) {
         return { isValid: false, error: "Account name is required" };
+    }
+
+    const balanceStr =
+        formData.balance === undefined || formData.balance === null
+            ? ""
+            : String(formData.balance).trim();
+    if (balanceStr === "") {
+        return { isValid: false, error: "Balance is required" };
     }
 
     if (isNaN(Number(formData.balance))) {
         return { isValid: false, error: "Balance must be a number" };
     }
 
-    if (formData.institutionName.trim() && formData.institutionName.trim().length > 30) {
-        return {isValid: false, error: 'Institution name must be 30 characters or less'}
+    const institution = (formData.institutionName ?? "").trim();
+    if (institution.length > 30) {
+        return { isValid: false, error: "Institution name must be 30 characters or less" };
     }
 
     return { isValid: true };
