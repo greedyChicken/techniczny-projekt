@@ -1,5 +1,22 @@
 import apiClient from "./apiClient";
 
+const parseJwt = (token) => {
+  try {
+    const [, payload] = token.split(".");
+    if (!payload) return null;
+    return JSON.parse(atob(payload));
+  } catch {
+    return null;
+  }
+};
+
+const isTokenExpired = (token) => {
+  const payload = parseJwt(token);
+  if (!payload || !payload.exp) return true;
+  const nowInSeconds = Date.now() / 1000;
+  return payload.exp < nowInSeconds;
+};
+
 export const authService = {
   authenticate: async (credentials) => {
     const response = await apiClient.post("/users/authenticate", credentials);
@@ -20,8 +37,15 @@ export const authService = {
 
   getCurrentUser: () => {
     const userStr = localStorage.getItem("user");
+    const token = localStorage.getItem("token");
 
-    if (!userStr || userStr === "undefined" || userStr === "null") {
+    if (!userStr || userStr === "undefined" || userStr === "null" || !token) {
+      return null;
+    }
+
+    if (isTokenExpired(token)) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
       return null;
     }
 
