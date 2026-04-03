@@ -9,7 +9,11 @@ import {
     Alert,
     Stack,
 } from "@mui/material";
-import { Add as AddIcon, FilterList as FilterIcon } from "@mui/icons-material";
+import {
+    Add as AddIcon,
+    FilterList as FilterIcon,
+    FileDownload as FileDownloadIcon,
+} from "@mui/icons-material";
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -68,6 +72,8 @@ const TransactionsPage = () => {
         fetchTransactions,
         refetchAccounts,
         refetchCategories,
+        exportingCsv,
+        handleExportCsv,
     } = useTransactions();
 
     return (
@@ -100,16 +106,20 @@ const TransactionsPage = () => {
                                         startIcon={<FilterIcon />}
                                         onClick={() => setFiltersOpen(!filtersOpen)}
                                         size={isMobile ? "small" : "medium"}
-                                        sx={{
-                                            borderColor: "rgba(255,255,255,0.5)",
-                                            color: "common.white",
-                                            "&:hover": {
-                                                borderColor: "common.white",
-                                                bgcolor: "rgba(255,255,255,0.12)",
-                                            },
-                                        }}
+                                        sx={transactionPageHeaderStyles.outlinedActionButtonSx}
                                     >
                                         {filtersOpen ? "Hide filters" : "Filters"}
+                                    </Button>
+                                    <Button
+                                        variant="outlined"
+                                        color="inherit"
+                                        startIcon={<FileDownloadIcon />}
+                                        onClick={() => handleExportCsv()}
+                                        disabled={exportingCsv}
+                                        size={isMobile ? "small" : "medium"}
+                                        sx={transactionPageHeaderStyles.outlinedActionButtonSx}
+                                    >
+                                        {exportingCsv ? "Exporting…" : "Export CSV"}
                                     </Button>
                                     <Button
                                         variant="contained"

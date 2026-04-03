@@ -420,4 +420,17 @@ class TransactionServiceTest {
         assertNotNull(result);
         assertTrue(result.isEmpty());
     }
+
+    @Test
+    void exportTransactionsToCsv_DelegatesToRepository() {
+        TransactionFilter filter = TransactionFilter.builder().userId(1L).build();
+        when(transactionRepositoryImpl.findAllWithFiltersUnpaged(filter))
+                .thenReturn(List.of(testTransaction));
+
+        byte[] csv = transactionService.exportTransactionsToCsv(filter);
+
+        assertNotNull(csv);
+        assertTrue(csv.length > 10);
+        verify(transactionRepositoryImpl, times(1)).findAllWithFiltersUnpaged(filter);
+    }
 }
