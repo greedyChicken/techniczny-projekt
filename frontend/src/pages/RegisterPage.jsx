@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link as RouterLink } from "react-router-dom";
+import { Link as RouterLink, useSearchParams } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useUIState } from "../contexts/UIStateContext";
 import {
@@ -13,10 +13,13 @@ import {
     InputAdornment,
     IconButton,
     Alert,
+    Divider,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { authFormAlertSx } from "../styles/feedbackStyles";
 import { authPageRootSx, authPaperSx, authTitleSx } from "../styles/authPageStyles";
+import GoogleSignInButton from "../components/GoogleSignInButton";
+import { OAUTH_ERROR_MESSAGES } from "../utils/oauthErrorMessages";
 
 const RegisterPage = () => {
     const [formData, setFormData] = useState({
@@ -25,6 +28,7 @@ const RegisterPage = () => {
         confirmPassword: "",
     });
     const [showPassword, setShowPassword] = useState(false);
+    const [searchParams] = useSearchParams();
 
     const { register } = useAuth();
     const { isLoading, error, showError, clearError } = useUIState();
@@ -32,6 +36,13 @@ const RegisterPage = () => {
     useEffect(() => {
         clearError();
     }, [clearError]);
+
+    useEffect(() => {
+        const code = searchParams.get("error");
+        if (code && OAUTH_ERROR_MESSAGES[code]) {
+            showError(OAUTH_ERROR_MESSAGES[code]);
+        }
+    }, [searchParams, showError]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -98,8 +109,18 @@ const RegisterPage = () => {
                         Create account
                     </Typography>
                     <Typography variant="body2" color="text.secondary" align="center" sx={{ mb: 2 }}>
-                        Set up your credentials. You can add accounts and budgets after signing in.
+                        Create an account with Google or with email and password.
                     </Typography>
+
+                    <GoogleSignInButton />
+
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, my: 2 }}>
+                        <Divider sx={{ flex: 1 }} />
+                        <Typography variant="caption" color="text.secondary">
+                            or
+                        </Typography>
+                        <Divider sx={{ flex: 1 }} />
+                    </Box>
 
                     {error && (
                         <Alert

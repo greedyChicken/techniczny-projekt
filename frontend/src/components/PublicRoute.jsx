@@ -3,9 +3,9 @@ import { useAuth } from "../contexts/AuthContext";
 import { Box, CircularProgress } from "@mui/material";
 
 const PublicRoute = () => {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, initialized } = useAuth();
 
-  if (loading) {
+  if (!initialized) {
     return (
       <Box
         sx={{

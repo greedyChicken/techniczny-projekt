@@ -14,6 +14,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
+import GoogleOAuthCallbackPage from "./pages/GoogleOAuthCallbackPage";
 import DashboardPage from "./pages/dashboard/DashboardPage";
 import AccountsPage from "./pages/accounts/AccountsPage";
 import TransfersPage from "./pages/transfers/TransfersPage";
@@ -35,6 +36,11 @@ function App() {
                     <AuthProvider>
                         <GlobalLoader/>
                         <Routes>
+                            <Route
+                                path="/auth/google/callback"
+                                element={<GoogleOAuthCallbackPage />}
+                            />
+
                             <Route element={<PublicRoute />}>
                                 <Route path="/login" element={<LoginPage />} />
                                 <Route path="/register" element={<RegisterPage />} />

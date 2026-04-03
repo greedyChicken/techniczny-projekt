@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link as RouterLink } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link as RouterLink, useSearchParams } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useUIState } from "../contexts/UIStateContext";
 import {
@@ -13,18 +13,29 @@ import {
     InputAdornment,
     IconButton,
     Alert,
+    Divider,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { authFormAlertSx } from "../styles/feedbackStyles";
 import { authPageRootSx, authPaperSx, authTitleSx } from "../styles/authPageStyles";
+import GoogleSignInButton from "../components/GoogleSignInButton";
+import { OAUTH_ERROR_MESSAGES } from "../utils/oauthErrorMessages";
 
 const LoginPage = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
+    const [searchParams] = useSearchParams();
 
     const { login } = useAuth();
     const { isLoading, error, showError, clearError } = useUIState();
+
+    useEffect(() => {
+        const code = searchParams.get("error");
+        if (code && OAUTH_ERROR_MESSAGES[code]) {
+            showError(OAUTH_ERROR_MESSAGES[code]);
+        }
+    }, [searchParams, showError]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -52,8 +63,18 @@ const LoginPage = () => {
                         Sign in
                     </Typography>
                     <Typography variant="body2" color="text.secondary" align="center" sx={{ mb: 2 }}>
-                        Welcome back. Use the email and password for your account.
+                        Welcome back. Sign in with Google or your email and password.
                     </Typography>
+
+                    <GoogleSignInButton />
+
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, my: 2 }}>
+                        <Divider sx={{ flex: 1 }} />
+                        <Typography variant="caption" color="text.secondary">
+                            or
+                        </Typography>
+                        <Divider sx={{ flex: 1 }} />
+                    </Box>
 
                     {error && (
                         <Alert

@@ -1,6 +1,6 @@
 import apiClient from "./apiClient";
 
-const parseJwt = (token) => {
+export const parseJwt = (token) => {
   try {
     const [, payload] = token.split(".");
     if (!payload) return null;
@@ -18,6 +18,26 @@ const isTokenExpired = (token) => {
 };
 
 export const authService = {
+  /**
+   * Persists token + minimal user object from JWT claims (used after Google OAuth redirect).
+   */
+  persistSessionFromJwt(token) {
+    if (!token) return false;
+    const payload = parseJwt(token);
+    if (!payload?.userId || payload.sub == null || payload.sub === "") {
+      return false;
+    }
+    if (isTokenExpired(token)) {
+      return false;
+    }
+    localStorage.setItem("token", token);
+    localStorage.setItem(
+      "user",
+      JSON.stringify({ id: payload.userId, email: payload.sub })
+    );
+    return true;
+  },
+
   authenticate: async (credentials) => {
     const response = await apiClient.post("/users/authenticate", credentials);
     saveUserData(response.data);
