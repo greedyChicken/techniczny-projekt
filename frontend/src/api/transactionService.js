@@ -1,7 +1,8 @@
 import apiClient from "./apiClient";
 
 export const transactionService = {
-  getTransactions: async (filter = {}, page = 0, size = 20, sort = "id") => {
+  getTransactions: async (opts = {}) => {
+    const { page = 0, size = 20, sort = "id", ...filter } = opts;
     const params = {
       ...filter,
       page,
