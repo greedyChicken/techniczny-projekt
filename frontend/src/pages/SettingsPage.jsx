@@ -83,10 +83,12 @@ const SettingsPage = () => {
   const validateForm = () => {
     const newErrors = {};
 
-    if (!profileData.email) {
-      newErrors.email = "Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(profileData.email)) {
-      newErrors.email = "Enter a valid email address";
+    if (!user?.registeredViaGoogle) {
+      if (!profileData.email) {
+        newErrors.email = "Email is required";
+      } else if (!/\S+@\S+\.\S+/.test(profileData.email)) {
+        newErrors.email = "Enter a valid email address";
+      }
     }
 
     if (profileData.currentPassword || profileData.newPassword || profileData.confirmPassword) {
@@ -138,17 +140,21 @@ const SettingsPage = () => {
     setLoading(true);
 
     try {
-      const updateData = {
-        email: profileData.email,
-      };
-
+      const updateData = {};
+      if (!user.registeredViaGoogle) {
+        updateData.email = profileData.email;
+      }
       if (profileData.newPassword) {
         updateData.password = profileData.newPassword;
       }
 
       const response = await authService.updateUser(user.id, updateData);
 
-      updateUserContext({ ...user, email: response.email });
+      if (response.user) {
+        updateUserContext(response.user);
+      } else {
+        updateUserContext({ ...user, email: profileData.email });
+      }
 
       setProfileData((prev) => ({
         ...prev,
@@ -163,7 +169,8 @@ const SettingsPage = () => {
       if (error.response?.status === 403) {
         showSnackbar(PROFILE_SAVE_FORBIDDEN, "error");
       } else if (error.response?.status === 400) {
-        showSnackbar(PROFILE_SAVE_INVALID, "error");
+        const apiMsg = error.response?.data?.message;
+        showSnackbar(apiMsg || PROFILE_SAVE_INVALID, "error");
       } else {
         showSnackbar(PROFILE_SAVE_FAILED, "error");
       }
@@ -228,7 +235,8 @@ const SettingsPage = () => {
               Settings
             </Typography>
             <Typography variant="body2" sx={settingsHeroSubtitleSx}>
-              Update your email and password. Changes apply to your next sign-in.
+              Update your email and password. If you change email or password, you stay signed in with a
+              refreshed session.
             </Typography>
           </Box>
 
@@ -259,8 +267,14 @@ const SettingsPage = () => {
                         onChange={handleProfileChange}
                         margin="normal"
                         type="email"
+                        disabled={Boolean(user.registeredViaGoogle)}
                         error={!!errors.email}
-                        helperText={errors.email}
+                        helperText={
+                          errors.email ||
+                          (user.registeredViaGoogle
+                            ? "This account uses Google sign-in. Email is tied to your Google account."
+                            : "")
+                        }
                       />
                     </Box>
                   )}

@@ -1,6 +1,7 @@
 package com.jan.financeappbackend.service;
 
 import com.jan.financeappbackend.dto.UserDto;
+import com.jan.financeappbackend.dto.UserProfileUpdateResponse;
 import com.jan.financeappbackend.exception.UserNotFound;
 import com.jan.financeappbackend.model.Account;
 import com.jan.financeappbackend.model.AccountType;
@@ -58,12 +59,12 @@ public class AuthenticationService {
         saveNewUserWithDefaultAccount(
             command.getEmail(),
             passwordEncoder.encode(command.getPassword()),
-            Role.valueOf(command.getRole()));
+            Role.valueOf(command.getRole()),
+            false);
 
     var token = jwtService.generateToken(user);
-    var userDto = UserDto.builder().id(user.getId()).email(user.getEmail()).build();
 
-    return AuthenticationResponse.builder().token(token).user(userDto).build();
+    return AuthenticationResponse.builder().token(token).user(toUserDto(user)).build();
   }
 
   @Transactional
@@ -73,16 +74,20 @@ public class AuthenticationService {
         .orElseGet(
             () ->
                 saveNewUserWithDefaultAccount(
-                    email, passwordEncoder.encode(UUID.randomUUID().toString()), Role.USER));
+                    email,
+                    passwordEncoder.encode(UUID.randomUUID().toString()),
+                    Role.USER,
+                    true));
   }
 
   private User saveNewUserWithDefaultAccount(
-      String email, String encodedPassword, Role role) {
+      String email, String encodedPassword, Role role, boolean registeredViaGoogle) {
     var user =
         User.builder()
             .email(email)
             .password(encodedPassword)
             .role(role)
+            .registeredViaGoogle(registeredViaGoogle)
             .createdAt(LocalDateTime.now())
             .updatedAt(LocalDateTime.now())
             .build();
@@ -109,16 +114,31 @@ public class AuthenticationService {
     var user = userRepository.findByEmail(command.getEmail()).orElseThrow(UserNotFound::new);
 
     var token = jwtService.generateToken(user);
-    var userDto = UserDto.builder().id(user.getId()).email(user.getEmail()).build();
 
-    return AuthenticationResponse.builder().token(token).user(userDto).build();
+    return AuthenticationResponse.builder().token(token).user(toUserDto(user)).build();
   }
 
-  public User updateUser(Long userId, UserRequest request) {
+  public UserProfileUpdateResponse updateUser(Long userId, UserRequest request) {
     User user = findUserById(userId);
 
-    if (request.getEmail() != null) {
-      user.setEmail(request.getEmail());
+    String newEmail = request.getEmail() != null ? request.getEmail().trim() : null;
+    boolean emailChangeRequested = newEmail != null && !newEmail.equals(user.getEmail());
+    if (emailChangeRequested && user.isRegisteredViaGoogle()) {
+      throw new IllegalArgumentException(
+          "Email cannot be changed for accounts created with Google sign-in.");
+    }
+    if (emailChangeRequested) {
+      if (userRepository.findByEmail(newEmail).filter(u -> !u.getId().equals(userId)).isPresent()) {
+        throw new IllegalArgumentException(
+            String.format("User with email %s already exists.", newEmail));
+      }
+    }
+
+    boolean passwordChangeRequested = request.getPassword() != null;
+    String previousEmail = user.getEmail();
+
+    if (newEmail != null) {
+      user.setEmail(newEmail);
     }
 
     if (request.getPassword() != null) {
@@ -126,8 +146,25 @@ public class AuthenticationService {
     }
 
     user.setUpdatedAt(LocalDateTime.now());
+    user = userRepository.save(user);
 
-    return userRepository.save(user);
+    boolean emailChanged = newEmail != null && !previousEmail.equals(user.getEmail());
+    boolean passwordChanged = passwordChangeRequested;
+
+    String token = null;
+    if (emailChanged || passwordChanged) {
+      token = jwtService.generateToken(user);
+    }
+
+    return UserProfileUpdateResponse.builder().user(toUserDto(user)).token(token).build();
+  }
+
+  private static UserDto toUserDto(User user) {
+    return UserDto.builder()
+        .id(user.getId())
+        .email(user.getEmail())
+        .registeredViaGoogle(user.isRegisteredViaGoogle())
+        .build();
   }
 
   public void deleteUser(Long userId) {

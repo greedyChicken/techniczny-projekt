@@ -52,6 +52,10 @@ public class User implements UserDetails {
   @Column(nullable = false)
   private LocalDateTime updatedAt;
 
+  @Column(name = "registered_via_google", nullable = false)
+  @Builder.Default
+  private boolean registeredViaGoogle = false;
+
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
     SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + role.name());

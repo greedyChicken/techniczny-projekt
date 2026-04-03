@@ -1,6 +1,6 @@
 package com.jan.financeappbackend.controller;
 
-import com.jan.financeappbackend.dto.UserDto;
+import com.jan.financeappbackend.dto.UserProfileUpdateResponse;
 import com.jan.financeappbackend.request.AuthenticateRequest;
 import com.jan.financeappbackend.request.RegisterRequest;
 import com.jan.financeappbackend.dto.AuthenticationResponse;
@@ -8,7 +8,6 @@ import com.jan.financeappbackend.request.UserRequest;
 import com.jan.financeappbackend.security.SecurityUtils;
 import com.jan.financeappbackend.service.AuthenticationService;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
   private final AuthenticationService authenticationService;
   private final SecurityUtils securityUtils;
-  private final ModelMapper modelMapper;
 
   @PostMapping
   public ResponseEntity<AuthenticationResponse> register(@RequestBody RegisterRequest command) {
@@ -47,14 +45,11 @@ public class UserController {
   }
 
   @PutMapping("/{userId}")
-  public ResponseEntity<UserDto> updateUser(
+  public ResponseEntity<UserProfileUpdateResponse> updateUser(
       @PathVariable Long userId, @RequestBody UserRequest request) {
     securityUtils.requireAuthorizedOrAdmin(
         userId, "You are not authorized to update this user");
 
-    var response =
-        modelMapper.map(authenticationService.updateUser(userId, request), UserDto.class);
-
-    return ResponseEntity.ok(response);
+    return ResponseEntity.ok(authenticationService.updateUser(userId, request));
   }
 }

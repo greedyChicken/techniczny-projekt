@@ -173,14 +173,19 @@ class AuthenticationServiceTest {
                 .build();
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
+        when(userRepository.findByEmail("newemail@example.com")).thenReturn(Optional.empty());
         when(userRepository.save(any(User.class))).thenReturn(testUser);
+        when(jwtService.generateToken(any(User.class))).thenReturn("new.jwt.token");
 
-        User result = authenticationService.updateUser(1L, updateRequest);
+        var result = authenticationService.updateUser(1L, updateRequest);
 
         assertNotNull(result);
         assertEquals("newemail@example.com", testUser.getEmail());
         assertNotNull(testUser.getUpdatedAt());
+        assertEquals("new.jwt.token", result.getToken());
+        assertEquals("newemail@example.com", result.getUser().email());
         verify(userRepository, times(1)).save(testUser);
+        verify(jwtService, times(1)).generateToken(any(User.class));
     }
 
     @Test
@@ -192,13 +197,16 @@ class AuthenticationServiceTest {
         when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
         when(passwordEncoder.encode("newPassword123")).thenReturn("encodedNewPassword");
         when(userRepository.save(any(User.class))).thenReturn(testUser);
+        when(jwtService.generateToken(any(User.class))).thenReturn("pwd.jwt.token");
 
-        User result = authenticationService.updateUser(1L, updateRequest);
+        var result = authenticationService.updateUser(1L, updateRequest);
 
         assertNotNull(result);
         assertEquals("encodedNewPassword", testUser.getPassword());
+        assertEquals("pwd.jwt.token", result.getToken());
         verify(passwordEncoder, times(1)).encode("newPassword123");
         verify(userRepository, times(1)).save(testUser);
+        verify(jwtService, times(1)).generateToken(any(User.class));
     }
 
     @Test
@@ -209,15 +217,57 @@ class AuthenticationServiceTest {
                 .build();
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
+        when(userRepository.findByEmail("newemail@example.com")).thenReturn(Optional.empty());
         when(passwordEncoder.encode("newPassword123")).thenReturn("encodedNewPassword");
         when(userRepository.save(any(User.class))).thenReturn(testUser);
+        when(jwtService.generateToken(any(User.class))).thenReturn("both.jwt.token");
 
-        User result = authenticationService.updateUser(1L, updateRequest);
+        var result = authenticationService.updateUser(1L, updateRequest);
 
         assertNotNull(result);
         assertEquals("newemail@example.com", testUser.getEmail());
         assertEquals("encodedNewPassword", testUser.getPassword());
+        assertEquals("both.jwt.token", result.getToken());
         verify(userRepository, times(1)).save(testUser);
+        verify(jwtService, times(1)).generateToken(any(User.class));
+    }
+
+    @Test
+    void updateUser_GoogleUserCannotChangeEmail() {
+        User googleUser =
+                User.builder()
+                        .id(1L)
+                        .email("g@gmail.com")
+                        .password("x")
+                        .role(Role.USER)
+                        .registeredViaGoogle(true)
+                        .createdAt(LocalDateTime.now())
+                        .updatedAt(LocalDateTime.now())
+                        .build();
+
+        UserRequest updateRequest = UserRequest.builder().email("other@gmail.com").build();
+        when(userRepository.findById(1L)).thenReturn(Optional.of(googleUser));
+
+        var ex =
+                assertThrows(
+                        IllegalArgumentException.class,
+                        () -> authenticationService.updateUser(1L, updateRequest));
+        assertTrue(ex.getMessage().contains("Google"));
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    void updateUser_EmailAlreadyTaken_Throws() {
+        UserRequest updateRequest = UserRequest.builder().email("taken@example.com").build();
+        User other = User.builder().id(2L).email("taken@example.com").build();
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
+        when(userRepository.findByEmail("taken@example.com")).thenReturn(Optional.of(other));
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> authenticationService.updateUser(1L, updateRequest));
+        verify(userRepository, never()).save(any());
     }
 
     @Test

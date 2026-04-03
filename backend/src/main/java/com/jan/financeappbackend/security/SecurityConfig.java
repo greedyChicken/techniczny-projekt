@@ -20,7 +20,21 @@ public class SecurityConfig {
 
     @Bean
     public UserDetailsService userDetailsService() {
-        return username -> userRepository.findByEmail(username).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        return username -> {
+            if (username == null || username.isBlank()) {
+                throw new UsernameNotFoundException("User not found");
+            }
+            try {
+                long id = Long.parseLong(username);
+                return userRepository
+                    .findById(id)
+                    .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+            } catch (NumberFormatException e) {
+                return userRepository
+                    .findByEmail(username)
+                    .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+            }
+        };
     }
 
     @Bean
