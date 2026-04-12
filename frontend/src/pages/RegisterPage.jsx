@@ -109,18 +109,8 @@ const RegisterPage = () => {
                         Create account
                     </Typography>
                     <Typography variant="body2" color="text.secondary" align="center" sx={{ mb: 2 }}>
-                        Create an account with Google or with email and password.
+                        Create an account with email and password, or sign up with Google.
                     </Typography>
-
-                    <GoogleSignInButton />
-
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, my: 2 }}>
-                        <Divider sx={{ flex: 1 }} />
-                        <Typography variant="caption" color="text.secondary">
-                            or
-                        </Typography>
-                        <Divider sx={{ flex: 1 }} />
-                    </Box>
 
                     {error && (
                         <Alert
@@ -132,7 +122,7 @@ const RegisterPage = () => {
                         </Alert>
                     )}
 
-                    <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+                    <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: error ? 2 : 1 }}>
                         <TextField
                             margin="normal"
                             required
@@ -201,6 +191,16 @@ const RegisterPage = () => {
                             </Link>
                         </Box>
                     </Box>
+
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, my: 2 }}>
+                        <Divider sx={{ flex: 1 }} />
+                        <Typography variant="caption" color="text.secondary">
+                            or
+                        </Typography>
+                        <Divider sx={{ flex: 1 }} />
+                    </Box>
+
+                    <GoogleSignInButton>Sign up with Google</GoogleSignInButton>
                 </Paper>
             </Container>
         </Box>

@@ -63,18 +63,8 @@ const LoginPage = () => {
                         Sign in
                     </Typography>
                     <Typography variant="body2" color="text.secondary" align="center" sx={{ mb: 2 }}>
-                        Welcome back. Sign in with Google or your email and password.
+                        Welcome back. Sign in with your email and password, or continue with Google.
                     </Typography>
-
-                    <GoogleSignInButton />
-
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, my: 2 }}>
-                        <Divider sx={{ flex: 1 }} />
-                        <Typography variant="caption" color="text.secondary">
-                            or
-                        </Typography>
-                        <Divider sx={{ flex: 1 }} />
-                    </Box>
 
                     {error && (
                         <Alert
@@ -86,7 +76,7 @@ const LoginPage = () => {
                         </Alert>
                     )}
 
-                    <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+                    <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: error ? 2 : 1 }}>
                         <TextField
                             margin="normal"
                             required
@@ -140,6 +130,16 @@ const LoginPage = () => {
                             </Link>
                         </Box>
                     </Box>
+
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, my: 2 }}>
+                        <Divider sx={{ flex: 1 }} />
+                        <Typography variant="caption" color="text.secondary">
+                            or
+                        </Typography>
+                        <Divider sx={{ flex: 1 }} />
+                    </Box>
+
+                    <GoogleSignInButton>Sign in with Google</GoogleSignInButton>
                 </Paper>
             </Container>
         </Box>
