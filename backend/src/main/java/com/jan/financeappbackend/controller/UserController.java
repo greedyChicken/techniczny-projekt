@@ -7,6 +7,7 @@ import com.jan.financeappbackend.dto.AuthenticationResponse;
 import com.jan.financeappbackend.request.UserRequest;
 import com.jan.financeappbackend.security.SecurityUtils;
 import com.jan.financeappbackend.service.AuthenticationService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +21,8 @@ public class UserController {
   private final SecurityUtils securityUtils;
 
   @PostMapping
-  public ResponseEntity<AuthenticationResponse> register(@RequestBody RegisterRequest command) {
+  public ResponseEntity<AuthenticationResponse> register(
+      @Valid @RequestBody RegisterRequest command) {
     return new ResponseEntity<>(authenticationService.create(command), HttpStatus.CREATED);
   }
 
