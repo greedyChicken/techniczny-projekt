@@ -334,22 +334,17 @@ class BudgetServiceTest {
 
     @Test
     void testBudgetMethods() {
-        // Test getRemainingAmount
-        assertEquals(900.0, testBudget.getRemainingAmount()); // 1000 - 100
+        assertEquals(900.0, testBudget.getRemainingAmount());
 
-        // Test isExceeded - not exceeded
         assertFalse(testBudget.isExceeded());
 
-        // Test isExceeded - exceeded
         testBudget.setSpentAmount(1100.0);
         assertTrue(testBudget.isExceeded());
 
-        // Test isAllCategories
         assertFalse(testBudget.isAllCategories());
         testBudget.setCategories(new HashSet<>());
         assertTrue(testBudget.isAllCategories());
 
-        // Test hasCategory
         testBudget.setCategories(new HashSet<>(Set.of(testCategory1)));
         assertTrue(testBudget.hasCategory(1L));
         assertFalse(testBudget.hasCategory(2L));

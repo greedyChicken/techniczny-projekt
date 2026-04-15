@@ -10,7 +10,6 @@ export const pageWarningAlertSx = {
     borderRadius: 2,
 };
 
-/** Inline alerts on auth forms (validation + API errors). */
 export const authFormAlertSx = (severity) => ({
     mb: 2,
     borderRadius: 2,

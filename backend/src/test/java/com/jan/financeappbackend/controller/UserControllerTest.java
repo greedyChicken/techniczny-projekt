@@ -65,7 +65,6 @@ class UserControllerTest {
 
     @Test
     void shouldNotRegisterUserWithExistingEmail() throws Exception {
-        // Register first user
         RegisterRequest firstUser = RegisterRequest.builder()
                 .email("duplicate@test.com")
                 .password("Password123!")
@@ -79,7 +78,6 @@ class UserControllerTest {
                         .content(firstJson))
                 .andExpect(status().isCreated());
 
-        // Try to register second user with same email
         RegisterRequest secondUser = RegisterRequest.builder()
                 .email("duplicate@test.com")
                 .password("DifferentPassword123!")
@@ -97,7 +95,6 @@ class UserControllerTest {
 
     @Test
     void shouldAuthenticateUser() throws Exception {
-        // First register a user
         RegisterRequest registerRequest = RegisterRequest.builder()
                 .email("auth@test.com")
                 .password("AuthPassword123!")
@@ -111,7 +108,6 @@ class UserControllerTest {
                         .content(registerJson))
                 .andExpect(status().isCreated());
 
-        // Now authenticate
         AuthenticateRequest authRequest = AuthenticateRequest.builder()
                 .email("auth@test.com")
                 .password("AuthPassword123!")
@@ -131,7 +127,6 @@ class UserControllerTest {
 
     @Test
     void shouldNotAuthenticateWithWrongPassword() throws Exception {
-        // First register a user
         RegisterRequest registerRequest = RegisterRequest.builder()
                 .email("wrongpass@test.com")
                 .password("CorrectPassword123!")
@@ -145,7 +140,6 @@ class UserControllerTest {
                         .content(registerJson))
                 .andExpect(status().isCreated());
 
-        // Try to authenticate with wrong password
         AuthenticateRequest authRequest = AuthenticateRequest.builder()
                 .email("wrongpass@test.com")
                 .password("WrongPassword123!")
@@ -178,7 +172,6 @@ class UserControllerTest {
 
     @Test
     void shouldDeleteOwnAccount() throws Exception {
-        // First register a user
         RegisterRequest registerRequest = RegisterRequest.builder()
                 .email("deleteuser@test.com")
                 .password("DeletePassword123!")
@@ -198,13 +191,11 @@ class UserControllerTest {
         AuthenticationResponse authResponse = objectMapper.readValue(response, AuthenticationResponse.class);
         Long userId = authResponse.getUser().id();
 
-        // Delete the user (SecurityUtils resolves the acting user from the JWT)
         postman.perform(delete("/api/users/" + userId)
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + authResponse.getToken()))
                 .andDo(print())
                 .andExpect(status().isNoContent());
 
-        // Try to authenticate - should fail
         AuthenticateRequest authRequest = AuthenticateRequest.builder()
                 .email("deleteuser@test.com")
                 .password("DeletePassword123!")
@@ -227,7 +218,6 @@ class UserControllerTest {
     @Test
     @WithMockJwtUser(username = "admin@financeapp.com", role = "ADMIN", userId = 3L)
     void shouldDeleteAnyUserAsAdmin() throws Exception {
-        // First register a user to delete
         RegisterRequest registerRequest = RegisterRequest.builder()
                 .email("tobedeleted@test.com")
                 .password("Password123!")
@@ -247,7 +237,6 @@ class UserControllerTest {
         AuthenticationResponse authResponse = objectMapper.readValue(response, AuthenticationResponse.class);
         Long userId = authResponse.getUser().id();
 
-        // Admin deletes the user
         postman.perform(delete("/api/users/" + userId))
                 .andDo(print())
                 .andExpect(status().isNoContent());
@@ -256,7 +245,6 @@ class UserControllerTest {
     @Test
     @WithMockJwtUser(username = "admin@financeapp.com", role = "ADMIN", userId = 3L)
     void shouldNotAllowAdminToDeleteOwnAccount() throws Exception {
-        // Seed admin from Liquibase users.csv (third row)
         Long adminUserId = 3L;
 
         postman.perform(delete("/api/users/" + adminUserId))
@@ -266,7 +254,6 @@ class UserControllerTest {
 
     @Test
     void shouldUpdateOwnAccount() throws Exception {
-        // First register a user
         RegisterRequest registerRequest = RegisterRequest.builder()
                 .email("updateuser@test.com")
                 .password("OldPassword123!")
@@ -286,7 +273,6 @@ class UserControllerTest {
         AuthenticationResponse authResponse = objectMapper.readValue(response, AuthenticationResponse.class);
         Long userId = authResponse.getUser().id();
 
-        // Update the user
         UserRequest updateRequest = UserRequest.builder()
                 .email("newemail@test.com")
                 .password("NewPassword123!")
@@ -302,7 +288,6 @@ class UserControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.user.email").value("newemail@test.com"));
 
-        // Verify can authenticate with new credentials
         AuthenticateRequest authRequest = AuthenticateRequest.builder()
                 .email("newemail@test.com")
                 .password("NewPassword123!")
@@ -334,7 +319,6 @@ class UserControllerTest {
     @Test
     @WithMockJwtUser(username = "admin@financeapp.com", role = "ADMIN", userId = 3L)
     void shouldUpdateAnyUserAsAdmin() throws Exception {
-        // First register a user to update
         RegisterRequest registerRequest = RegisterRequest.builder()
                 .email("tobeupdated@test.com")
                 .password("OldPass123!")
@@ -354,7 +338,6 @@ class UserControllerTest {
         AuthenticationResponse authResponse = objectMapper.readValue(response, AuthenticationResponse.class);
         Long userId = authResponse.getUser().id();
 
-        // Admin updates the user
         UserRequest updateRequest = UserRequest.builder()
                 .email("adminupdated@test.com")
                 .password("AdminSetPassword123!")

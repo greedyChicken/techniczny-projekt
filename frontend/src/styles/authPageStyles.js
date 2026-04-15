@@ -1,4 +1,3 @@
-/** Login & register — centered card on a soft tinted backdrop. */
 export const authPageRootSx = {
     minHeight: "100vh",
     display: "flex",

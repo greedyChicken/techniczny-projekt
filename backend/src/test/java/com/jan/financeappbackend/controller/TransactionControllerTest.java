@@ -149,7 +149,6 @@ class TransactionControllerTest {
     @Test
     @WithMockJwtUser
     void shouldDeleteTransaction() throws Exception {
-        // Expense delete restores balance; deleting income tx 2 would make account 1 negative with seed balances.
         var transactionId = 1;
 
         postman.perform(get("/api/transactions/" + transactionId))
@@ -175,7 +174,6 @@ class TransactionControllerTest {
     @Test
     @WithMockJwtUser
     void shouldGetTransactionsWithFilters() throws Exception {
-        // Seed transactions for user 1 / account 1 are dated 2024-09-01 and 2024-09-10
         LocalDateTime startDate =
                 LocalDateTime.parse("2024-09-01 00:00:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         LocalDateTime endDate =

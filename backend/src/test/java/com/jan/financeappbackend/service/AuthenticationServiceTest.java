@@ -114,7 +114,6 @@ class AuthenticationServiceTest {
         assertNotNull(result.getUser());
         assertEquals("newuser@example.com", result.getUser().email());
 
-        // Verify user was created with account
         ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
         verify(userRepository, times(1)).save(userCaptor.capture());
         User savedUser = userCaptor.getValue();

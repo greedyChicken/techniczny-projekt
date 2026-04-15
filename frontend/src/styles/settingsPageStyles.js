@@ -1,9 +1,7 @@
 import { budgetLayoutStyles } from "../pages/budgets/styles/budgetStyles";
 
-/** Same vertical rhythm as Budgets / Dashboard. */
 export const settingsPageContainerSx = budgetLayoutStyles.pageContainer;
 
-/** Primary form surface: matches `budgetLayoutStyles.sectionCard`; full width of container like the page header. */
 export const settingsAccountPaperSx = {
   ...budgetLayoutStyles.sectionCard,
   width: "100%",

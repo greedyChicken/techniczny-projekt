@@ -32,7 +32,6 @@ export const transactionPageHeaderStyles = {
         opacity: 0.9,
         maxWidth: "720px",
     },
-    /** Outlined actions on the gradient hero (Filters, Export CSV). */
     outlinedActionButtonSx: {
         borderColor: "rgba(255,255,255,0.5)",
         color: "common.white",

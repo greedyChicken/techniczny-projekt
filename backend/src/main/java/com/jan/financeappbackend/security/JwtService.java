@@ -19,9 +19,8 @@ import java.util.function.Function;
 public class JwtService {
   private static final String SECRET_KEY =
       "21332f71525150484659392b5242677d58597e2734475c2054592c6754";
-  private static final long JWT_EXPIRATION = 86400000; // 24 hours
+  private static final long JWT_EXPIRATION = 86400000;
 
-  /** JWT subject: user id as string (legacy tokens used email). */
   public String extractSubject(String token) {
     return extractClaim(token, Claims::getSubject);
   }

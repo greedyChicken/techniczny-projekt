@@ -132,7 +132,6 @@ public class TransactionRepositoryImpl implements TransactionRepositoryCustom {
       PathBuilder<Transaction> entityPath = new PathBuilder<>(Transaction.class, "transaction");
       query.orderBy(new OrderSpecifier(order, entityPath.get(filter.getSortBy())));
     } else {
-      // Default sort by creation date if not specified
       QTransaction transaction = QTransaction.transaction;
       query.orderBy(transaction.createdAt.desc());
     }

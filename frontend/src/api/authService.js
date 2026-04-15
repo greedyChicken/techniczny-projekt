@@ -18,9 +18,6 @@ const isTokenExpired = (token) => {
 };
 
 export const authService = {
-  /**
-   * Persists token + minimal user object from JWT claims (used after Google OAuth redirect).
-   */
   persistSessionFromJwt(token) {
     if (!token) return false;
     const payload = parseJwt(token);

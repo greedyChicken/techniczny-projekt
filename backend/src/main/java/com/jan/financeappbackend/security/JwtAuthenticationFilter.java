@@ -53,7 +53,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
           SecurityContextHolder.getContext().setAuthentication(authToken);
         }
       } catch (UsernameNotFoundException ignored) {
-        // Invalid subject — leave unauthenticated; downstream may return 401
       }
     }
     filterChain.doFilter(request, response);

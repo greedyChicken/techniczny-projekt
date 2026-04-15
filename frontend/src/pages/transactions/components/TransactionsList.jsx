@@ -46,7 +46,6 @@ const TransactionsList = ({
     }
 
     if (error) {
-        // Parent page shows a single Alert + Retry; avoid duplicate centered message + toast.
         return null;
     }
 

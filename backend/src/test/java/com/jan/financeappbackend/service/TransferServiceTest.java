@@ -110,8 +110,8 @@ class TransferServiceTest {
         assertEquals(100.0, result.getAmount());
         assertEquals(sourceAccount, result.getSourceAccount());
         assertEquals(targetAccount, result.getTargetAccount());
-        assertEquals(900.0, sourceAccount.getBalance()); // 1000 - 100
-        assertEquals(600.0, targetAccount.getBalance()); // 500 + 100
+        assertEquals(900.0, sourceAccount.getBalance());
+        assertEquals(600.0, targetAccount.getBalance());
         verify(accountRepository, times(1)).save(sourceAccount);
         verify(accountRepository, times(1)).save(targetAccount);
         verify(transferRepository, times(1)).save(any(Transfer.class));
@@ -173,7 +173,7 @@ class TransferServiceTest {
 
     @Test
     void createTransfer_SameAccount_ThrowsException() {
-        transferRequest.setTargetAccountId(1L); // Same as source
+        transferRequest.setTargetAccountId(1L);
 
         when(accountService.findById(1L)).thenReturn(sourceAccount);
 
@@ -186,7 +186,7 @@ class TransferServiceTest {
 
     @Test
     void createTransfer_InsufficientBalance_ThrowsException() {
-        transferRequest.setAmount(1500.0); // More than available balance
+        transferRequest.setAmount(1500.0);
 
         when(accountService.findById(1L)).thenReturn(sourceAccount);
         when(accountService.findById(2L)).thenReturn(targetAccount);

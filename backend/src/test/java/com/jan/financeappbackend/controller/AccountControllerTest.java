@@ -87,8 +87,6 @@ class AccountControllerTest {
     @Test
     @WithMockJwtUser
     void shouldGetFinancialSummary() throws Exception {
-        // Using pre-loaded data for user 1 (Main Checking + Emergency Savings)
-        // Total balance should be 2850.50 + 15000.00 = 17850.50
         postman.perform(get("/api/accounts/summary")
                         .param("userId", "1"))
                 .andDo(print())
@@ -128,16 +126,13 @@ class AccountControllerTest {
     @Test
     @WithMockJwtUser
     void shouldUpdateAccountBalance() throws Exception {
-        // Use existing account with ID 2 (Emergency Savings) instead of creating one
         Long accountId = 2L;
-        Double newBalance = 20000.0; // Update from 15000.00
+        Double newBalance = 20000.0;
 
-        // Verify initial state
         postman.perform(get("/api/accounts/" + accountId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.balance").value(15000.00));
 
-        // Update the balance
         postman.perform(patch("/api/accounts/" + accountId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(newBalance.toString()))
@@ -146,7 +141,6 @@ class AccountControllerTest {
                 .andExpect(jsonPath("$.id").value(accountId))
                 .andExpect(jsonPath("$.balance").value(newBalance));
 
-        // Verify the balance was updated
         postman.perform(get("/api/accounts/" + accountId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.balance").value(newBalance));
@@ -155,16 +149,13 @@ class AccountControllerTest {
     @Test
     @WithMockJwtUser
     void shouldUpdateAccount() throws Exception {
-        // Use existing account with ID 1 (Main Checking) instead of creating one
         Long accountId = 1L;
 
-        // Verify initial state
         postman.perform(get("/api/accounts/" + accountId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Main Checking"))
                 .andExpect(jsonPath("$.balance").value(2850.50));
 
-        // Update the account
         AccountRequest updateRequest = AccountRequest.builder()
                 .name("Updated Main Checking")
                 .balance(5000.0)
@@ -192,21 +183,17 @@ class AccountControllerTest {
     @Test
     @WithMockJwtUser
     void shouldDeleteAccount() throws Exception {
-        // Use existing account with ID 2 (Emergency Savings) instead of creating one
         Long accountId = 2L;
 
-        // Verify account exists
         postman.perform(get("/api/accounts/" + accountId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(accountId))
                 .andExpect(jsonPath("$.name").value("Emergency Savings"));
 
-        // Delete the account
         postman.perform(delete("/api/accounts/" + accountId))
                 .andDo(print())
                 .andExpect(status().isNoContent());
 
-        // Verify account is deleted
         postman.perform(get("/api/accounts/" + accountId))
                 .andExpect(status().isNotFound());
     }

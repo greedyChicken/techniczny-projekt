@@ -312,7 +312,6 @@ export const useTransactions = () => {
     };
 
     return {
-        // State
         transactions,
         accounts,
         categories,
@@ -334,7 +333,6 @@ export const useTransactions = () => {
         snackbar,
         expandedCards,
         exportingCsv,
-        // Actions
         handleOpenDialog,
         handleCloseDialog,
         handleSubmit,

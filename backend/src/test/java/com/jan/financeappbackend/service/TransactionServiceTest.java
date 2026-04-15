@@ -154,10 +154,10 @@ class TransactionServiceTest {
         Transaction result = transactionService.create(transactionRequest);
 
         assertNotNull(result);
-        assertEquals(-50.0, result.getAmount()); // Expense should be negative
-        assertEquals(950.0, testAccount.getBalance()); // 1000 - 50
+        assertEquals(-50.0, result.getAmount());
+        assertEquals(950.0, testAccount.getBalance());
         assertNotNull(testAccount.getUpdatedAt());
-        assertEquals(150.0, testBudget.getSpentAmount()); // 100 + 50
+        assertEquals(150.0, testBudget.getSpentAmount());
         verify(transactionRepository, times(1)).save(any(Transaction.class));
         verify(budgetRepository, times(1)).save(testBudget);
     }
@@ -196,7 +196,7 @@ class TransactionServiceTest {
 
     @Test
     void create_InsufficientBalance_ThrowsException() {
-        testAccount.setBalance(30.0); // Less than transaction amount
+        testAccount.setBalance(30.0);
         when(accountRepository.findById(1L)).thenReturn(Optional.of(testAccount));
         when(categoryService.findById(1L)).thenReturn(testCategory);
 
@@ -228,7 +228,7 @@ class TransactionServiceTest {
     @Test
     void edit_ChangeAmount_UpdatesBudget() {
         TransactionRequest editRequest = TransactionRequest.builder()
-                .amount(75.0) // Changed from 50 to 75
+                .amount(75.0)
                 .description("Updated grocery shopping")
                 .date(LocalDateTime.now())
                 .categoryId(1L)

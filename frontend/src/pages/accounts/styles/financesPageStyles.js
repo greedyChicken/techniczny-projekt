@@ -1,4 +1,3 @@
-/** Shared shell for Accounts and Transfers pages (matches budgets/transactions). */
 export const financesLayoutStyles = {
     pageContainer: {
         mt: { xs: 2, md: 3 },

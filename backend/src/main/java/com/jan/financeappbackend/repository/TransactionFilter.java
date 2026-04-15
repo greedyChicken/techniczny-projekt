@@ -19,10 +19,8 @@ public class TransactionFilter {
   private LocalDateTime dateFrom;
   private LocalDateTime dateTo;
 
-  /** Query alias used by the frontend (same meaning as {@link #dateFrom}). */
   private LocalDateTime startDate;
 
-  /** Query alias used by the frontend (same meaning as {@link #dateTo}). */
   private LocalDateTime endDate;
   private Long categoryId;
   private Long accountId;

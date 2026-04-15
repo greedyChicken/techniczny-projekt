@@ -1,7 +1,3 @@
-/**
- * OAuth2 authorization runs against the Spring app root (not /api).
- * VITE_API_URL is typically http://host:port/api — strip /api for OAuth redirects.
- */
 export function getAuthServerOrigin() {
     const explicit = import.meta.env.VITE_AUTH_ORIGIN;
     if (explicit) {

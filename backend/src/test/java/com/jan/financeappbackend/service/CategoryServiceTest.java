@@ -151,7 +151,6 @@ class CategoryServiceTest {
 
     @Test
     void testMultipleCategoriesForUser() {
-        // Create multiple categories
         Category category1 = Category.builder()
                 .id(3L)
                 .name("Transport")
@@ -183,8 +182,7 @@ class CategoryServiceTest {
 
         assertNotNull(result);
         assertEquals(5, result.size());
-        
-        // Verify we have both default and user categories
+
         long defaultCount = result.stream().filter(Category::isDefault).count();
         long userCount = result.stream().filter(c -> !c.isDefault()).count();
         
