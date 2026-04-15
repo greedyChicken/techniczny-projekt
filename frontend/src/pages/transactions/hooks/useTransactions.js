@@ -45,6 +45,25 @@ export const useTransactions = () => {
         severity: 'success',
     });
     const [expandedCards, setExpandedCards] = useState({});
+    const [exportingCsv, setExportingCsv] = useState(false);
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [transactionToDelete, setTransactionToDelete] = useState(null);
+
+    const buildTransactionFilterParams = () => {
+        const params = { ...filters };
+        Object.keys(params).forEach((key) => {
+            if (params[key] === '' || params[key] === null) {
+                delete params[key];
+            }
+        });
+        if (params.startDate) {
+            params.startDate = formatDateForAPI(params.startDate);
+        }
+        if (params.endDate) {
+            params.endDate = formatDateForAPI(params.endDate);
+        }
+        return params;
+    };
 
     useEffect(() => {
         fetchCategories();
@@ -83,21 +102,9 @@ export const useTransactions = () => {
             const params = {
                 page,
                 size: rowsPerPage,
-                ...filters,
+                sort: 'id',
+                ...buildTransactionFilterParams(),
             };
-
-            Object.keys(params).forEach((key) => {
-                if (params[key] === '' || params[key] === null) {
-                    delete params[key];
-                }
-            });
-
-            if (params.startDate) {
-                params.startDate = formatDateForAPI(params.startDate);
-            }
-            if (params.endDate) {
-                params.endDate = formatDateForAPI(params.endDate);
-            }
 
             const data = await transactionService.getTransactions(params);
             setTransactions(data.content);
@@ -194,19 +201,30 @@ export const useTransactions = () => {
         }
     };
 
-    const handleDeleteTransaction = async (transactionId) => {
-        if (!window.confirm('Are you sure you want to delete this transaction?')) {
-            return;
-        }
+    const confirmDeleteTransaction = (transactionId) => {
+        setTransactionToDelete(transactionId);
+        setDeleteDialogOpen(true);
+    };
+
+    const handleConfirmDeleteTransaction = async () => {
+        if (transactionToDelete == null) return;
 
         try {
-            await transactionService.deleteTransaction(transactionId);
+            await transactionService.deleteTransaction(transactionToDelete);
             showSnackbar('Transaction deleted successfully');
             fetchTransactions();
         } catch (err) {
             console.error('Error deleting transaction:', err);
             showSnackbar('Failed to delete transaction. Please try again.', 'error');
+        } finally {
+            setDeleteDialogOpen(false);
+            setTransactionToDelete(null);
         }
+    };
+
+    const handleCancelDeleteTransaction = () => {
+        setDeleteDialogOpen(false);
+        setTransactionToDelete(null);
     };
 
     const handleChangePage = (event, newPage) => {
@@ -266,8 +284,34 @@ export const useTransactions = () => {
         }));
     };
 
+    const handleExportCsv = async () => {
+        setExportingCsv(true);
+        try {
+            const { blob, filename } = await transactionService.exportTransactionsCsv(
+                buildTransactionFilterParams()
+            );
+            const url = URL.createObjectURL(blob);
+            const anchor = document.createElement('a');
+            anchor.href = url;
+            anchor.download = filename;
+            document.body.appendChild(anchor);
+            anchor.click();
+            document.body.removeChild(anchor);
+            URL.revokeObjectURL(url);
+            showSnackbar('Transactions exported to CSV');
+        } catch (err) {
+            console.error('Error exporting transactions:', err);
+            const message =
+                err instanceof Error && err.message
+                    ? err.message
+                    : 'Failed to export transactions. Please try again.';
+            showSnackbar(message, 'error');
+        } finally {
+            setExportingCsv(false);
+        }
+    };
+
     return {
-        // State
         transactions,
         accounts,
         categories,
@@ -288,11 +332,14 @@ export const useTransactions = () => {
         filtersOpen,
         snackbar,
         expandedCards,
-        // Actions
+        exportingCsv,
         handleOpenDialog,
         handleCloseDialog,
         handleSubmit,
-        handleDeleteTransaction,
+        confirmDeleteTransaction,
+        deleteDialogOpen,
+        handleConfirmDeleteTransaction,
+        handleCancelDeleteTransaction,
         handleChangePage,
         handleChangeRowsPerPage,
         setFiltersOpen,
@@ -306,6 +353,7 @@ export const useTransactions = () => {
         fetchTransactions,
         refetchAccounts: fetchAccounts,
         refetchCategories: fetchCategories,
-        showSnackbar
+        showSnackbar,
+        handleExportCsv,
     };
 };

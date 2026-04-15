@@ -1,6 +1,6 @@
 import apiClient from "./apiClient";
 
-const parseJwt = (token) => {
+export const parseJwt = (token) => {
   try {
     const [, payload] = token.split(".");
     if (!payload) return null;
@@ -18,6 +18,38 @@ const isTokenExpired = (token) => {
 };
 
 export const authService = {
+  persistSessionFromJwt(token) {
+    if (!token) return false;
+    const payload = parseJwt(token);
+    if (!payload?.userId) {
+      return false;
+    }
+    if (isTokenExpired(token)) {
+      return false;
+    }
+    let email = payload.email;
+    if (
+      !email &&
+      typeof payload.sub === "string" &&
+      payload.sub.includes("@")
+    ) {
+      email = payload.sub;
+    }
+    if (!email) {
+      return false;
+    }
+    localStorage.setItem("token", token);
+    localStorage.setItem(
+      "user",
+      JSON.stringify({
+        id: payload.userId,
+        email,
+        registeredViaGoogle: payload.registeredViaGoogle === true,
+      })
+    );
+    return true;
+  },
+
   authenticate: async (credentials) => {
     const response = await apiClient.post("/users/authenticate", credentials);
     saveUserData(response.data);
@@ -59,7 +91,14 @@ export const authService = {
 
   updateUser: async (userId, userData) => {
     const response = await apiClient.put(`/users/${userId}`, userData);
-    return response.data;
+    const data = response.data;
+    if (data?.token) {
+      localStorage.setItem("token", data.token);
+    }
+    if (data?.user) {
+      localStorage.setItem("user", JSON.stringify(data.user));
+    }
+    return data;
   },
 
   deleteUser: async (userId) => {

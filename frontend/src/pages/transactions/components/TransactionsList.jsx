@@ -1,5 +1,14 @@
 import React from "react";
-import { TablePagination, Box } from "@mui/material";
+import {
+    TablePagination,
+    Box,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+    Button,
+    Typography,
+} from "@mui/material";
 import MobileTransactionsList from './MobileTransactionsList';
 import DesktopTransactionsList from './DesktopTransactionsList';
 import LoadingState from './LoadingState';
@@ -17,6 +26,9 @@ const TransactionsList = ({
     expandedCards,
     onEdit,
     onDelete,
+    deleteDialogOpen,
+    handleConfirmDelete,
+    handleCancelDelete,
     onPageChange,
     onRowsPerPageChange,
     onToggleExpand,
@@ -34,7 +46,6 @@ const TransactionsList = ({
     }
 
     if (error) {
-        // Parent page shows a single Alert + Retry; avoid duplicate centered message + toast.
         return null;
     }
 
@@ -74,6 +85,29 @@ const TransactionsList = ({
                     getAccountName={getAccountName}
                 />
             )}
+
+            <Dialog
+                open={deleteDialogOpen}
+                onClose={handleCancelDelete}
+                fullWidth
+                maxWidth="xs"
+                PaperProps={{ sx: { borderRadius: 3 } }}
+            >
+                <DialogTitle sx={{ fontWeight: 700 }}>Delete transaction?</DialogTitle>
+                <DialogContent>
+                    <Typography variant="body2" color="text.secondary">
+                        This cannot be undone. This transaction will be removed from your list.
+                    </Typography>
+                </DialogContent>
+                <DialogActions sx={{ px: 3, pb: 2 }}>
+                    <Button onClick={handleCancelDelete} variant="outlined" color="inherit">
+                        Cancel
+                    </Button>
+                    <Button onClick={handleConfirmDelete} color="error" variant="contained">
+                        Delete
+                    </Button>
+                </DialogActions>
+            </Dialog>
 
             {isMobile ? (
                 <MobilePagination

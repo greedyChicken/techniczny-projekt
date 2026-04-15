@@ -1,5 +1,6 @@
 package com.jan.financeappbackend.service;
 
+import com.jan.financeappbackend.exception.TransferNotFound;
 import com.jan.financeappbackend.model.*;
 import com.jan.financeappbackend.repository.AccountRepository;
 import com.jan.financeappbackend.repository.TransferRepository;
@@ -12,6 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -84,5 +87,77 @@ public class TransferService {
 
   public Page<Transfer> findByUserId(Long userId, Pageable pageable) {
     return transferRepository.findByUserId(userId, pageable);
+  }
+
+  public Transfer findById(Long id) {
+    return transferRepository.findById(id).orElseThrow(TransferNotFound::new);
+  }
+
+  @Transactional
+  public Transfer updateTransfer(Long id, TransferRequest request) {
+    Transfer transfer = findById(id);
+    Account oldSource = transfer.getSourceAccount();
+    Account oldTarget = transfer.getTargetAccount();
+    double oldAmount = transfer.getAmount();
+
+    oldSource.setBalance(oldSource.getBalance() + oldAmount);
+    oldTarget.setBalance(oldTarget.getBalance() - oldAmount);
+    oldSource.setUpdatedAt(LocalDateTime.now());
+    oldTarget.setUpdatedAt(LocalDateTime.now());
+
+    Account newSource = accountService.findById(request.getSourceAccountId());
+    Account newTarget = accountService.findById(request.getTargetAccountId());
+    validateTransfer(newSource, newTarget, request.getAmount());
+
+    newSource.setBalance(newSource.getBalance() - request.getAmount());
+    newTarget.setBalance(newTarget.getBalance() + request.getAmount());
+    newSource.setUpdatedAt(LocalDateTime.now());
+    newTarget.setUpdatedAt(LocalDateTime.now());
+
+    String description =
+        request.getDescription() != null
+            ? request.getDescription()
+            : String.format(
+                "Transfer from %s to %s", newSource.getName(), newTarget.getName());
+
+    transfer.setSourceAccount(newSource);
+    transfer.setTargetAccount(newTarget);
+    transfer.setAmount(request.getAmount());
+    transfer.setDescription(description);
+    transfer.setTransferDate(
+        request.getDate() != null ? request.getDate() : transfer.getTransferDate());
+    transfer.setCurrencyCode(newSource.getCurrencyCode());
+    transfer.setUpdatedAt(LocalDateTime.now());
+
+    Set<Long> savedAccountIds = new HashSet<>();
+    persistAccountIfNeeded(oldSource, savedAccountIds);
+    persistAccountIfNeeded(oldTarget, savedAccountIds);
+    persistAccountIfNeeded(newSource, savedAccountIds);
+    persistAccountIfNeeded(newTarget, savedAccountIds);
+
+    return transferRepository.save(transfer);
+  }
+
+  private void persistAccountIfNeeded(Account account, Set<Long> savedAccountIds) {
+    if (savedAccountIds.add(account.getId())) {
+      accountRepository.save(account);
+    }
+  }
+
+  @Transactional
+  public void deleteTransfer(Long id) {
+    Transfer transfer = findById(id);
+    Account source = transfer.getSourceAccount();
+    Account target = transfer.getTargetAccount();
+    double amount = transfer.getAmount();
+
+    source.setBalance(source.getBalance() + amount);
+    target.setBalance(target.getBalance() - amount);
+    source.setUpdatedAt(LocalDateTime.now());
+    target.setUpdatedAt(LocalDateTime.now());
+
+    accountRepository.save(source);
+    accountRepository.save(target);
+    transferRepository.delete(transfer);
   }
 }

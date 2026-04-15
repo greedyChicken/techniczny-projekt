@@ -66,10 +66,6 @@ class TransferControllerTest {
     @Test
     @WithMockJwtUser
     void shouldCreateTransfer() throws Exception {
-        // Using pre-loaded accounts: ID 1 (Main Checking) and ID 2 (Emergency Savings)
-        // Both should belong to user 1
-
-        // Get initial balances
         MvcResult sourceResult = postman.perform(get("/api/accounts/1"))
                 .andExpect(status().isOk())
                 .andReturn();
@@ -105,7 +101,6 @@ class TransferControllerTest {
                 .andExpect(jsonPath("$.targetAccountName").value("Emergency Savings"))
                 .andExpect(jsonPath("$.currencyCode").value("USD"));
 
-        // Verify balances were updated
         postman.perform(get("/api/accounts/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.balance").value(initialSourceBalance - 500.0));
@@ -118,7 +113,6 @@ class TransferControllerTest {
     @Test
     @WithMockJwtUser
     void shouldNotCreateTransferBetweenDifferentUsers() throws Exception {
-        // Create an account for a different user (user 2)
         AccountRequest otherUserAccountRequest = AccountRequest.builder()
                 .name("Other User Account")
                 .balance(3000.0)
@@ -138,7 +132,6 @@ class TransferControllerTest {
 
         AccountDto otherUserAccount = objectMapper.readValue(result.getResponse().getContentAsString(), AccountDto.class);
 
-        // Try to create transfer from user 1's account to user 2's account
         TransferRequest request = TransferRequest.builder()
                 .sourceAccountId(1L)
                 .targetAccountId(otherUserAccount.getId())
@@ -163,7 +156,7 @@ class TransferControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content").isArray())
-                .andExpect(jsonPath("$.content", hasSize(4))) // Pre-loaded transfers
+                .andExpect(jsonPath("$.content", hasSize(4)))
                 .andExpect(jsonPath("$.totalElements").value(4));
     }
 
@@ -182,7 +175,6 @@ class TransferControllerTest {
     @Test
     @WithMockJwtUser
     void shouldNotGetTransfersForUnauthorizedAccount() throws Exception {
-        // Create an account for a different user (user 2)
         AccountRequest otherUserAccountRequest = AccountRequest.builder()
                 .name("Other User Account")
                 .balance(2000.0)
@@ -202,7 +194,6 @@ class TransferControllerTest {
 
         AccountDto otherUserAccount = objectMapper.readValue(result.getResponse().getContentAsString(), AccountDto.class);
 
-        // Try to get transfers for other user's account
         postman.perform(get("/api/transfers/account/" + otherUserAccount.getId()))
                 .andDo(print())
                 .andExpect(status().isForbidden());
@@ -229,7 +220,6 @@ class TransferControllerTest {
     @Test
     @WithMockJwtUser
     void shouldValidateTransferAmount() throws Exception {
-        // Test with negative amount
         TransferRequest negativeAmountRequest = TransferRequest.builder()
                 .sourceAccountId(1L)
                 .targetAccountId(2L)
@@ -246,7 +236,6 @@ class TransferControllerTest {
                 .andDo(print())
                 .andExpect(status().isBadRequest());
 
-        // Test with zero amount
         TransferRequest zeroAmountRequest = TransferRequest.builder()
                 .sourceAccountId(1L)
                 .targetAccountId(2L)
@@ -267,7 +256,6 @@ class TransferControllerTest {
     @Test
     @WithMockJwtUser
     void shouldValidateRequiredFields() throws Exception {
-        // Test without source account
         TransferRequest noSourceRequest = TransferRequest.builder()
                 .targetAccountId(2L)
                 .amount(100.0)
@@ -283,7 +271,6 @@ class TransferControllerTest {
                 .andDo(print())
                 .andExpect(status().isBadRequest());
 
-        // Test without target account
         TransferRequest noTargetRequest = TransferRequest.builder()
                 .sourceAccountId(1L)
                 .amount(100.0)
@@ -299,7 +286,6 @@ class TransferControllerTest {
                 .andDo(print())
                 .andExpect(status().isBadRequest());
 
-        // Test without amount
         TransferRequest noAmountRequest = TransferRequest.builder()
                 .sourceAccountId(1L)
                 .targetAccountId(2L)
@@ -319,7 +305,6 @@ class TransferControllerTest {
     @Test
     @WithMockJwtUser
     void shouldGetTransfersWithPagination() throws Exception {
-        // Create multiple transfers using pre-loaded accounts
         for (int i = 0; i < 20; i++) {
             TransferRequest request = TransferRequest.builder()
                     .sourceAccountId(i % 2 == 0 ? 1L : 2L)
@@ -335,8 +320,6 @@ class TransferControllerTest {
                     .andExpect(status().isCreated());
         }
 
-        // Total should be 20 new + 4 pre-loaded = 24 transfers for user 1
-        // Get first page
         postman.perform(get("/api/transfers")
                         .param("userId", "1")
                         .param("page", "0")
@@ -347,7 +330,6 @@ class TransferControllerTest {
                 .andExpect(jsonPath("$.totalElements").value(24))
                 .andExpect(jsonPath("$.totalPages").value(3));
 
-        // Get second page
         postman.perform(get("/api/transfers")
                         .param("userId", "1")
                         .param("page", "1")
@@ -355,7 +337,6 @@ class TransferControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content", hasSize(10)));
 
-        // Get third page
         postman.perform(get("/api/transfers")
                         .param("userId", "1")
                         .param("page", "2")
@@ -363,7 +344,6 @@ class TransferControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content", hasSize(4)));
 
-        // Verify sorting by transfer date (descending by default - most recent first)
         MvcResult result = postman.perform(get("/api/transfers")
                         .param("userId", "1")
                         .param("page", "0")
@@ -373,7 +353,6 @@ class TransferControllerTest {
                 .andExpect(jsonPath("$.content", hasSize(5)))
                 .andReturn();
 
-        // Verify first transfer is most recent
         String content = result.getResponse().getContentAsString();
         log.info("Pagination result: {}", content);
     }
@@ -383,7 +362,7 @@ class TransferControllerTest {
     void shouldNotCreateTransferToSameAccount() throws Exception {
         TransferRequest request = TransferRequest.builder()
                 .sourceAccountId(1L)
-                .targetAccountId(1L) // Same as source
+                .targetAccountId(1L)
                 .amount(100.0)
                 .date(LocalDateTime.now())
                 .description("Transfer to same account")
@@ -401,12 +380,10 @@ class TransferControllerTest {
     @Test
     @WithMockJwtUser
     void shouldNotCreateTransferWithInsufficientBalance() throws Exception {
-        // Attempt to transfer more than available balance
-        // Account 1 should have balance around 2850.50
         TransferRequest request = TransferRequest.builder()
                 .sourceAccountId(1L)
                 .targetAccountId(2L)
-                .amount(999999.0) // Much more than available
+                .amount(999999.0)
                 .date(LocalDateTime.now())
                 .description("Insufficient balance transfer")
                 .build();
@@ -428,7 +405,6 @@ class TransferControllerTest {
                 .targetAccountId(2L)
                 .amount(100.0)
                 .date(LocalDateTime.now())
-                // No description provided
                 .build();
 
         String json = objectMapper.writeValueAsString(request);
@@ -449,7 +425,6 @@ class TransferControllerTest {
                 .targetAccountId(2L)
                 .amount(100.0)
                 .description("Test transfer")
-                // No date provided
                 .build();
 
         String json = objectMapper.writeValueAsString(request);
@@ -463,8 +438,77 @@ class TransferControllerTest {
                 .andReturn();
 
         TransferDto transfer = objectMapper.readValue(result.getResponse().getContentAsString(), TransferDto.class);
-        // Verify date is recent (within last minute)
         LocalDateTime transferDate = transfer.getTransferDate();
         assert transferDate.isAfter(LocalDateTime.now().minusMinutes(1));
+    }
+
+    @Test
+    @WithMockJwtUser
+    void shouldUpdateTransfer() throws Exception {
+        TransferRequest create =
+                TransferRequest.builder()
+                        .sourceAccountId(1L)
+                        .targetAccountId(2L)
+                        .amount(15.0)
+                        .date(LocalDateTime.now())
+                        .description("before update")
+                        .build();
+
+        MvcResult created =
+                postman.perform(post("/api/transfers")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(create)))
+                        .andExpect(status().isCreated())
+                        .andReturn();
+
+        TransferDto createdDto =
+                objectMapper.readValue(
+                        created.getResponse().getContentAsString(), TransferDto.class);
+
+        TransferRequest update =
+                TransferRequest.builder()
+                        .sourceAccountId(1L)
+                        .targetAccountId(2L)
+                        .amount(42.0)
+                        .date(LocalDateTime.now())
+                        .description("after update")
+                        .build();
+
+        postman.perform(
+                        put("/api/transfers/" + createdDto.getId())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(update)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(createdDto.getId().intValue()))
+                .andExpect(jsonPath("$.amount").value(42.0))
+                .andExpect(jsonPath("$.description").value("after update"));
+    }
+
+    @Test
+    @WithMockJwtUser
+    void shouldDeleteTransfer() throws Exception {
+        TransferRequest create =
+                TransferRequest.builder()
+                        .sourceAccountId(1L)
+                        .targetAccountId(2L)
+                        .amount(7.0)
+                        .date(LocalDateTime.now())
+                        .description("to delete")
+                        .build();
+
+        MvcResult created =
+                postman.perform(post("/api/transfers")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(create)))
+                        .andExpect(status().isCreated())
+                        .andReturn();
+
+        TransferDto createdDto =
+                objectMapper.readValue(
+                        created.getResponse().getContentAsString(), TransferDto.class);
+
+        postman.perform(delete("/api/transfers/" + createdDto.getId()))
+                .andExpect(status().isNoContent());
     }
 }

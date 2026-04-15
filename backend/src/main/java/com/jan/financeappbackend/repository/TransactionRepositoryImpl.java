@@ -14,6 +14,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.jan.financeappbackend.model.QAccount.account;
@@ -27,15 +28,7 @@ public class TransactionRepositoryImpl implements TransactionRepositoryCustom {
 
   @Override
   public Page<Transaction> findAllWithFilters(TransactionFilter filter, Pageable pageable) {
-    QTransaction transaction = QTransaction.transaction;
-
-    JPAQuery<Transaction> query = queryFactory.selectFrom(transaction);
-
-    BooleanBuilder predicate = buildWhereClause(filter, transaction);
-
-    query.where(predicate);
-
-    applySorting(filter, query);
+    JPAQuery<Transaction> query = prepareFilteredQuery(filter);
 
     long total = query.fetchCount();
 
@@ -43,6 +36,19 @@ public class TransactionRepositoryImpl implements TransactionRepositoryCustom {
         query.offset(pageable.getOffset()).limit(pageable.getPageSize()).fetch();
 
     return new PageImpl<>(transactions, pageable, total);
+  }
+
+  @Override
+  public List<Transaction> findAllWithFiltersUnpaged(TransactionFilter filter) {
+    return prepareFilteredQuery(filter).fetch();
+  }
+
+  private JPAQuery<Transaction> prepareFilteredQuery(TransactionFilter filter) {
+    QTransaction transaction = QTransaction.transaction;
+    JPAQuery<Transaction> query = queryFactory.selectFrom(transaction);
+    query.where(buildWhereClause(filter, transaction));
+    applySorting(filter, query);
+    return query;
   }
 
   private BooleanBuilder buildWhereClause(TransactionFilter filter, QTransaction transaction) {
@@ -72,12 +78,17 @@ public class TransactionRepositoryImpl implements TransactionRepositoryCustom {
       predicate.and(transaction.description.containsIgnoreCase(filter.getDescription()));
     }
 
-    if (filter.getDateFrom() != null) {
-      predicate.and(transaction.date.goe(filter.getDateFrom()));
+    LocalDateTime effectiveDateFrom =
+        filter.getDateFrom() != null ? filter.getDateFrom() : filter.getStartDate();
+    LocalDateTime effectiveDateTo =
+        filter.getDateTo() != null ? filter.getDateTo() : filter.getEndDate();
+
+    if (effectiveDateFrom != null) {
+      predicate.and(transaction.date.goe(effectiveDateFrom));
     }
 
-    if (filter.getDateTo() != null) {
-      predicate.and(transaction.date.loe(filter.getDateTo()));
+    if (effectiveDateTo != null) {
+      predicate.and(transaction.date.loe(effectiveDateTo));
     }
 
     if (filter.getCategoryId() != null) {
@@ -121,7 +132,6 @@ public class TransactionRepositoryImpl implements TransactionRepositoryCustom {
       PathBuilder<Transaction> entityPath = new PathBuilder<>(Transaction.class, "transaction");
       query.orderBy(new OrderSpecifier(order, entityPath.get(filter.getSortBy())));
     } else {
-      // Default sort by creation date if not specified
       QTransaction transaction = QTransaction.transaction;
       query.orderBy(transaction.createdAt.desc());
     }

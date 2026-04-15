@@ -148,13 +148,11 @@ class BudgetControllerTest {
     @Test
     @WithMockJwtUser
     void shouldUpdateBudget() throws Exception {
-        // Use existing budget with ID 1 (Monthly Food Budget)
         Long budgetId = 1L;
 
-        // Update the budget
         BudgetRequest updateRequest = BudgetRequest.builder()
                 .name("Updated Food Budget Name")
-                .amount(800.0)  // Updated from 600.0
+                .amount(800.0)
                 .startDate(LocalDateTime.of(2024, 9, 1, 0, 0, 0))
                 .endDate(LocalDateTime.of(2024, 9, 30, 23, 59, 59))
                 .userId(1L)
@@ -173,7 +171,6 @@ class BudgetControllerTest {
                 .andExpect(jsonPath("$.amount").value(800.0))
                 .andExpect(jsonPath("$.categoryIds", hasSize(3)));
 
-        // Verify the update
         postman.perform(get("/api/budgets/" + budgetId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Updated Food Budget Name"))
@@ -208,7 +205,7 @@ class BudgetControllerTest {
                 .amount(1000.0)
                 .startDate(LocalDateTime.now())
                 .endDate(LocalDateTime.now().plusMonths(1))
-                .userId(999L) // Different user ID
+                .userId(999L)
                 .categoryIds(List.of())
                 .build();
 
@@ -224,8 +221,6 @@ class BudgetControllerTest {
     @Test
     @WithMockJwtUser
     void shouldGetBudgetsWithPagination() throws Exception {
-        // Create additional budgets only for testing pagination since we only have 5 total in test data
-        // and need more to properly test pagination
         for (int i = 0; i < 20; i++) {
             BudgetRequest request = BudgetRequest.builder()
                     .name("Pagination Test Budget " + i)
@@ -252,7 +247,6 @@ class BudgetControllerTest {
                 .andExpect(jsonPath("$.totalElements").value(22))
                 .andExpect(jsonPath("$.totalPages").value(3));
 
-        // Get second page
         postman.perform(get("/api/budgets")
                         .param("userId", "1")
                         .param("page", "1")
@@ -264,8 +258,6 @@ class BudgetControllerTest {
     @Test
     @WithMockJwtUser
     void shouldCalculateBudgetUsageCorrectly() throws Exception {
-        // Use existing budget with ID 1 (Monthly Food Budget)
-        // This budget has: amount=600.00, spentAmount=245.75
         Long budgetId = 1L;
 
         postman.perform(get("/api/budgets/" + budgetId))
@@ -274,8 +266,8 @@ class BudgetControllerTest {
                 .andExpect(jsonPath("$.id").value(budgetId))
                 .andExpect(jsonPath("$.amount").value(600.0))
                 .andExpect(jsonPath("$.spentAmount").value(245.75))
-                .andExpect(jsonPath("$.remainingAmount").value(354.25)) // 600.0 - 245.75
-                .andExpect(jsonPath("$.usagePercentage").value(closeTo(40.96, 0.1))) // (245.75/600.0)*100
+                .andExpect(jsonPath("$.remainingAmount").value(354.25))
+                .andExpect(jsonPath("$.usagePercentage").value(closeTo(40.96, 0.1)))
                 .andExpect(jsonPath("$.exceeded").value(false))
                 .andExpect(jsonPath("$.active").value(true));
     }

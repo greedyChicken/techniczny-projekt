@@ -8,10 +8,6 @@ import {
   TextField,
   Snackbar,
   Alert,
-  Card,
-  CardContent,
-  CardHeader,
-  Skeleton,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -20,6 +16,8 @@ import {
   InputAdornment,
   IconButton,
   Stack,
+  Paper,
+  CircularProgress,
 } from "@mui/material";
 import {
   AccountCircle as ProfileIcon,
@@ -39,18 +37,42 @@ import {
   PROFILE_SAVE_INVALID,
 } from "../utils/feedbackMessages";
 import {
-  settingsLayoutSx,
-  settingsHeroSx,
-  settingsHeroSubtitleSx,
-  settingsCardSx,
-  settingsDangerCardSx,
-  settingsContentStackSx,
-  settingsTwoColumnGridSx,
+  settingsPageContainerSx,
+  settingsAccountPaperSx,
+  settingsDangerPaperSx,
 } from "../styles/settingsPageStyles";
+import { budgetPageHeaderStyles } from "./budgets/styles/budgetStyles";
+
+const SectionIntro = ({ icon: Icon, title, description }) => (
+  <Stack direction="row" spacing={2} alignItems="flex-start">
+    <Box
+      sx={{
+        width: 40,
+        height: 40,
+        borderRadius: 2,
+        display: "grid",
+        placeItems: "center",
+        bgcolor: "primary.main",
+        color: "primary.contrastText",
+        flexShrink: 0,
+      }}
+    >
+      <Icon fontSize="small" />
+    </Box>
+    <Box sx={{ minWidth: 0, pt: 0.25 }}>
+      <Typography variant="subtitle1" fontWeight={700} component="h2">
+        {title}
+      </Typography>
+      <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+        {description}
+      </Typography>
+    </Box>
+  </Stack>
+);
 
 const SettingsPage = () => {
   const { user, logout, updateUserContext } = useAuth();
-  const [loading, setLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [profileData, setProfileData] = useState({
     email: "",
     currentPassword: "",
@@ -77,16 +99,17 @@ const SettingsPage = () => {
         email: user.email || "",
       }));
     }
-    setLoading(false);
   }, [user]);
 
   const validateForm = () => {
     const newErrors = {};
 
-    if (!profileData.email) {
-      newErrors.email = "Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(profileData.email)) {
-      newErrors.email = "Enter a valid email address";
+    if (!user?.registeredViaGoogle) {
+      if (!profileData.email) {
+        newErrors.email = "Email is required";
+      } else if (!/\S+@\S+\.\S+/.test(profileData.email)) {
+        newErrors.email = "Enter a valid email address";
+      }
     }
 
     if (profileData.currentPassword || profileData.newPassword || profileData.confirmPassword) {
@@ -130,25 +153,30 @@ const SettingsPage = () => {
     }));
   };
 
-  const handleSaveProfile = async () => {
+  const handleSaveProfile = async (e) => {
+    e.preventDefault();
     if (!validateForm()) {
       return;
     }
 
-    setLoading(true);
+    setIsSaving(true);
 
     try {
-      const updateData = {
-        email: profileData.email,
-      };
-
+      const updateData = {};
+      if (!user.registeredViaGoogle) {
+        updateData.email = profileData.email;
+      }
       if (profileData.newPassword) {
         updateData.password = profileData.newPassword;
       }
 
       const response = await authService.updateUser(user.id, updateData);
 
-      updateUserContext({ ...user, email: response.email });
+      if (response.user) {
+        updateUserContext(response.user);
+      } else {
+        updateUserContext({ ...user, email: profileData.email });
+      }
 
       setProfileData((prev) => ({
         ...prev,
@@ -163,12 +191,13 @@ const SettingsPage = () => {
       if (error.response?.status === 403) {
         showSnackbar(PROFILE_SAVE_FORBIDDEN, "error");
       } else if (error.response?.status === 400) {
-        showSnackbar(PROFILE_SAVE_INVALID, "error");
+        const apiMsg = error.response?.data?.message;
+        showSnackbar(apiMsg || PROFILE_SAVE_INVALID, "error");
       } else {
         showSnackbar(PROFILE_SAVE_FAILED, "error");
       }
     } finally {
-      setLoading(false);
+      setIsSaving(false);
     }
   };
 
@@ -208,182 +237,193 @@ const SettingsPage = () => {
     setSnackbar((prev) => ({ ...prev, open: false }));
   };
 
-  const cardHeaderAction = (
-    <Button
-      variant="contained"
-      startIcon={<SaveIcon />}
-      disabled={loading}
-      onClick={handleSaveProfile}
-    >
-      Save
-    </Button>
-  );
-
   return (
-    <Container maxWidth="md">
-      <Box sx={settingsLayoutSx}>
+    <Container maxWidth="lg">
+      <Box sx={settingsPageContainerSx}>
         <Stack spacing={3}>
-          <Box sx={settingsHeroSx}>
+          <Box sx={budgetPageHeaderStyles.wrapper}>
             <Typography variant="h4" gutterBottom fontWeight={700}>
               Settings
             </Typography>
-            <Typography variant="body2" sx={settingsHeroSubtitleSx}>
-              Update your email and password. Changes apply to your next sign-in.
+            <Typography variant="body2" sx={budgetPageHeaderStyles.subtitle}>
+              Update your account email and password in one place. If you change email or password, your
+              session refreshes automatically.
             </Typography>
           </Box>
 
-          <Box sx={settingsContentStackSx}>
-            <Box sx={settingsTwoColumnGridSx}>
-              <Card sx={settingsCardSx} elevation={0}>
-                <CardHeader
+          <Paper component="section" elevation={0} sx={settingsAccountPaperSx}>
+            <Box
+              component="form"
+              noValidate
+              onSubmit={handleSaveProfile}
+              sx={{ display: "flex", flexDirection: "column", gap: 3 }}
+            >
+              <Stack spacing={2.5}>
+                <SectionIntro
+                  icon={ProfileIcon}
                   title="Profile"
-                  titleTypographyProps={{ fontWeight: 700 }}
-                  avatar={<ProfileIcon color="primary" />}
-                  action={cardHeaderAction}
-                  sx={{ flexWrap: "wrap", gap: 1, "& .MuiCardHeader-action": { m: 0 } }}
+                  description="Email used to sign in and identify your account."
                 />
-                <Divider />
-                <CardContent>
-                  {loading ? (
-                    <>
-                      <Skeleton height={56} animation="wave" sx={{ mb: 1 }} />
-                      <Skeleton height={56} animation="wave" />
-                    </>
-                  ) : (
-                    <Box component="form" noValidate>
-                      <TextField
-                        fullWidth
-                        label="Email"
-                        name="email"
-                        value={profileData.email}
-                        onChange={handleProfileChange}
-                        margin="normal"
-                        type="email"
-                        error={!!errors.email}
-                        helperText={errors.email}
-                      />
-                    </Box>
-                  )}
-                </CardContent>
-              </Card>
-
-              <Card sx={settingsCardSx} elevation={0}>
-                <CardHeader
-                  title="Security"
-                  titleTypographyProps={{ fontWeight: 700 }}
-                  avatar={<SecurityIcon color="primary" />}
+                <TextField
+                  fullWidth
+                  label="Email"
+                  name="email"
+                  value={profileData.email}
+                  onChange={handleProfileChange}
+                  type="email"
+                  disabled={Boolean(user?.registeredViaGoogle)}
+                  error={!!errors.email}
+                  helperText={
+                    errors.email ||
+                    (user?.registeredViaGoogle
+                      ? "Google sign-in: email stays in sync with your Google account."
+                      : undefined)
+                  }
                 />
-                <Divider />
-                <CardContent>
-                  {loading ? (
-                    <>
-                      <Skeleton height={56} animation="wave" sx={{ mb: 1 }} />
-                      <Skeleton height={56} animation="wave" sx={{ mb: 1 }} />
-                      <Skeleton height={56} animation="wave" />
-                    </>
-                  ) : (
-                    <Box component="form" noValidate>
-                      <TextField
-                        fullWidth
-                        label="Current password"
-                        name="currentPassword"
-                        value={profileData.currentPassword}
-                        onChange={handleProfileChange}
-                        margin="normal"
-                        type={showPasswords.current ? "text" : "password"}
-                        error={!!errors.currentPassword}
-                        helperText={errors.currentPassword}
-                        InputProps={{
-                          endAdornment: (
-                            <InputAdornment position="end">
-                              <IconButton
-                                onClick={() => handleTogglePasswordVisibility("current")}
-                                edge="end"
-                                aria-label="Toggle current password visibility"
-                              >
-                                {showPasswords.current ? <VisibilityOff /> : <Visibility />}
-                              </IconButton>
-                            </InputAdornment>
-                          ),
-                        }}
-                      />
-                      <TextField
-                        fullWidth
-                        label="New password"
-                        name="newPassword"
-                        value={profileData.newPassword}
-                        onChange={handleProfileChange}
-                        margin="normal"
-                        type={showPasswords.new ? "text" : "password"}
-                        error={!!errors.newPassword}
-                        helperText={errors.newPassword}
-                        InputProps={{
-                          endAdornment: (
-                            <InputAdornment position="end">
-                              <IconButton
-                                onClick={() => handleTogglePasswordVisibility("new")}
-                                edge="end"
-                                aria-label="Toggle new password visibility"
-                              >
-                                {showPasswords.new ? <VisibilityOff /> : <Visibility />}
-                              </IconButton>
-                            </InputAdornment>
-                          ),
-                        }}
-                      />
-                      <TextField
-                        fullWidth
-                        label="Confirm new password"
-                        name="confirmPassword"
-                        value={profileData.confirmPassword}
-                        onChange={handleProfileChange}
-                        margin="normal"
-                        type={showPasswords.confirm ? "text" : "password"}
-                        error={!!errors.confirmPassword}
-                        helperText={errors.confirmPassword}
-                        InputProps={{
-                          endAdornment: (
-                            <InputAdornment position="end">
-                              <IconButton
-                                onClick={() => handleTogglePasswordVisibility("confirm")}
-                                edge="end"
-                                aria-label="Toggle confirm password visibility"
-                              >
-                                {showPasswords.confirm ? <VisibilityOff /> : <Visibility />}
-                              </IconButton>
-                            </InputAdornment>
-                          ),
-                        }}
-                      />
-                    </Box>
-                  )}
-                </CardContent>
-              </Card>
-            </Box>
+              </Stack>
 
-            <Card sx={settingsDangerCardSx} elevation={0}>
-              <CardHeader
-                title="Danger zone"
-                titleTypographyProps={{ fontWeight: 700, color: "error" }}
-                avatar={<DeleteIcon color="error" />}
-              />
               <Divider />
-              <CardContent>
-                <Typography variant="body2" color="text.secondary" gutterBottom>
-                  Deleting your account cannot be undone. All associated data will be removed.
+
+              <Stack spacing={2.5}>
+                <SectionIntro
+                  icon={SecurityIcon}
+                  title="Security"
+                  description="Change your password anytime. Leave password fields empty if you only update email."
+                />
+                <TextField
+                  fullWidth
+                  label="Current password"
+                  name="currentPassword"
+                  value={profileData.currentPassword}
+                  onChange={handleProfileChange}
+                  type={showPasswords.current ? "text" : "password"}
+                  error={!!errors.currentPassword}
+                  helperText={errors.currentPassword}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          onClick={() => handleTogglePasswordVisibility("current")}
+                          edge="end"
+                          aria-label="Toggle current password visibility"
+                        >
+                          {showPasswords.current ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+                <TextField
+                  fullWidth
+                  label="New password"
+                  name="newPassword"
+                  value={profileData.newPassword}
+                  onChange={handleProfileChange}
+                  type={showPasswords.new ? "text" : "password"}
+                  error={!!errors.newPassword}
+                  helperText={errors.newPassword}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          onClick={() => handleTogglePasswordVisibility("new")}
+                          edge="end"
+                          aria-label="Toggle new password visibility"
+                        >
+                          {showPasswords.new ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+                <TextField
+                  fullWidth
+                  label="Confirm new password"
+                  name="confirmPassword"
+                  value={profileData.confirmPassword}
+                  onChange={handleProfileChange}
+                  type={showPasswords.confirm ? "text" : "password"}
+                  error={!!errors.confirmPassword}
+                  helperText={errors.confirmPassword}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          onClick={() => handleTogglePasswordVisibility("confirm")}
+                          edge="end"
+                          aria-label="Toggle confirm password visibility"
+                        >
+                          {showPasswords.confirm ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              </Stack>
+
+              <Divider />
+
+              <Stack
+                direction={{ xs: "column-reverse", sm: "row" }}
+                spacing={2}
+                justifyContent="space-between"
+                alignItems={{ xs: "stretch", sm: "center" }}
+              >
+                <Typography variant="body2" color="text.secondary" sx={{ textAlign: { xs: "center", sm: "left" } }}>
+                  Saves profile and security changes together.
                 </Typography>
                 <Button
-                  variant="outlined"
-                  color="error"
-                  startIcon={<DeleteIcon />}
-                  onClick={handleOpenDeleteDialog}
-                  sx={{ mt: 2 }}
+                  type="submit"
+                  variant="contained"
+                  size="large"
+                  disabled={isSaving}
+                  startIcon={<SaveIcon />}
+                  endIcon={isSaving ? <CircularProgress size={18} color="inherit" /> : null}
+                  sx={{ minWidth: { sm: 200 } }}
                 >
-                  Delete account
+                  {isSaving ? "Saving…" : "Save changes"}
                 </Button>
-              </CardContent>
-            </Card>
-          </Box>
+              </Stack>
+            </Box>
+          </Paper>
+
+          <Paper component="section" elevation={0} sx={settingsDangerPaperSx}>
+            <Stack spacing={2}>
+              <Stack direction="row" spacing={2} alignItems="flex-start">
+                <Box
+                  sx={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: 2,
+                    display: "grid",
+                    placeItems: "center",
+                    bgcolor: "error.main",
+                    color: "error.contrastText",
+                    flexShrink: 0,
+                  }}
+                >
+                  <DeleteIcon fontSize="small" />
+                </Box>
+                <Box sx={{ minWidth: 0 }}>
+                  <Typography variant="subtitle1" fontWeight={700} color="error.main" component="h2">
+                    Danger zone
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                    Deleting your account cannot be undone. All associated data will be removed.
+                  </Typography>
+                </Box>
+              </Stack>
+              <Button
+                variant="outlined"
+                color="error"
+                startIcon={<DeleteIcon />}
+                onClick={handleOpenDeleteDialog}
+                sx={{ alignSelf: { xs: "stretch", sm: "flex-start" } }}
+              >
+                Delete account
+              </Button>
+            </Stack>
+          </Paper>
         </Stack>
       </Box>
 

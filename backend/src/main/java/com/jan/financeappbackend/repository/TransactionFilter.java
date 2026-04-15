@@ -18,6 +18,10 @@ public class TransactionFilter {
   private String description;
   private LocalDateTime dateFrom;
   private LocalDateTime dateTo;
+
+  private LocalDateTime startDate;
+
+  private LocalDateTime endDate;
   private Long categoryId;
   private Long accountId;
   private Long budgetId;

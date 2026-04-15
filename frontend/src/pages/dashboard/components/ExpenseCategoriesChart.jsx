@@ -39,7 +39,6 @@ const ExpenseCategoriesChart = () => {
         fetchCategoryData();
     }, [showLoading, hideLoading, showError]);
 
-    /** Pie + bottom legend; fixed 300px overflowed when many categories (long formatter lines). */
     const chartBlockHeight = useMemo(() => {
         if (loading || categoryData.length === 0) return 300;
         return Math.min(640, Math.max(300, 200 + categoryData.length * 42));

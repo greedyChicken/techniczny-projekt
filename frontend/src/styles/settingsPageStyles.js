@@ -1,47 +1,16 @@
-export const settingsLayoutSx = {
-    mt: { xs: 2, md: 3 },
-    mb: { xs: 2, md: 4 },
+import { budgetLayoutStyles } from "../pages/budgets/styles/budgetStyles";
+
+export const settingsPageContainerSx = budgetLayoutStyles.pageContainer;
+
+export const settingsAccountPaperSx = {
+  ...budgetLayoutStyles.sectionCard,
+  width: "100%",
 };
 
-/** Matches dashboard `contentStack`: vertical rhythm without MUI Grid spacing gutters. */
-export const settingsContentStackSx = {
-    display: "flex",
-    flexDirection: "column",
-    gap: 3,
-};
-
-export const settingsTwoColumnGridSx = {
-    display: "grid",
-    gridTemplateColumns: { xs: "1fr", md: "repeat(2, 1fr)" },
-    gap: 3,
-};
-
-export const settingsHeroSx = {
-    p: { xs: 2, md: 3 },
-    borderRadius: 3,
-    color: "common.white",
-    background:
-        "linear-gradient(135deg, rgba(37,99,235,1) 0%, rgba(124,58,237,0.95) 100%)",
-    boxShadow: "0 18px 36px rgba(37, 99, 235, 0.25)",
-};
-
-export const settingsHeroSubtitleSx = {
-    opacity: 0.9,
-    maxWidth: 640,
-};
-
-export const settingsCardSx = {
-    borderRadius: 3,
-    border: "1px solid",
-    borderColor: "divider",
-    boxShadow: "0 10px 24px rgba(15, 23, 42, 0.06)",
-    overflow: "hidden",
-};
-
-export const settingsDangerCardSx = {
-    borderRadius: 3,
-    border: "1px solid",
-    borderColor: "error.light",
-    boxShadow: "0 10px 24px rgba(239, 68, 68, 0.08)",
-    bgcolor: "rgba(239, 68, 68, 0.03)",
+export const settingsDangerPaperSx = {
+  ...budgetLayoutStyles.sectionCard,
+  width: "100%",
+  borderColor: "error.light",
+  boxShadow: "0 10px 24px rgba(239, 68, 68, 0.08)",
+  bgcolor: "rgba(239, 68, 68, 0.03)",
 };

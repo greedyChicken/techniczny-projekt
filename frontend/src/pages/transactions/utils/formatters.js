@@ -11,7 +11,6 @@ export const formatDate = (dateString) => {
 
 const pad2 = (n) => String(n).padStart(2, '0');
 
-/** Local calendar date YYYY-MM-DD for query params (avoids UTC day shift from toISOString). */
 export const formatDateForAPI = (date) => {
     if (!date || !(date instanceof Date) || Number.isNaN(date.getTime())) {
         return '';
@@ -19,7 +18,6 @@ export const formatDateForAPI = (date) => {
     return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`;
 };
 
-/** Local wall-clock YYYY-MM-DDTHH:mm:ss for LocalDateTime JSON (avoids UTC shift from toISOString). */
 export const formatDateTimeForAPI = (date) => {
     if (!date || !(date instanceof Date) || Number.isNaN(date.getTime())) {
         return '';

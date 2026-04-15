@@ -190,9 +190,12 @@ const AccountsPage = () => {
                 open={openTransferDialog}
                 onClose={() => setOpenTransferDialog(false)}
                 accounts={accounts}
-                onSuccess={() => {
+                editingTransfer={null}
+                onSuccess={(isUpdate) => {
                     refetch();
-                    showSnackbar("Transfer completed successfully");
+                    showSnackbar(
+                        isUpdate ? "Transfer updated successfully" : "Transfer completed successfully"
+                    );
                 }}
                 showSnackbar={showSnackbar}
             />

@@ -32,6 +32,18 @@ export const transactionPageHeaderStyles = {
         opacity: 0.9,
         maxWidth: "720px",
     },
+    outlinedActionButtonSx: {
+        borderColor: "rgba(255,255,255,0.5)",
+        color: "common.white",
+        "&:hover": {
+            borderColor: "common.white",
+            bgcolor: "rgba(255,255,255,0.12)",
+        },
+        "&.Mui-disabled": {
+            borderColor: "rgba(255,255,255,0.28)",
+            color: "rgba(255,255,255,0.55)",
+        },
+    },
 };
 
 export const transactionTableContainerSx = {

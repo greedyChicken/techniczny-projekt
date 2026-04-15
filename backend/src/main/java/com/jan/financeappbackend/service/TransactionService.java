@@ -33,6 +33,11 @@ public class TransactionService {
     return transactionRepositoryImpl.findAllWithFilters(filter, pageable);
   }
 
+  public byte[] exportTransactionsToCsv(TransactionFilter filter) {
+    List<Transaction> transactions = transactionRepositoryImpl.findAllWithFiltersUnpaged(filter);
+    return TransactionCsvExporter.toCsvBytes(transactions);
+  }
+
   public Transaction findById(Long id) {
     return transactionRepository
         .findById(id)

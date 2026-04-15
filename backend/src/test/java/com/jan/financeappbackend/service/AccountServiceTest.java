@@ -141,7 +141,6 @@ class AccountServiceTest {
 
     @Test
     void deleteAccount_WithExpenseTransactions_UpdatesBudgets() {
-        // Setup
         Long accountId = 1L;
         Long userId = 1L;
         testAccount.getUser().setId(userId);
@@ -175,11 +174,9 @@ class AccountServiceTest {
                 .thenReturn(List.of(budget));
         when(budgetRepository.findByIdsWithCategories(anyList())).thenReturn(List.of(budget));
 
-        // Execute
         accountService.deleteAccount(accountId);
 
-        // Verify
-        assertEquals(0.0, budget.getSpentAmount()); // 100 - 100 = 0
+        assertEquals(0.0, budget.getSpentAmount());
         verify(accountRepository, times(1)).save(testAccount);
         verify(budgetRepository, times(1)).saveAll(anyList());
     }

@@ -17,4 +17,13 @@ export const transferService = {
         const response = await apiClient.post(`/transfers`, transferRequest);
         return response.data;
     },
+
+    update: async (id, transferRequest) => {
+        const response = await apiClient.put(`/transfers/${id}`, transferRequest);
+        return response.data;
+    },
+
+    deleteTransfer: async (id) => {
+        await apiClient.delete(`/transfers/${id}`);
+    },
 };

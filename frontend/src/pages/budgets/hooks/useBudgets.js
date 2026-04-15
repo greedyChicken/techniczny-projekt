@@ -213,8 +213,6 @@ export const useBudgets = () => {
         setBudgetToDelete(null);
     };
 
-
-    // Calculate summary values
     const totalBudget = budgets.reduce((sum, budget) => sum + budget.amount, 0);
     const totalSpent = budgets.reduce((sum, budget) => sum + (budget.spentAmount || 0), 0);
     const overBudgetCount = budgets.filter(b => (b.spentAmount || 0) > b.amount).length;
@@ -233,7 +231,6 @@ export const useBudgets = () => {
         handleOpenDialog,
         handleCloseDialog,
         handleSubmit,
-        // handleDelete,
         handleInputChange,
         handleStartDateChange,
         handleEndDateChange,

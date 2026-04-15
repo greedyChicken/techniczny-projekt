@@ -38,8 +38,6 @@ public class WithMockJwtUserSecurityContextFactory implements WithSecurityContex
         user.setEmail(annotation.username());
         user.setRole(Role.valueOf(annotation.role()));
 
-        // Set other required fields for UserDetails implementation
-        // Adjust these based on your User entity
         return user;
     }
 }

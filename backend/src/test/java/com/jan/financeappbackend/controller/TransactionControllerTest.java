@@ -6,6 +6,7 @@ import com.jan.financeappbackend.FinanceAppBackendApplication;
 import com.jan.financeappbackend.jwt.WithMockJwtUser;
 import com.jan.financeappbackend.request.TransactionRequest;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -14,6 +15,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -147,7 +149,6 @@ class TransactionControllerTest {
     @Test
     @WithMockJwtUser
     void shouldDeleteTransaction() throws Exception {
-        // Expense delete restores balance; deleting income tx 2 would make account 1 negative with seed balances.
         var transactionId = 1;
 
         postman.perform(get("/api/transactions/" + transactionId))
@@ -173,8 +174,10 @@ class TransactionControllerTest {
     @Test
     @WithMockJwtUser
     void shouldGetTransactionsWithFilters() throws Exception {
-        LocalDateTime startDate = LocalDateTime.parse("2024-01-01 00:00:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        LocalDateTime endDate = LocalDateTime.parse("2024-01-31 23:59:59", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        LocalDateTime startDate =
+                LocalDateTime.parse("2024-09-01 00:00:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        LocalDateTime endDate =
+                LocalDateTime.parse("2024-09-30 23:59:59", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
         postman.perform(get("/api/transactions")
                         .param("userId", "1")
@@ -193,6 +196,49 @@ class TransactionControllerTest {
     @WithMockJwtUser
     void shouldNotAccessOtherUsersTransactions() throws Exception {
         postman.perform(get("/api/transactions")
+                        .param("userId", "2"))
+                .andDo(print())
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockJwtUser
+    void shouldExportTransactionsAsCsv() throws Exception {
+        byte[] body = postman.perform(get("/api/transactions/export"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", containsString("text/csv")))
+                .andExpect(header().string("Content-Disposition", containsString("attachment")))
+                .andReturn()
+                .getResponse()
+                .getContentAsByteArray();
+
+        String csv = new String(body, StandardCharsets.UTF_8);
+        Assertions.assertTrue(csv.contains("id,date,amount,description,type"));
+        Assertions.assertTrue(csv.contains("Weekly grocery shopping"));
+    }
+
+    @Test
+    @WithMockJwtUser
+    void shouldExportFilteredTransactionsAsCsv() throws Exception {
+        byte[] body = postman.perform(get("/api/transactions/export")
+                        .param("userId", "1")
+                        .param("accountId", "1"))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsByteArray();
+
+        String csv = new String(body, StandardCharsets.UTF_8);
+        Assertions.assertTrue(csv.contains("Weekly grocery shopping"));
+        Assertions.assertTrue(csv.contains("Monthly salary deposit"));
+        Assertions.assertFalse(csv.contains("Dinner at Italian restaurant"));
+    }
+
+    @Test
+    @WithMockJwtUser
+    void shouldNotExportOtherUsersTransactions() throws Exception {
+        postman.perform(get("/api/transactions/export")
                         .param("userId", "2"))
                 .andDo(print())
                 .andExpect(status().isForbidden());

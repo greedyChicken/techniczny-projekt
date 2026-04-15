@@ -1,6 +1,7 @@
 package com.jan.financeappbackend.security;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -8,6 +9,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -15,7 +17,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
 
-import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
+import static org.springframework.security.config.http.SessionCreationPolicy.IF_REQUIRED;
 
 @Configuration
 @EnableWebSecurity
@@ -24,17 +26,35 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 public class SecurityFilterChainConfig {
   private final AuthenticationProvider authenticationProvider;
   private final JwtAuthenticationFilter jwtAuthenticationFilter;
+  private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
+  private final OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
+  private final ObjectProvider<ClientRegistrationRepository> clientRegistrationRepository;
 
-  private static final String[] PUBLIC_ENDPOINTS = {"/api/users", "/api/users/authenticate"};
+  private static final String[] PUBLIC_ENDPOINTS = {
+    "/api/users",
+    "/api/users/authenticate",
+    "/oauth2/**",
+    "/login/oauth2/**"
+  };
 
   @Bean
   public org.springframework.security.web.SecurityFilterChain securityFilterChain(HttpSecurity http)
       throws Exception {
     http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
-        .csrf(AbstractHttpConfigurer::disable)
-        .authorizeHttpRequests(
+        .csrf(AbstractHttpConfigurer::disable);
+
+    ClientRegistrationRepository oauthClients = clientRegistrationRepository.getIfAvailable();
+    if (oauthClients != null) {
+      http.oauth2Login(
+          oauth2 ->
+              oauth2
+                  .successHandler(oAuth2AuthenticationSuccessHandler)
+                  .failureHandler(oAuth2AuthenticationFailureHandler));
+    }
+
+    http.authorizeHttpRequests(
             req -> req.requestMatchers(PUBLIC_ENDPOINTS).permitAll().anyRequest().authenticated())
-        .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
+        .sessionManagement(session -> session.sessionCreationPolicy(IF_REQUIRED))
         .authenticationProvider(authenticationProvider)
         .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 

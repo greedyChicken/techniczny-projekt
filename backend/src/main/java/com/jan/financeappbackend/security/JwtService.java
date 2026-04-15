@@ -19,9 +19,9 @@ import java.util.function.Function;
 public class JwtService {
   private static final String SECRET_KEY =
       "21332f71525150484659392b5242677d58597e2734475c2054592c6754";
-  private static final long JWT_EXPIRATION = 86400000; // 24 hours
+  private static final long JWT_EXPIRATION = 86400000;
 
-  public String extractUsername(String token) {
+  public String extractSubject(String token) {
     return extractClaim(token, Claims::getSubject);
   }
 
@@ -31,6 +31,10 @@ public class JwtService {
 
   public String extractRole(String token) {
     return extractClaim(token, claims -> claims.get("role", String.class));
+  }
+
+  public String extractEmailClaim(String token) {
+    return extractClaim(token, claims -> claims.get("email", String.class));
   }
 
   private Claims extractAllClaims(String token) {
@@ -52,15 +56,24 @@ public class JwtService {
     if (userDetails instanceof User user) {
       extraClaims.put("userId", user.getId());
       extraClaims.put("role", user.getRole().name());
+      extraClaims.put("email", user.getEmail());
+      extraClaims.put("registeredViaGoogle", user.isRegisteredViaGoogle());
     }
 
     return generateToken(extraClaims, userDetails);
   }
 
   public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
+    String subject;
+    if (userDetails instanceof User user) {
+      subject = String.valueOf(user.getId());
+    } else {
+      subject = userDetails.getUsername();
+    }
+
     return Jwts.builder()
         .setClaims(extraClaims)
-        .setSubject(userDetails.getUsername())
+        .setSubject(subject)
         .setIssuedAt(new Date(System.currentTimeMillis()))
         .setExpiration(new Date(System.currentTimeMillis() + JWT_EXPIRATION))
         .signWith(getSignInKey(), SignatureAlgorithm.HS256)
@@ -68,8 +81,21 @@ public class JwtService {
   }
 
   public boolean isTokenValid(String token, UserDetails userDetails) {
-    final String username = extractUsername(token);
-    return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
+    if (!(userDetails instanceof User user)) {
+      return false;
+    }
+    String subject = extractSubject(token);
+    try {
+      long idFromToken = Long.parseLong(subject);
+      if (idFromToken != user.getId()) {
+        return false;
+      }
+    } catch (NumberFormatException e) {
+      if (!subject.equals(user.getEmail())) {
+        return false;
+      }
+    }
+    return !isTokenExpired(token);
   }
 
   private boolean isTokenExpired(String token) {

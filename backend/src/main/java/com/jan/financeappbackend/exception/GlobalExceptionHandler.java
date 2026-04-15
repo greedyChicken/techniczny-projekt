@@ -36,6 +36,12 @@ public class GlobalExceptionHandler {
     return createErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage(), request);
   }
 
+  @ExceptionHandler(TransferNotFound.class)
+  public ResponseEntity<ErrorMessage> handleTransferNotFound(TransferNotFound ex, HttpServletRequest request) {
+    log.error("Transfer not found: {}", ex.getMessage());
+    return createErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage(), request);
+  }
+
   @ExceptionHandler(UserNotFound.class)
   public ResponseEntity<ErrorMessage> handleUserNotFound(UserNotFound ex, HttpServletRequest request) {
     log.error("User not found: {}", ex.getMessage());
